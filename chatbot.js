@@ -5,11 +5,14 @@
 
 import { supabase } from './supabase.js';
 
-// ─── 🔗 GANTI DENGAN URL VERCEL LO ───────────────────────────────────────
-// Contoh: 'https://backend-eka.vercel.app/api/chat'
-// PASTIKAN UJUNGNYA ADA /api/chat
+// ─── 🔗 SETTINGAN UTAMA LO DI SINI ───────────────────────────────────────
 const BACKEND_URL = 'https://backend-chatbot-self.vercel.app/api/chat';
-// ──────────────────────────────────────────────────────────────────────────
+
+// Masukin path/link foto lo di sini! 
+// Pastiin fotonya rasio 1:1 (Kotak) biar pas jadi bulet. Resolusi 128x128px atau 256x256px.
+// Contoh lokal: './assets/foto-eka-bot.png' atau link: 'https://domainlo.com/foto.jpg'
+const BOT_PHOTO_URL = './assets/bot_avatar.png'; 
+// ─────────────────────────────────────────────────────────────────────────
 
 const SUGGESTIONS = [
   'Skill apa aja yang kamu punya?',
@@ -18,7 +21,7 @@ const SUGGESTIONS = [
   'Gimana cara hire / kontak kamu?',
 ];
 
-// ── STYLES (Tetap sama seperti aslinya) ──────────────────────────────────
+// ── STYLES ───────────────────────────────────────────────────────────────
 const STYLES = `
   :root { --cb-accent: #0563bb; --cb-accent-dark: #0452a0; --cb-bg: #ffffff; --cb-surface: #f8f9fa; --cb-border: #e9ecef; --cb-text: #272829; --cb-text-muted: #6b7c8e; --cb-radius: 18px; --cb-shadow: 0 8px 40px rgba(5,99,187,0.18); --cb-font: "Poppins", system-ui, sans-serif; --cb-font-body: "Roboto", system-ui, sans-serif; }
   #cb-bubble { position: fixed; bottom: 28px; right: 28px; width: 56px; height: 56px; border-radius: 50%; background: var(--cb-accent); color: #fff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 6px 24px rgba(5,99,187,0.38); z-index: 9999; transition: transform 0.25s, background 0.2s; animation: cb-popIn 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards; }
@@ -83,7 +86,9 @@ class EkaChatbot {
     this.isLoading = false;
     this.history   = [];
     this.context   = null;
-    this.avatarUrl = null;
+    
+    // Set Avatar langsung dari konfig atas
+    this.avatarUrl = BOT_PHOTO_URL;
     this.systemPrompt = '';
 
     this._injectStyles();
@@ -109,7 +114,9 @@ class EkaChatbot {
       <button id="cb-bubble" aria-label="Buka chatbot"><i class="fas fa-comment-dots cb-icon-chat"></i><i class="fas fa-times cb-icon-close"></i></button>
       <div id="cb-window" role="dialog" aria-label="Chatbot Eka Danar">
         <div class="cb-header">
-          <div class="cb-avatar" id="cb-header-avatar">D</div>
+          <div class="cb-avatar" id="cb-header-avatar">
+            ${this.avatarUrl ? `<img src="${this.avatarUrl}" alt="Eka Bot">` : 'D'}
+          </div>
           <div class="cb-header-info">
             <div class="cb-header-name">Danar AI</div>
             <div class="cb-header-status"><span class="cb-status-dot"></span>Online</div>
@@ -174,11 +181,14 @@ class EkaChatbot {
         certifications: certRes.data  || [],
       };
 
-      if (this.context.profile.photo_url) {
+      // Kalau lu naruh foto di database Supabase (photo_url) dan BOT_PHOTO_URL kosong,
+      // dia bakal prioritasin foto dari database lu
+      if (!this.avatarUrl && this.context.profile.photo_url) {
         this.avatarUrl = this.context.profile.photo_url;
         const el = document.getElementById('cb-header-avatar');
         if (el) el.innerHTML = `<img src="${this.avatarUrl}" alt="Eka">`;
       }
+      
       this.systemPrompt = this._buildSystemPrompt();
     } catch (err) {
       console.warn('Chatbot: gagal load context', err);
@@ -218,20 +228,13 @@ class EkaChatbot {
     const typingId = this._addTyping();
 
     try {
-      const contents = [
-        { role: 'user',  parts: [{ text: this.systemPrompt }] },
-        { role: 'model', parts: [{ text: 'Siap! Gw akan menjawab sebagai Eka Danar.' }] },
-        ...this.history,
-      ];
+      // Karena system prompt udh di-handle server.js, kita bisa cukup kirim history aja
+      const contents = [...this.history];
 
-      // KODE YANG DIUBAH: NEMBAK KE VERCEL BUKAN KE GOOGLE LANGSUNG
       const response = await fetch(BACKEND_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents,
-          generationConfig: { temperature: 0.7, maxOutputTokens: 512 },
-        }),
+        body: JSON.stringify({ contents }),
       });
 
       const data = await response.json();
@@ -249,25 +252,25 @@ class EkaChatbot {
           await this._callGemini(attempt + 1);
         } else {
           this.history.pop();
-          this._addBotMessage('API gw lagi sibuk!');
+          this._addBotMessage('API gw lagi sibuk cuy!');
         }
         return;
       }
 
       if (data.error) {
         this.history.pop();
-        this._addBotMessage('ada error, coba lo refresh!');
+        this._addBotMessage('Aduh ada error nih dari backend, coba lu ketik lagi!');
         return;
       }
 
-      const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Klo nanya dipikir dulu, Mas';
+      const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry bro gw agak ngeblank';
       this.history.push({ role: 'model', parts: [{ text: reply }] });
       this._addBotMessage(reply);
 
     } catch (err) {
       this._removeTyping(typingId);
       this.history.pop();
-      this._addBotMessage('Hadohhh, error koneksinya nih, tunggu dulu');
+      this._addBotMessage('Hadohhh, error koneksi nih brok, tunggu bentar ya');
       console.error('Chatbot fetch error:', err);
     } finally {
       this.isLoading = false;
@@ -281,7 +284,6 @@ class EkaChatbot {
     const id   = 'cb-countdown-' + Date.now();
     const div  = document.createElement('div');
     div.className = 'cb-msg bot';
-    div.id = id;
     const avatarInner = this.avatarUrl ? `<img src="${this.avatarUrl}" alt="Eka">` : '<i class="fas fa-robot"></i>';
     div.innerHTML = `<div class="cb-msg-avatar">${avatarInner}</div><div class="cb-msg-bubble">Lagi sibuk nih 🔄 Auto-retry dalam <strong id="${id}-sec">${seconds}</strong>s...<span style="opacity:0.5;font-size:11px;display:block;margin-top:3px">Percobaan ${attempt} dari ${max}</span></div>`;
     msgs.appendChild(div);
@@ -330,6 +332,7 @@ class EkaChatbot {
     const msgs = document.getElementById('cb-messages');
     const div  = document.createElement('div');
     div.className = 'cb-msg bot';
+    // Ini buat nampilin foto di bubble chat
     const avatarInner = this.avatarUrl ? `<img src="${this.avatarUrl}" alt="Eka">` : `<i class="fas fa-robot"></i>`;
     div.innerHTML = `<div class="cb-msg-avatar">${avatarInner}</div><div class="cb-msg-bubble">${this._formatText(text)}</div>`;
     msgs.appendChild(div);
