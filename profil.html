@@ -6,110 +6,256 @@
   <title>Eka Danar Arrasyid — Profil</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&family=Poppins:wght@400;500;600&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
   <style>
     :root {
-      --default-font: "Roboto", system-ui, sans-serif; --heading-font: "Raleway", sans-serif; --nav-font: "Poppins", sans-serif;
-      --background-color: #ffffff; --default-color: #272829; --heading-color: #45505b; --accent-color: #0563bb;
-      --surface-color: #ffffff; --contrast-color: #ffffff; --nav-color: #45505b; --nav-hover-color: #0563bb; --nav-active-bg: #0563bb;
-      --sidebar-width: 72px; --sidebar-bg: #f8f9fa; --sidebar-border: #e9ecef; --nav-btn-size: 46px;
+      --font-display: "Sora", sans-serif;
+      --font-body: "DM Sans", sans-serif;
+      --font-mono: "DM Mono", monospace;
+      --bg: #f0f4fa;
+      --surface: #ffffff;
+      --surface2: #f5f8fd;
+      --border: rgba(5,99,187,0.09);
+      --border-strong: rgba(5,99,187,0.18);
+      --blue: #0563bb;
+      --blue-light: #e8f1fb;
+      --text-primary: #1a2332;
+      --text-secondary: #4a5568;
+      --text-muted: #8a9ab5;
+      --sidebar-w: 68px;
+      --radius: 20px;
+      --radius-sm: 12px;
     }
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: var(--default-font); background-color: var(--background-color); color: var(--default-color); min-height: 100vh; display: flex; }
-    ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-thumb { background: rgba(5,99,187,0.2); border-radius: 10px; }
+    body { font-family: var(--font-body); background: var(--bg); color: var(--text-primary); min-height: 100vh; display: flex; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: rgba(5,99,187,0.15); border-radius: 10px; }
 
-    #sidebar { position: fixed; top: 0; left: 0; width: var(--sidebar-width); height: 100vh; background: var(--sidebar-bg); border-right: 1px solid var(--sidebar-border); display: flex; flex-direction: column; align-items: center; padding: 28px 0; gap: 10px; z-index: 1000; }
-    .nav-btn { width: var(--nav-btn-size); height: var(--nav-btn-size); border-radius: 50%; background: transparent; color: var(--nav-color); font-size: 17px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.25s, color 0.25s, transform 0.2s; text-decoration: none; position: relative; }
-    .nav-btn:hover { background: rgba(5,99,187,0.1); color: var(--nav-hover-color); transform: scale(1.08); }
-    .nav-btn.active { background: var(--nav-active-bg); color: var(--contrast-color); box-shadow: 0 4px 14px rgba(5,99,187,0.35); }
-    .nav-btn::after { content: attr(data-tooltip); position: absolute; left: calc(100% + 14px); top: 50%; transform: translateY(-50%); background: var(--heading-color); color: #fff; padding: 5px 11px; border-radius: 6px; font-family: var(--nav-font); font-size: 12px; font-weight: 500; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
-    .nav-btn::before { content: ''; position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%); border: 5px solid transparent; border-right-color: var(--heading-color); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
-    .nav-btn:hover::after, .nav-btn:hover::before { opacity: 1; }
+    /* SIDEBAR */
+    #sidebar {
+      position: fixed; top: 0; left: 0;
+      width: var(--sidebar-w); height: 100vh;
+      background: var(--surface); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; align-items: center;
+      padding: 24px 0; gap: 6px; z-index: 1000;
+    }
+    .nav-logo {
+      width: 36px; height: 36px; background: var(--blue); border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display); font-size: 12px; font-weight: 800;
+      color: #fff; margin-bottom: 16px; letter-spacing: -0.5px;
+    }
+    .nav-btn {
+      width: 42px; height: 42px; border-radius: 12px; background: transparent;
+      color: var(--text-muted); font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s; text-decoration: none; position: relative;
+    }
+    .nav-btn:hover { background: var(--blue-light); color: var(--blue); transform: scale(1.06); }
+    .nav-btn.active { background: var(--blue); color: #fff; box-shadow: 0 4px 16px rgba(5,99,187,0.3); }
+    .nav-btn::after {
+      content: attr(data-tooltip); position: absolute;
+      left: calc(100% + 12px); top: 50%; transform: translateY(-50%);
+      background: var(--text-primary); color: #fff; padding: 4px 10px; border-radius: 6px;
+      font-family: var(--font-display); font-size: 11px; font-weight: 600;
+      white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.18s;
+    }
+    .nav-btn:hover::after { opacity: 1; }
 
-    #main-content { margin-left: var(--sidebar-width); flex: 1; min-height: 100vh; padding: 60px 80px; }
+    /* MAIN */
+    #main-content { margin-left: var(--sidebar-w); flex: 1; padding: 32px 36px; }
 
-    .page-header { margin-bottom: 48px; opacity: 0; transform: translateY(20px); animation: fadeUp 0.6s ease 0.1s forwards; }
-    .page-title { font-family: var(--heading-font); font-size: clamp(32px,4vw,52px); font-weight: 700; color: var(--heading-color); margin-bottom: 6px; }
-    .page-title span { color: var(--accent-color); }
-    .page-subtitle { font-family: var(--nav-font); font-size: 14px; color: var(--default-color); opacity: 0.5; }
+    /* PAGE HEADER */
+    .page-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 28px; opacity: 0; transform: translateY(16px);
+      animation: fadeUp 0.5s ease 0.05s forwards;
+    }
+    .page-label { font-family: var(--font-mono); font-size: 11px; color: var(--blue); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; opacity: 0.65; }
+    .page-title { font-family: var(--font-display); font-size: clamp(28px,3.5vw,42px); font-weight: 800; color: var(--text-primary); letter-spacing: -1.5px; line-height: 1; }
+    .page-title span { color: var(--blue); }
+    .page-badge {
+      display: flex; align-items: center; gap: 7px;
+      background: var(--blue-light); border: 1px solid var(--border-strong);
+      padding: 7px 16px; border-radius: 50px;
+      font-family: var(--font-display); font-size: 12px; font-weight: 600; color: var(--blue);
+    }
+    .page-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.25); }
 
-    /* Layout */
-    .profil-wrapper { display: grid; grid-template-columns: 240px 1fr; gap: 56px; align-items: start; }
+    /* GRID */
+    .profil-grid { display: grid; grid-template-columns: 280px 1fr; gap: 18px; }
 
-    .profil-left { display: flex; flex-direction: column; align-items: center; gap: 24px; opacity: 0; transform: translateY(24px); animation: fadeUp 0.65s ease 0.25s forwards; }
+    /* CARD */
+    .card { background: var(--surface); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
 
-    .profil-photo-wrap { position: relative; width: 180px; height: 180px; }
-    .profil-photo-wrap::before { content: ''; position: absolute; inset: -8px; border-radius: 50%; border: 2px solid rgba(5,99,187,0.18); animation: ringPulse 2.8s ease-in-out infinite; }
-    @keyframes ringPulse { 0%,100% { transform:scale(1); opacity:0.35; } 50% { transform:scale(1.05); opacity:0.85; } }
+    /* LEFT */
+    .col-left { display: flex; flex-direction: column; gap: 18px; }
 
-    .profil-photo { width: 180px; height: 180px; border-radius: 50%; object-fit: cover; border: 4px solid var(--accent-color); box-shadow: 0 8px 32px rgba(5,99,187,0.15); }
+    .card-identity {
+      padding: 0 22px 24px; text-align: center; position: relative;
+      opacity: 0; transform: translateY(20px); animation: fadeUp 0.55s ease 0.15s forwards;
+    }
+    .identity-banner {
+      height: 82px; margin: 0 -22px; margin-bottom: 0;
+      background: linear-gradient(135deg, #0563bb 0%, #1a7fe8 60%, #3b9af8 100%);
+      position: relative;
+    }
+    .identity-banner::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle, rgba(255,255,255,0.12) 1px, transparent 1px); background-size: 18px 18px; }
+    .identity-banner::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 28px; background: var(--surface); border-radius: 50% 50% 0 0 / 28px 28px 0 0; }
 
-    .profil-photo-placeholder { width: 180px; height: 180px; border-radius: 50%; background: linear-gradient(135deg, #e8f0fb, #c5d8f5); border: 4px solid var(--accent-color); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; box-shadow: 0 8px 32px rgba(5,99,187,0.15); }
-    .profil-photo-placeholder .initials { font-family: var(--heading-font); font-size: 48px; font-weight: 800; color: var(--accent-color); line-height: 1; }
-    .profil-photo-placeholder .photo-label { font-family: var(--nav-font); font-size: 10px; font-weight: 600; color: var(--accent-color); opacity: 0.6; letter-spacing: 1.5px; text-transform: uppercase; }
+    .photo-wrap { position: relative; z-index: 1; width: 90px; height: 90px; margin: -48px auto 12px; }
+    .photo-ring { position: absolute; inset: -3px; border-radius: 50%; background: linear-gradient(135deg, var(--blue), #3b9af8); z-index: -1; }
+    .photo-ring::after { content: ''; position: absolute; inset: 3px; border-radius: 50%; background: var(--surface); }
+    .profil-photo, .profil-photo-placeholder {
+      width: 90px; height: 90px; border-radius: 50%; object-fit: cover;
+      position: relative; z-index: 1; border: 3px solid var(--surface);
+    }
+    .profil-photo-placeholder {
+      background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+    }
+    .profil-photo-placeholder .initials { font-family: var(--font-display); font-size: 26px; font-weight: 800; color: var(--blue); line-height: 1; }
+    .profil-photo-placeholder .photo-label { font-size: 8px; font-weight: 700; color: var(--blue); opacity: 0.5; letter-spacing: 2px; text-transform: uppercase; }
 
-    .profil-socials { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
-    .profil-social-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--sidebar-bg); border: 1px solid var(--sidebar-border); color: var(--heading-color); font-size: 14px; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.22s; }
-    .profil-social-btn:hover { background: var(--accent-color); border-color: var(--accent-color); color: #fff; transform: translateY(-3px); box-shadow: 0 6px 14px rgba(5,99,187,0.28); }
+    .identity-name { font-family: var(--font-display); font-size: 17px; font-weight: 700; color: var(--text-primary); line-height: 1.2; margin-bottom: 3px; }
+    .identity-role { font-family: var(--font-mono); font-size: 9.5px; font-weight: 500; color: var(--blue); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 16px; }
 
-    .profil-right { opacity: 0; transform: translateY(24px); animation: fadeUp 0.65s ease 0.38s forwards; }
-    .profil-name { font-family: var(--heading-font); font-size: clamp(22px,3vw,34px); font-weight: 700; color: var(--heading-color); margin-bottom: 5px; }
-    .profil-role { font-family: var(--nav-font); font-size: 13px; font-weight: 600; color: var(--accent-color); letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 22px; }
-    .profil-bio { font-size: 15px; line-height: 1.78; color: var(--default-color); opacity: 0.82; margin-bottom: 30px; padding-bottom: 28px; border-bottom: 1px solid var(--sidebar-border); }
+    .identity-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 16px; }
+    .stat-item { background: var(--surface); padding: 12px 10px; }
+    .stat-num { font-family: var(--font-display); font-size: 22px; font-weight: 800; color: var(--blue); line-height: 1; margin-bottom: 2px; }
+    .stat-label { font-size: 9px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; }
 
-    .profil-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 40px; margin-bottom: 36px; }
-    .profil-info-label { font-family: var(--nav-font); font-size: 10px; font-weight: 700; color: var(--accent-color); text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 4px; }
-    .profil-info-value { font-size: 14px; font-weight: 500; color: var(--heading-color); }
-    .profil-info-value a { color: var(--accent-color); text-decoration: none; }
-    .profil-info-value a:hover { text-decoration: underline; }
+    .identity-socials { display: flex; gap: 7px; flex-wrap: wrap; justify-content: center; }
+    .social-btn {
+      width: 32px; height: 32px; border-radius: 9px;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text-secondary); font-size: 12px;
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none; transition: all 0.2s;
+    }
+    .social-btn:hover { background: var(--blue); color: #fff; border-color: var(--blue); transform: translateY(-2px); box-shadow: 0 5px 12px rgba(5,99,187,0.25); }
 
-    .section-label { font-family: var(--nav-font); font-size: 11px; font-weight: 700; color: var(--accent-color); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 18px; }
+    .card-info {
+      padding: 20px; opacity: 0; transform: translateY(20px);
+      animation: fadeUp 0.55s ease 0.25s forwards;
+    }
+    .card-section-title {
+      font-family: var(--font-display); font-size: 10px; font-weight: 700;
+      color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px;
+      margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+    }
+    .card-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .info-row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+    .info-row:last-child { border-bottom: none; }
+    .info-icon { width: 30px; height: 30px; border-radius: 8px; background: var(--blue-light); color: var(--blue); display: flex; align-items: center; justify-content: center; font-size: 11px; flex-shrink: 0; }
+    .info-label { font-size: 9.5px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 1px; }
+    .info-value { font-size: 12.5px; font-weight: 500; color: var(--text-primary); }
+    .info-value a { color: var(--blue); text-decoration: none; }
+    .info-value a:hover { text-decoration: underline; }
 
-    .edu-timeline { position: relative; padding-left: 28px; }
-    .edu-timeline::before { content: ''; position: absolute; left: 7px; top: 8px; bottom: 8px; width: 2px; background: linear-gradient(to bottom, var(--accent-color), rgba(5,99,187,0.1)); }
-    .edu-item { position: relative; padding-bottom: 26px; }
-    .edu-item:last-child { padding-bottom: 0; }
-    .edu-dot { position: absolute; left: -22px; top: 4px; width: 16px; height: 16px; border-radius: 50%; background: var(--accent-color); border: 3px solid #fff; box-shadow: 0 0 0 2px var(--accent-color); }
-    .edu-dot.past { background: #b0bec5; box-shadow: 0 0 0 2px #b0bec5; }
-    .edu-school { font-family: var(--heading-font); font-size: 15px; font-weight: 700; color: var(--heading-color); margin-bottom: 3px; }
-    .edu-jurusan { font-size: 13px; color: var(--default-color); opacity: 0.7; margin-bottom: 6px; }
-    .edu-tahun { display: inline-block; font-family: var(--nav-font); font-size: 11px; font-weight: 600; color: var(--accent-color); background: rgba(5,99,187,0.08); padding: 3px 12px; border-radius: 20px; }
-    .edu-tahun.past { color: #6b7c8e; background: rgba(107,124,142,0.08); }
+    /* RIGHT */
+    .col-right { display: flex; flex-direction: column; gap: 18px; }
 
-    .state-box { text-align: center; padding: 60px 24px; color: var(--heading-color); opacity: 0.45; }
-    .state-box i { font-size: 36px; margin-bottom: 12px; display: block; }
+    .card-bio {
+      padding: 26px 28px; opacity: 0; transform: translateY(20px);
+      animation: fadeUp 0.55s ease 0.2s forwards;
+    }
+    .bio-quote-mark { font-family: var(--font-display); font-size: 60px; line-height: 0.4; color: var(--blue); opacity: 0.12; font-weight: 900; margin-bottom: 10px; display: block; }
+    .bio-text { font-size: 15.5px; line-height: 1.9; color: var(--text-secondary); font-weight: 300; font-style: italic; }
+    .bio-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border); }
+    .tag { padding: 5px 12px; border-radius: 50px; background: var(--blue-light); color: var(--blue); font-family: var(--font-display); font-size: 11px; font-weight: 600; border: 1px solid var(--border-strong); }
+
+    .card-edu {
+      padding: 26px 28px; opacity: 0; transform: translateY(20px);
+      animation: fadeUp 0.55s ease 0.3s forwards;
+    }
+    .edu-item { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .edu-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .edu-item:first-child { padding-top: 0; }
+    .edu-icon-wrap { width: 42px; height: 42px; flex-shrink: 0; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .edu-icon-wrap.active { background: linear-gradient(135deg, #0563bb, #1a7fe8); color: #fff; box-shadow: 0 4px 12px rgba(5,99,187,0.25); }
+    .edu-icon-wrap.past { background: var(--surface2); color: var(--text-muted); }
+    .edu-school { font-family: var(--font-display); font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+    .edu-major { font-size: 12px; color: var(--text-secondary); margin-bottom: 7px; }
+    .edu-meta { display: flex; align-items: center; gap: 7px; }
+    .edu-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 50px; font-family: var(--font-mono); font-size: 10px; font-weight: 500; }
+    .edu-badge.active { background: rgba(34,197,94,0.1); color: #16a34a; border: 1px solid rgba(34,197,94,0.25); }
+    .edu-badge.active::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: #22c55e; }
+    .edu-badge.past { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
+    .edu-year { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); }
+
+    .right-bottom-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+    .card-highlights {
+      padding: 22px; opacity: 0; transform: translateY(20px);
+      animation: fadeUp 0.55s ease 0.38s forwards;
+    }
+    .highlight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .highlight-item { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; transition: all 0.2s; }
+    .highlight-item:hover { border-color: var(--blue); box-shadow: 0 4px 14px rgba(5,99,187,0.1); transform: translateY(-1px); }
+    .highlight-icon { font-size: 17px; color: var(--blue); margin-bottom: 7px; }
+    .highlight-title { font-family: var(--font-display); font-size: 12px; font-weight: 700; color: var(--text-primary); margin-bottom: 3px; }
+    .highlight-desc { font-size: 10.5px; color: var(--text-muted); line-height: 1.45; }
+
+    .card-availability {
+      padding: 22px; opacity: 0; transform: translateY(20px);
+      animation: fadeUp 0.55s ease 0.43s forwards;
+      position: relative; overflow: hidden;
+    }
+    .availability-bg { position: absolute; right: -24px; bottom: -24px; width: 110px; height: 110px; border-radius: 50%; background: radial-gradient(circle, rgba(5,99,187,0.06), transparent 70%); }
+    .availability-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+    .availability-row:last-of-type { border-bottom: none; }
+    .avail-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .avail-dot.green { background: #22c55e; box-shadow: 0 0 0 3px rgba(34,197,94,0.2); }
+    .avail-dot.blue { background: var(--blue); box-shadow: 0 0 0 3px rgba(5,99,187,0.2); }
+    .avail-dot.yellow { background: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,0.2); }
+    .avail-label { font-size: 12.5px; font-weight: 500; color: var(--text-primary); flex: 1; }
+    .avail-status { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); }
+
+    /* STATE */
+    .state-box { text-align: center; padding: 80px 24px; color: var(--text-muted); }
+    .state-box i { font-size: 32px; margin-bottom: 12px; display: block; }
     .spin { animation: spinAnim 0.8s linear infinite; }
     @keyframes spinAnim { to { transform: rotate(360deg); } }
     @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
-    @media (max-width: 960px) { .profil-wrapper { grid-template-columns: 1fr; gap: 36px; } .profil-left { flex-direction: row; align-items: flex-start; flex-wrap: wrap; gap: 28px; } }
+    /* RESPONSIVE */
+    @media (max-width: 1100px) { .profil-grid { grid-template-columns: 260px 1fr; } }
+    @media (max-width: 900px) { .profil-grid { grid-template-columns: 1fr; } }
     @media (max-width: 768px) {
-      :root { --sidebar-width: 0px; }
-      #sidebar { width: 100%; height: 62px; flex-direction: row; justify-content: center; top: auto; bottom: 0; border-right: none; border-top: 1px solid var(--sidebar-border); padding: 0 16px; gap: 8px; }
-      .nav-btn::after, .nav-btn::before { display: none; }
-      #main-content { margin-left: 0; margin-bottom: 62px; padding: 40px 28px; }
+      :root { --sidebar-w: 0px; }
+      #sidebar { width: 100%; height: 60px; flex-direction: row; justify-content: center; top: auto; bottom: 0; border-right: none; border-top: 1px solid var(--border); padding: 0 12px; gap: 4px; }
+      .nav-logo { display: none; }
+      .nav-btn::after { display: none; }
+      #main-content { margin-left: 0; margin-bottom: 60px; padding: 24px 18px; }
     }
-    @media (max-width: 560px) { .profil-info-grid { grid-template-columns: 1fr; } #main-content { padding: 32px 20px; } }
+    @media (max-width: 560px) { .right-bottom-row { grid-template-columns: 1fr; } #main-content { padding: 20px 14px; } }
   </style>
 </head>
 <body>
 
   <nav id="sidebar">
-    <a href="index.html"         class="nav-btn" data-tooltip="Home"><i class="fas fa-house"></i></a>
-    <a href="profil.html"        class="nav-btn active" data-tooltip="Profil"><i class="fas fa-user"></i></a>
-    <a href="skills.html"        class="nav-btn" data-tooltip="Skills"><i class="fas fa-list-check"></i></a>
-    <a href="experience.html"    class="nav-btn" data-tooltip="Experience"><i class="fas fa-briefcase"></i></a>
-    <a href="event.html"         class="nav-btn" data-tooltip="Event / Organization"><i class="fas fa-calendar-days"></i></a>
-    <a href="certification.html" class="nav-btn" data-tooltip="Certification"><i class="fas fa-award"></i></a>
+    <div class="nav-logo">EDA</div>
+    <a href="index.html"         class="nav-btn"        data-tooltip="Home"><i class="fas fa-house"></i></a>
+    <a href="profil.html"        class="nav-btn active"  data-tooltip="Profil"><i class="fas fa-user"></i></a>
+    <a href="skills.html"        class="nav-btn"        data-tooltip="Skills"><i class="fas fa-list-check"></i></a>
+    <a href="experience.html"    class="nav-btn"        data-tooltip="Experience"><i class="fas fa-briefcase"></i></a>
+    <a href="event.html"         class="nav-btn"        data-tooltip="Event / Org"><i class="fas fa-calendar-days"></i></a>
+    <a href="certification.html" class="nav-btn"        data-tooltip="Certification"><i class="fas fa-award"></i></a>
   </nav>
 
   <main id="main-content">
     <div class="page-header">
-      <h1 class="page-title">Pro<span>fil</span></h1>
-      <p class="page-subtitle">Tentang saya</p>
+      <div>
+        <p class="page-label">// resume.danar</p>
+        <h1 class="page-title">Pro<span>fil</span></h1>
+      </div>
+      <div class="page-badge">
+        <span class="dot"></span>
+        Mahasiswa Aktif
+      </div>
     </div>
     <div id="profilContent">
       <div class="state-box"><i class="fas fa-circle-notch spin"></i></div>
@@ -117,16 +263,15 @@
   </main>
 
   <script type="module">
-    import { supabase, fetchData } from './supabase.js';
+    import { supabase } from './supabase.js';
 
     async function loadProfil() {
       const el = document.getElementById('profilContent');
 
-      // Load profile + education parallel
       const [profRes, eduRes] = await Promise.all([
-  supabase.from('profile').select('*').single(),
-  supabase.from('education').select('*').order('sort_order')
-]);
+        supabase.from('profile').select('*').single(),
+        supabase.from('education').select('*').order('sort_order')
+      ]);
 
       if (profRes.error || !profRes.data) {
         el.innerHTML = `<div class="state-box"><i class="fas fa-triangle-exclamation"></i><p>Gagal memuat data profil.</p></div>`;
@@ -136,12 +281,13 @@
       const p = profRes.data;
       const eduList = eduRes.data || [];
 
-      // Format date
       const birthDate = p.birth_date
         ? new Date(p.birth_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })
         : '—';
+      const age = p.birth_date
+        ? Math.floor((Date.now() - new Date(p.birth_date)) / (365.25 * 24 * 3600 * 1000))
+        : '—';
 
-      // Photo
       const photoHtml = p.photo_url
         ? `<img class="profil-photo" src="${p.photo_url}" alt="${p.full_name}">`
         : `<div class="profil-photo-placeholder">
@@ -149,51 +295,150 @@
              <span class="photo-label">Photo</span>
            </div>`;
 
-      // Social links
       const socials = [
-        { url: p.url_x,         icon: 'fab fa-x-twitter',  title: 'X / Twitter' },
-        { url: p.url_tiktok,    icon: 'fab fa-tiktok',     title: 'TikTok' },
-        { url: p.url_instagram, icon: 'fab fa-instagram',  title: 'Instagram' },
-        { url: p.url_linkedin,  icon: 'fab fa-linkedin-in',title: 'LinkedIn' },
-        { url: p.url_github,    icon: 'fab fa-github',     title: 'GitHub' },
-        { url: p.url_behance,   icon: 'fab fa-behance',    title: 'Behance' },
+        { url: p.url_x,         icon: 'fab fa-x-twitter',   title: 'X' },
+        { url: p.url_tiktok,    icon: 'fab fa-tiktok',      title: 'TikTok' },
+        { url: p.url_instagram, icon: 'fab fa-instagram',   title: 'Instagram' },
+        { url: p.url_linkedin,  icon: 'fab fa-linkedin-in', title: 'LinkedIn' },
+        { url: p.url_github,    icon: 'fab fa-github',      title: 'GitHub' },
+        { url: p.url_behance,   icon: 'fab fa-behance',     title: 'Behance' },
       ].filter(s => s.url);
 
       const socialsHtml = socials.map(s =>
-        `<a href="${s.url}" target="_blank" class="profil-social-btn" title="${s.title}"><i class="${s.icon}"></i></a>`
+        `<a href="${s.url}" target="_blank" class="social-btn" title="${s.title}"><i class="${s.icon}"></i></a>`
       ).join('');
 
-      // Education timeline
       const eduHtml = eduList.map(e => `
         <div class="edu-item">
-          <div class="edu-dot ${e.is_active ? '' : 'past'}"></div>
-          <p class="edu-school">${e.school_name}</p>
-          <p class="edu-jurusan">${e.major || ''}</p>
-          <span class="edu-tahun ${e.is_active ? '' : 'past'}">
-            ${e.year_start} — ${e.is_active ? 'Sekarang' : (e.year_end || '')}
-          </span>
+          <div class="edu-icon-wrap ${e.is_active ? 'active' : 'past'}">
+            <i class="fas fa-graduation-cap"></i>
+          </div>
+          <div>
+            <p class="edu-school">${e.school_name}</p>
+            <p class="edu-major">${e.major || ''}</p>
+            <div class="edu-meta">
+              <span class="edu-badge ${e.is_active ? 'active' : 'past'}">${e.is_active ? 'Aktif' : 'Lulus'}</span>
+              <span class="edu-year">${e.year_start} — ${e.is_active ? 'Sekarang' : (e.year_end || '')}</span>
+            </div>
+          </div>
         </div>
       `).join('');
 
       el.innerHTML = `
-        <div class="profil-wrapper">
-          <div class="profil-left">
-            <div class="profil-photo-wrap">${photoHtml}</div>
-            <div class="profil-socials">${socialsHtml}</div>
-          </div>
-          <div class="profil-right">
-            <h2 class="profil-name">${p.full_name}</h2>
-            <p class="profil-role">${p.role || ''}</p>
-            <p class="profil-bio">${p.bio || ''}</p>
-            <div class="profil-info-grid">
-              <div><p class="profil-info-label">Tanggal Lahir</p><p class="profil-info-value">${birthDate}</p></div>
-              <div><p class="profil-info-label">Domisili</p><p class="profil-info-value">${p.city || '—'}</p></div>
-              <div><p class="profil-info-label">Email</p><p class="profil-info-value"><a href="mailto:${p.email}">${p.email || '—'}</a></p></div>
-              <div><p class="profil-info-label">Status</p><p class="profil-info-value">Mahasiswa Aktif</p></div>
+        <div class="profil-grid">
+
+          <div class="col-left">
+            <div class="card card-identity">
+              <div class="identity-banner"></div>
+              <div class="photo-wrap">
+                <div class="photo-ring"></div>
+                ${photoHtml}
+              </div>
+              <h2 class="identity-name">${p.full_name}</h2>
+              <p class="identity-role">${p.role || ''}</p>
+              <div class="identity-stats">
+                <div class="stat-item">
+                  <div class="stat-num">${age}</div>
+                  <div class="stat-label">Tahun</div>
+                </div>
+                <div class="stat-item">
+                  <div class="stat-num">${eduList.length}</div>
+                  <div class="stat-label">Pendidikan</div>
+                </div>
+              </div>
+              <div class="identity-socials">${socialsHtml}</div>
             </div>
-            ${eduHtml ? `<p class="section-label">Riwayat Pendidikan</p><div class="edu-timeline">${eduHtml}</div>` : ''}
+
+            <div class="card card-info">
+              <p class="card-section-title">Info</p>
+              <div class="info-row">
+                <div class="info-icon"><i class="fas fa-cake-candles"></i></div>
+                <div><p class="info-label">Tanggal Lahir</p><p class="info-value">${birthDate}</p></div>
+              </div>
+              <div class="info-row">
+                <div class="info-icon"><i class="fas fa-location-dot"></i></div>
+                <div><p class="info-label">Domisili</p><p class="info-value">${p.city || '—'}, Indonesia</p></div>
+              </div>
+              <div class="info-row">
+                <div class="info-icon"><i class="fas fa-envelope"></i></div>
+                <div><p class="info-label">Email</p><p class="info-value"><a href="mailto:${p.email}">${p.email || '—'}</a></p></div>
+              </div>
+              <div class="info-row">
+                <div class="info-icon"><i class="fas fa-id-badge"></i></div>
+                <div><p class="info-label">Status</p><p class="info-value">Mahasiswa Aktif</p></div>
+              </div>
+            </div>
           </div>
-        </div>`;
+
+          <div class="col-right">
+            <div class="card card-bio">
+              <p class="card-section-title">Tentang Saya</p>
+              <span class="bio-quote-mark">"</span>
+              <p class="bio-text">${p.bio || ''}</p>
+              <div class="bio-tags">
+                <span class="tag">🎨 Visual Creative</span>
+                <span class="tag">💻 Tech Enthusiast</span>
+                <span class="tag">🎓 Informatics</span>
+                <span class="tag">📍 Bekasi</span>
+              </div>
+            </div>
+
+            <div class="card card-edu">
+              <p class="card-section-title">Riwayat Pendidikan</p>
+              ${eduHtml || '<p style="color:var(--text-muted);font-size:13px">Belum ada data.</p>'}
+            </div>
+
+            <div class="right-bottom-row">
+              <div class="card card-highlights">
+                <p class="card-section-title">Fokus & Minat</p>
+                <div class="highlight-grid">
+                  <div class="highlight-item">
+                    <div class="highlight-icon"><i class="fas fa-paintbrush"></i></div>
+                    <p class="highlight-title">UI/UX Design</p>
+                    <p class="highlight-desc">Pengalaman visual yang intuitif</p>
+                  </div>
+                  <div class="highlight-item">
+                    <div class="highlight-icon"><i class="fas fa-code"></i></div>
+                    <p class="highlight-title">Web Dev</p>
+                    <p class="highlight-desc">Aplikasi web modern & responsif</p>
+                  </div>
+                  <div class="highlight-item">
+                    <div class="highlight-icon"><i class="fas fa-camera"></i></div>
+                    <p class="highlight-title">Visual Content</p>
+                    <p class="highlight-desc">Fotografi & konten kreatif</p>
+                  </div>
+                  <div class="highlight-item">
+                    <div class="highlight-icon"><i class="fas fa-robot"></i></div>
+                    <p class="highlight-title">AI & Tech</p>
+                    <p class="highlight-desc">Eksplorasi teknologi terkini</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card card-availability">
+                <div class="availability-bg"></div>
+                <p class="card-section-title">Ketersediaan</p>
+                <div class="availability-row">
+                  <span class="avail-dot green"></span>
+                  <span class="avail-label">Buka untuk Kolaborasi</span>
+                  <span class="avail-status">Aktif</span>
+                </div>
+                <div class="availability-row">
+                  <span class="avail-dot blue"></span>
+                  <span class="avail-label">Semester Aktif</span>
+                  <span class="avail-status">2023–kini</span>
+                </div>
+                <div class="availability-row">
+                  <span class="avail-dot yellow"></span>
+                  <span class="avail-label">Mencari Internship</span>
+                  <span class="avail-status">Terbuka</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      `;
     }
 
     loadProfil();
