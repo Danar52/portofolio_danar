@@ -69,7 +69,40 @@
     .exp-company { font-family: var(--nav-font); font-size: 13px; font-weight: 600; color: var(--accent-color); margin-bottom: 6px; }
     .exp-period { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--default-color); opacity: 0.5; margin-bottom: 14px; }
     .exp-period i { font-size: 11px; color: var(--accent-color); opacity: 0.7; }
+
+    /* ── Deskripsi paragraf biasa (fallback) ── */
     .exp-desc { font-size: 14px; line-height: 1.75; color: var(--default-color); opacity: 0.78; margin-bottom: 16px; }
+
+    /* ── Deskripsi per poin ── */
+    .exp-desc-list {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .exp-desc-list li {
+      font-size: 14px;
+      line-height: 1.65;
+      color: var(--default-color);
+      opacity: 0.78;
+      padding-left: 20px;
+      position: relative;
+    }
+
+    .exp-desc-list li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 7px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-color);
+      opacity: 0.45;
+    }
 
     .exp-tags { display: flex; flex-wrap: wrap; gap: 7px; }
     .exp-tag { font-family: var(--nav-font); font-size: 11px; font-weight: 500; background: var(--sidebar-bg); color: var(--heading-color); border: 1px solid var(--sidebar-border); padding: 3px 11px; border-radius: 20px; transition: background 0.2s, color 0.2s; }
@@ -118,6 +151,28 @@
   <script type="module">
     import { supabase, fetchData } from './supabase.js';
 
+    // Fungsi ubah deskripsi jadi poin-poin
+    function renderDesc(description) {
+      if (!description) return '';
+
+      // Pisahkan berdasarkan " - " atau "- " di awal
+      const points = description
+        .split(/\s*-\s+/)
+        .map(p => p.trim())
+        .filter(p => p.length > 0);
+
+      // Kalau cuma 1 poin (tidak ada tanda -), tampilkan sebagai paragraf biasa
+      if (points.length <= 1) {
+        return `<p class="exp-desc">${description}</p>`;
+      }
+
+      // Kalau lebih dari 1 poin, tampilkan sebagai list
+      return `
+        <ul class="exp-desc-list">
+          ${points.map(p => `<li>${p}</li>`).join('')}
+        </ul>`;
+    }
+
     async function loadExperience() {
       const el = document.getElementById('expTimeline');
 
@@ -154,7 +209,7 @@
                 ${e.period_start} — ${e.period_end || 'Sekarang'}
                 ${e.duration ? `&nbsp;·&nbsp; ${e.duration}` : ''}
               </p>
-              <p class="exp-desc">${e.description || ''}</p>
+              ${renderDesc(e.description)}
               ${tags ? `<div class="exp-tags">${tags}</div>` : ''}
             </div>
           </div>`;
