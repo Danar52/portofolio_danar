@@ -1184,97 +1184,111 @@
     }
 
     function openExpForm(data = null) {
-      const isEdit = !!data?.id;
-      const tagsArr = data?.tags || [];
-      openModal(isEdit ? 'Edit Experience' : 'Tambah Experience', `
-        <div class="form-group">
-          <label class="form-label">Nama Jabatan / Posisi</label>
-          <input class="form-input" id="f_title" value="${data?.job_title||''}" placeholder="cth: Web Developer Intern"/>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Perusahaan / Instansi</label>
-          <input class="form-input" id="f_company" value="${data?.company||''}" placeholder="cth: PT. ABC"/>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Periode Mulai</label>
-            <input class="form-input" id="f_start" value="${data?.period_start||''}" placeholder="cth: Januari 2024"/>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Periode Akhir</label>
-            <input class="form-input" id="f_end" value="${data?.period_end||''}" placeholder="Sekarang / cth: Maret 2024"/>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Durasi</label>
-            <input class="form-input" id="f_dur" value="${data?.duration||''}" placeholder="cth: 6 bln"/>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Sort Order</label>
-            <input class="form-input" id="f_sort" type="number" value="${data?.sort_order||0}"/>
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Deskripsi</label>
-          <textarea class="form-textarea" id="f_desc" placeholder="Deskripsi singkat pengalaman...">${data?.description||''}</textarea>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Tags <span style="opacity:.4">(tekan Enter/koma untuk tambah)</span></label>
-          <div class="tags-input-wrap" id="tagsWrap">
-            ${tagsArr.map(t=>`<span class="tag-chip">${t}<button onclick="removeTag(this)">✕</button></span>`).join('')}
-            <input class="tags-input" id="tagInput" placeholder="cth: PHP"/>
-          </div>
-        </div>
-        <div class="form-group">
-          <div class="toggle-wrap">
-            <label class="toggle">
-              <input type="checkbox" id="f_active" ${data?.is_active?'checked':''}>
-              <span class="toggle-slider"></span>
-            </label>
-            <span class="toggle-label">Masih aktif / sedang berlangsung</span>
-          </div>
-        </div>
-      `, async () => {
-        const tags = [...document.querySelectorAll('#tagsWrap .tag-chip')]
-          .map(c => c.textContent.replace('✕','').trim());
-        const payload = {
-          job_title:    document.getElementById('f_title').value,
-          company:      document.getElementById('f_company').value,
-          period_start: document.getElementById('f_start').value,
-          period_end:   document.getElementById('f_end').value || null,
-          duration:     document.getElementById('f_dur').value,
-          description:  document.getElementById('f_desc').value,
-          tags,
-          is_active:    document.getElementById('f_active').checked,
-          sort_order:   parseInt(document.getElementById('f_sort').value)||0,
-        };
+  const isEdit = !!data?.id;
+  const tagsArr = data?.tags || [];
+  openModal(isEdit ? 'Edit Experience' : 'Tambah Experience', `
+    <div class="form-group">
+      <label class="form-label">Nama Jabatan / Posisi</label>
+      <input class="form-input" id="f_title" value="${data?.job_title||''}" placeholder="cth: Web Developer Intern"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Perusahaan / Instansi</label>
+      <input class="form-input" id="f_company" value="${data?.company||''}" placeholder="cth: PT. ABC"/>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Periode Mulai</label>
+        <input class="form-input" id="f_start" value="${data?.period_start||''}" placeholder="cth: Januari 2024"/>
+      </div>
+      <!-- ✅ Tambah id wrapper supaya bisa disembunyikan -->
+      <div class="form-group" id="f_end_wrap" style="${data?.is_active ? 'display:none' : ''}">
+        <label class="form-label">Periode Akhir</label>
+        <input class="form-input" id="f_end" value="${data?.is_active ? '' : (data?.period_end||'')}" placeholder="cth: Maret 2024"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Durasi</label>
+        <input class="form-input" id="f_dur" value="${data?.duration||''}" placeholder="cth: 6 bln"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sort Order</label>
+        <input class="form-input" id="f_sort" type="number" value="${data?.sort_order||0}"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Deskripsi</label>
+      <textarea class="form-textarea" id="f_desc" placeholder="Deskripsi singkat pengalaman...">${data?.description||''}</textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tags <span style="opacity:.4">(tekan Enter/koma untuk tambah)</span></label>
+      <div class="tags-input-wrap" id="tagsWrap">
+        ${tagsArr.map(t=>`<span class="tag-chip">${t}<button onclick="removeTag(this)">✕</button></span>`).join('')}
+        <input class="tags-input" id="tagInput" placeholder="cth: PHP"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="toggle-wrap">
+        <label class="toggle">
+          <input type="checkbox" id="f_active" ${data?.is_active?'checked':''}>
+          <span class="toggle-slider"></span>
+        </label>
+        <span class="toggle-label">Masih aktif / sedang berlangsung</span>
+      </div>
+    </div>
+  `, async () => {
+    const isActive = document.getElementById('f_active').checked;
+    const tags = [...document.querySelectorAll('#tagsWrap .tag-chip')]
+      .map(c => c.textContent.replace('✕','').trim());
+    const payload = {
+      job_title:    document.getElementById('f_title').value,
+      company:      document.getElementById('f_company').value,
+      period_start: document.getElementById('f_start').value,
+      // ✅ Kalau aktif, otomatis "Saat Ini", kalau tidak ambil dari input
+      period_end:   isActive ? 'Saat Ini' : (document.getElementById('f_end').value || null),
+      duration:     document.getElementById('f_dur').value,
+      description:  document.getElementById('f_desc').value,
+      tags,
+      is_active:    isActive,
+      sort_order:   parseInt(document.getElementById('f_sort').value)||0,
+    };
 
-        const { error } = isEdit
-          ? await db.from('experience').update(payload).eq('id', data.id)
-          : await db.from('experience').insert(payload);
+    const { error } = isEdit
+      ? await db.from('experience').update(payload).eq('id', data.id)
+      : await db.from('experience').insert(payload);
 
-        if (error) { showToast('Gagal menyimpan', 'error'); return; }
-        closeModal();
-        showToast(isEdit ? 'Experience diperbarui!' : 'Experience ditambahkan!');
-        loadExperience();
-      });
+    if (error) { showToast('Gagal menyimpan', 'error'); return; }
+    closeModal();
+    showToast(isEdit ? 'Experience diperbarui!' : 'Experience ditambahkan!');
+    loadExperience();
+  });
 
-      setTimeout(() => {
-        document.getElementById('tagInput')?.addEventListener('keydown', e => {
-          if (e.key === 'Enter' || e.key === ',') {
-            e.preventDefault();
-            const val = e.target.value.trim().replace(/,$/, '');
-            if (!val) return;
-            const chip = document.createElement('span');
-            chip.className = 'tag-chip';
-            chip.innerHTML = `${val}<button onclick="removeTag(this)">✕</button>`;
-            document.getElementById('tagsWrap').insertBefore(chip, e.target);
-            e.target.value = '';
-          }
-        });
-      }, 50);
-    }
+  setTimeout(() => {
+    // ✅ Logic toggle show/hide field Periode Akhir
+    document.getElementById('f_active')?.addEventListener('change', function() {
+      const endWrap = document.getElementById('f_end_wrap');
+      if (this.checked) {
+        endWrap.style.display = 'none';
+        document.getElementById('f_end').value = '';
+      } else {
+        endWrap.style.display = 'block';
+      }
+    });
+
+    document.getElementById('tagInput')?.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ',') {
+        e.preventDefault();
+        const val = e.target.value.trim().replace(/,$/, '');
+        if (!val) return;
+        const chip = document.createElement('span');
+        chip.className = 'tag-chip';
+        chip.innerHTML = `${val}<button onclick="removeTag(this)">✕</button>`;
+        document.getElementById('tagsWrap').insertBefore(chip, e.target);
+        e.target.value = '';
+      }
+    });
+  }, 50);
+}
 
     function removeTag(btn) { btn.parentElement.remove(); }
 
