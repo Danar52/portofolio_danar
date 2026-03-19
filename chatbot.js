@@ -118,7 +118,7 @@ class EkaChatbot {
             ${this.avatarUrl ? `<img src="${this.avatarUrl}" alt="Eka Bot">` : 'D'}
           </div>
           <div class="cb-header-info">
-            <div class="cb-header-name">Danar AI</div>
+            <div class="cb-header-name">Danar Alter</div>
             <div class="cb-header-status"><span class="cb-status-dot"></span>Online</div>
           </div>
           <button class="cb-clear-btn" id="cb-clear" title="Reset percakapan"><i class="fas fa-rotate-right"></i></button>
