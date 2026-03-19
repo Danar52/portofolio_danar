@@ -104,14 +104,14 @@ class EkaChatbot {
     const wrap = document.createElement('div');
     wrap.id = 'cb-root';
     wrap.innerHTML = `
-      <div id="cb-tooltip">Hei! Ada yang bisa aku bantu? 👋</div>
+      <div id="cb-tooltip">Hei! Ada yang bisa Gw bantu? 👋</div>
       <div id="cb-notif"></div>
       <button id="cb-bubble" aria-label="Buka chatbot"><i class="fas fa-comment-dots cb-icon-chat"></i><i class="fas fa-times cb-icon-close"></i></button>
       <div id="cb-window" role="dialog" aria-label="Chatbot Eka Danar">
         <div class="cb-header">
-          <div class="cb-avatar" id="cb-header-avatar">EDA</div>
+          <div class="cb-avatar" id="cb-header-avatar">D</div>
           <div class="cb-header-info">
-            <div class="cb-header-name">Eka Danar AI</div>
+            <div class="cb-header-name">Danar AI</div>
             <div class="cb-header-status"><span class="cb-status-dot"></span>Online</div>
           </div>
           <button class="cb-clear-btn" id="cb-clear" title="Reset percakapan"><i class="fas fa-rotate-right"></i></button>
@@ -119,7 +119,7 @@ class EkaChatbot {
         <div class="cb-messages" id="cb-messages"></div>
         <div class="cb-suggestions" id="cb-suggestions"></div>
         <div class="cb-input-area">
-          <textarea id="cb-input" placeholder="Tanya sesuatu tentang Eka..." rows="1"></textarea>
+          <textarea id="cb-input" placeholder="Tanya sesuatu tentang Danar..." rows="1"></textarea>
           <button id="cb-send" aria-label="Kirim"><i class="fas fa-paper-plane"></i></button>
         </div>
       </div>
@@ -188,13 +188,13 @@ class EkaChatbot {
   }
 
   _buildGreeting() {
-    const name = this.context?.profile?.full_name?.split(' ')[0] || 'Eka';
-    return `Hei! Aku ${name} — versi AI-nya 😄\nAku bisa jawab pertanyaan seputar skills, pengalaman, pendidikan, atau gimana cara menghubungi aku.\n\nMau tanya apa nih?`;
+    const name = this.context?.profile?.full_name?.split(' ')[0] || 'Danar';
+    return `Hei! Gw ${name} — versi AI-nya 😎\nGw bisa jawab pertanyaan seputar skills, pengalaman, pendidikan, atau gimana cara menghubungi Gw sendiri.\n\nLo, mau tanya apa nih?`;
   }
 
   _buildSystemPrompt() {
     const p = this.context?.profile || {};
-    return `Kamu adalah AI persona dari ${p.full_name || 'Eka Danar Arrasyid'}, seorang ${p.role || 'Informatics Engineering Student'}. Jawab dalam bahasa Indonesia yang santai tapi profesional. Gunakan gaya orang pertama ("aku"). Jawab ringkas maksimal 3 kalimat.`;
+    return `Lo adalah AI persona dari ${p.full_name || 'Eka Danar Arrasyid'}, seorang ${p.role || 'Informatics Engineering Student'}. Jawab dalam bahasa Indonesia yang santai tapi profesional. Gunakan gaya orang pertama ("Gw"). Jawab ringkas maksimal 3 kalimat.`;
   }
 
   async _send() {
@@ -220,7 +220,7 @@ class EkaChatbot {
     try {
       const contents = [
         { role: 'user',  parts: [{ text: this.systemPrompt }] },
-        { role: 'model', parts: [{ text: 'Siap! Aku akan menjawab sebagai Eka Danar.' }] },
+        { role: 'model', parts: [{ text: 'Siap! Gw akan menjawab sebagai Eka Danar.' }] },
         ...this.history,
       ];
 
@@ -249,25 +249,25 @@ class EkaChatbot {
           await this._callGemini(attempt + 1);
         } else {
           this.history.pop();
-          this._addBotMessage('API lagi sibuk banget nih 😓 Coba lagi dalam beberapa menit ya!');
+          this._addBotMessage('API gw lagi sibuk!');
         }
         return;
       }
 
       if (data.error) {
         this.history.pop();
-        this._addBotMessage('Ups, ada error dari server 😅 Coba refresh halaman ya!');
+        this._addBotMessage('ada error, coba lo refresh!');
         return;
       }
 
-      const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Maaf, aku tidak bisa menjawab saat ini 😅';
+      const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Klo nanya dipikir dulu, Mas';
       this.history.push({ role: 'model', parts: [{ text: reply }] });
       this._addBotMessage(reply);
 
     } catch (err) {
       this._removeTyping(typingId);
       this.history.pop();
-      this._addBotMessage('Aduh, ada gangguan koneksi nih 😅 Coba lagi ya!');
+      this._addBotMessage('Hadohhh, error koneksinya nih, tunggu dulu');
       console.error('Chatbot fetch error:', err);
     } finally {
       this.isLoading = false;
