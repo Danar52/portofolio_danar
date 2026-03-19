@@ -10,7 +10,8 @@ const SUPABASE_URL    = 'https://vdnysjewpqunxokscaan.supabase.co';   // ← gan
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkbnlzamV3cHF1bnhva3NjYWFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MjQ2MDcsImV4cCI6MjA4OTUwMDYwN30.GfnHPRuO8bDdfTJeOhLAV0gw54_PDGojQCrVPTzSA3g'; // ← ganti
 // ────────────────────────────────────────────────────────────
 
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+// ✅ GANTI JADI INI — lebih stabil untuk ESM browser import
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 

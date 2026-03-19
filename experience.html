@@ -116,7 +116,7 @@
   </main>
 
   <script type="module">
-    import { db } from './supabase.js';
+    import { supabase, fetchData } from './supabase.js';
 
     async function loadExperience() {
       const el = document.getElementById('expTimeline');

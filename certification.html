@@ -140,7 +140,7 @@
   </div>
 
   <script type="module">
-    import { db } from './supabase.js';
+    import { supabase, fetchData } from './supabase.js';
 
     async function loadCertifications() {
       const grid = document.getElementById('certGrid');
