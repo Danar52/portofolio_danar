@@ -45,14 +45,57 @@
 
     /* Grid */
     .cert-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 22px; }
-
     .cert-card { background: var(--surface-color); border: 1px solid var(--sidebar-border); border-radius: 16px; overflow: hidden; opacity: 0; transform: translateY(28px); transition: box-shadow 0.25s, transform 0.25s, border-color 0.25s; }
     .cert-card:hover { box-shadow: 0 10px 32px rgba(5,99,187,0.11); transform: translateY(-5px); border-color: rgba(5,99,187,0.18); }
 
+    /* ── Image preview area ── */
     .cert-img-wrap { width: 100%; aspect-ratio: 4/3; background: linear-gradient(135deg, #f0f5fd, #dce9f8); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--sidebar-border); cursor: pointer; }
     .cert-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
     .cert-card:hover .cert-img-wrap img { transform: scale(1.04); }
 
+    /* ── PDF preview area ── */
+    .cert-pdf-wrap {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: linear-gradient(135deg, #fff5f5, #ffe8e8);
+      border-bottom: 1px solid var(--sidebar-border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-decoration: none;
+      transition: background 0.25s;
+      position: relative;
+    }
+    .cert-pdf-wrap:hover { background: linear-gradient(135deg, #ffe8e8, #ffd0d0); }
+    .cert-pdf-icon-wrap {
+      width: 72px; height: 72px;
+      border-radius: 16px;
+      background: rgba(229,62,62,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s;
+    }
+    .cert-pdf-wrap:hover .cert-pdf-icon-wrap { transform: scale(1.08); }
+    .cert-pdf-icon-wrap i { font-size: 32px; color: #e53e3e; }
+    .cert-pdf-label { font-family: var(--nav-font); font-size: 12px; font-weight: 600; color: #e53e3e; }
+    .cert-pdf-sublabel { font-family: var(--nav-font); font-size: 11px; color: #e53e3e; opacity: 0.55; }
+    .cert-pdf-badge {
+      position: absolute;
+      top: 12px; right: 12px;
+      background: #e53e3e;
+      color: #fff;
+      font-family: var(--nav-font);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    /* Placeholder */
     .cert-img-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; width: 100%; height: 100%; padding: 24px; }
     .cert-frame { width: 120px; height: 84px; border: 2px solid rgba(5,99,187,0.18); border-radius: 8px; background: rgba(5,99,187,0.03); display: flex; align-items: center; justify-content: center; position: relative; }
     .cert-frame::before { content: ''; position: absolute; top: -2px; left: -2px; width: 12px; height: 12px; border-width: 2px 0 0 2px; border-style: solid; border-color: var(--accent-color); opacity: 0.35; border-radius: 3px 0 0 0; }
@@ -60,7 +103,7 @@
     .cert-frame i { font-size: 30px; color: var(--accent-color); opacity: 0.22; }
     .cert-placeholder-label { font-family: var(--nav-font); font-size: 11px; color: var(--accent-color); opacity: 0.42; }
 
-    /* Zoom overlay */
+    /* Zoom overlay (hanya untuk gambar) */
     .cert-zoom-overlay { position: absolute; inset: 0; background: rgba(5,99,187,0.82); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; opacity: 0; transition: opacity 0.22s; }
     .cert-img-wrap:hover .cert-zoom-overlay { opacity: 1; }
     .cert-zoom-overlay i { font-size: 22px; color: #fff; }
@@ -78,7 +121,7 @@
     .cert-link { font-family: var(--nav-font); font-size: 11px; font-weight: 600; color: var(--accent-color); text-decoration: none; display: inline-flex; align-items: center; gap: 5px; padding: 5px 13px; border-radius: 20px; border: 1.5px solid rgba(5,99,187,0.22); transition: all 0.2s; }
     .cert-link:hover { background: var(--accent-color); border-color: var(--accent-color); color: #fff; }
 
-    /* Lightbox */
+    /* Lightbox (hanya untuk gambar) */
     .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; align-items: center; justify-content: center; padding: 24px; }
     .lightbox.open { display: flex; }
     .lightbox-inner { position: relative; max-width: 800px; width: 100%; animation: zoomIn 0.28s ease; }
@@ -131,7 +174,7 @@
     </div>
   </main>
 
-  <!-- Lightbox -->
+  <!-- Lightbox (hanya untuk gambar) -->
   <div class="lightbox" id="lightbox">
     <div class="lightbox-inner">
       <button class="lightbox-close" id="lightboxClose"><i class="fas fa-times"></i></button>
@@ -140,7 +183,49 @@
   </div>
 
   <script type="module">
-    import { supabase, fetchData } from './supabase.js';
+    import { supabase } from './supabase.js';
+
+    // Cek apakah URL adalah PDF
+    function isPDF(url) {
+      return url && url.toLowerCase().includes('.pdf');
+    }
+
+    // Render area preview berdasarkan tipe file
+    function renderFileArea(c) {
+      if (!c.image_url) {
+        // Tidak ada file
+        return `
+          <div class="cert-img-wrap" style="cursor:default">
+            <div class="cert-img-placeholder">
+              <div class="cert-frame"><i class="fas fa-certificate"></i></div>
+              <span class="cert-placeholder-label">Belum ada file</span>
+            </div>
+          </div>`;
+      }
+
+      if (isPDF(c.image_url)) {
+        // Tampilkan area PDF dengan link langsung buka
+        return `
+          <a href="${c.image_url}" target="_blank" class="cert-pdf-wrap">
+            <span class="cert-pdf-badge">PDF</span>
+            <div class="cert-pdf-icon-wrap">
+              <i class="fas fa-file-pdf"></i>
+            </div>
+            <span class="cert-pdf-label">Lihat Sertifikat</span>
+            <span class="cert-pdf-sublabel">Klik untuk buka PDF</span>
+          </a>`;
+      }
+
+      // Tampilkan gambar dengan zoom overlay
+      return `
+        <div class="cert-img-wrap" data-src="${c.image_url}">
+          <img src="${c.image_url}" alt="${c.cert_name}" loading="lazy">
+          <div class="cert-zoom-overlay">
+            <i class="fas fa-magnifying-glass-plus"></i>
+            <span>Lihat Sertifikat</span>
+          </div>
+        </div>`;
+    }
 
     async function loadCertifications() {
       const grid = document.getElementById('certGrid');
@@ -156,28 +241,16 @@
       }
 
       // Update stats
-      const uniqueIssuers = new Set(data.map(c => c.issuer)).size;
       document.getElementById('statTotal').textContent  = data.length;
-      document.getElementById('statIssuer').textContent = uniqueIssuers;
+      document.getElementById('statIssuer').textContent = new Set(data.map(c => c.issuer)).size;
 
       let delay = 0.3;
       grid.innerHTML = data.map(c => {
-        const imgHtml = c.image_url
-          ? `<img src="${c.image_url}" alt="${c.cert_name}" loading="lazy">
-             <div class="cert-zoom-overlay"><i class="fas fa-magnifying-glass-plus"></i><span>Lihat Sertifikat</span></div>`
-          : `<div class="cert-img-placeholder">
-               <div class="cert-frame"><i class="fas fa-certificate"></i></div>
-               <span class="cert-placeholder-label">Belum ada foto</span>
-             </div>`;
-
         const d = delay;
         delay += 0.1;
-
         return `
           <div class="cert-card" style="animation: fadeUp 0.55s ease ${d}s forwards;">
-            <div class="cert-img-wrap" ${c.image_url ? `data-src="${c.image_url}"` : ''}>
-              ${imgHtml}
-            </div>
+            ${renderFileArea(c)}
             <div class="cert-body">
               <div class="cert-issuer-row">
                 <div class="cert-issuer-icon"><i class="${c.issuer_icon || 'fas fa-building'}"></i></div>
@@ -186,15 +259,14 @@
               <p class="cert-name">${c.cert_name}</p>
               <div class="cert-footer">
                 <span class="cert-date"><i class="fas fa-calendar"></i> ${c.issued_date || '—'}</span>
-                ${c.cert_url ? `<a href="${c.cert_url}" target="_blank" class="cert-link"><i class="fas fa-arrow-up-right-from-square"></i> Lihat</a>` : ''}
+                ${c.cert_url ? `<a href="${c.cert_url}" target="_blank" class="cert-link"><i class="fas fa-arrow-up-right-from-square"></i> Verifikasi</a>` : ''}
               </div>
             </div>
           </div>`;
       }).join('');
 
-      // Lightbox
+      // Lightbox hanya untuk kartu yang punya gambar (bukan PDF)
       document.querySelectorAll('.cert-img-wrap[data-src]').forEach(wrap => {
-        wrap.style.cursor = 'zoom-in';
         wrap.addEventListener('click', () => {
           document.getElementById('lightboxImg').src = wrap.dataset.src;
           document.getElementById('lightbox').classList.add('open');
@@ -202,16 +274,10 @@
       });
     }
 
-    // Lightbox close
-    document.getElementById('lightboxClose').addEventListener('click', () =>
-      document.getElementById('lightbox').classList.remove('open'));
-    document.getElementById('lightbox').addEventListener('click', e => {
-      if (e.target === document.getElementById('lightbox'))
-        document.getElementById('lightbox').classList.remove('open');
-    });
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') document.getElementById('lightbox').classList.remove('open');
-    });
+    // Lightbox controls
+    document.getElementById('lightboxClose').addEventListener('click', () => document.getElementById('lightbox').classList.remove('open'));
+    document.getElementById('lightbox').addEventListener('click', e => { if (e.target === document.getElementById('lightbox')) document.getElementById('lightbox').classList.remove('open'); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') document.getElementById('lightbox').classList.remove('open'); });
 
     loadCertifications();
   </script>

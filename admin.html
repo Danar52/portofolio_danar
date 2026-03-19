@@ -29,748 +29,192 @@
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-
-    body {
-      font-family: var(--font);
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-    }
-
+    body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; display: flex; }
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-thumb { background: rgba(5,99,187,0.2); border-radius: 10px; }
 
     /* ===================== SIDEBAR ===================== */
-    #adminSidebar {
-      width: var(--sidebar-w);
-      min-height: 100vh;
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      position: fixed;
-      top: 0; left: 0;
-      z-index: 100;
-      transition: transform 0.3s ease;
-    }
-
-    .sidebar-brand {
-      padding: 24px 20px 20px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .brand-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .brand-icon {
-      width: 36px; height: 36px;
-      border-radius: 10px;
-      background: var(--accent);
-      color: #fff;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 15px;
-      flex-shrink: 0;
-    }
-
-    .brand-name {
-      font-family: var(--font-h);
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--heading);
-    }
-
-    .brand-role {
-      font-family: var(--font-nav);
-      font-size: 10px;
-      color: var(--text);
-      opacity: 0.45;
-    }
-
-    /* Nav */
-    .sidebar-nav {
-      flex: 1;
-      padding: 16px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .nav-section-label {
-      font-family: var(--font-nav);
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--text);
-      opacity: 0.35;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      padding: 10px 8px 6px;
-    }
-
-    .sidebar-link {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      border-radius: 10px;
-      font-family: var(--font-nav);
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--heading);
-      text-decoration: none;
-      cursor: pointer;
-      transition: background 0.2s ease, color 0.2s ease;
-      border: none;
-      background: none;
-      width: 100%;
-      text-align: left;
-    }
-
+    #adminSidebar { width: var(--sidebar-w); min-height: 100vh; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 100; transition: transform 0.3s ease; }
+    .sidebar-brand { padding: 24px 20px 20px; border-bottom: 1px solid var(--border); }
+    .brand-row { display: flex; align-items: center; gap: 10px; }
+    .brand-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+    .brand-name { font-family: var(--font-h); font-size: 14px; font-weight: 700; color: var(--heading); }
+    .brand-role { font-family: var(--font-nav); font-size: 10px; color: var(--text); opacity: 0.45; }
+    .sidebar-nav { flex: 1; padding: 16px 12px; display: flex; flex-direction: column; gap: 2px; }
+    .nav-section-label { font-family: var(--font-nav); font-size: 10px; font-weight: 700; color: var(--text); opacity: 0.35; text-transform: uppercase; letter-spacing: 1px; padding: 10px 8px 6px; }
+    .sidebar-link { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; font-family: var(--font-nav); font-size: 13px; font-weight: 500; color: var(--heading); text-decoration: none; cursor: pointer; transition: background 0.2s ease, color 0.2s ease; border: none; background: none; width: 100%; text-align: left; }
     .sidebar-link i { width: 16px; text-align: center; font-size: 14px; opacity: 0.65; }
-
     .sidebar-link:hover { background: var(--accent-lt); color: var(--accent); }
     .sidebar-link:hover i { opacity: 1; }
-
-    .sidebar-link.active {
-      background: var(--accent-lt);
-      color: var(--accent);
-      font-weight: 600;
-    }
-
+    .sidebar-link.active { background: var(--accent-lt); color: var(--accent); font-weight: 600; }
     .sidebar-link.active i { opacity: 1; }
-
-    /* Sidebar footer */
-    .sidebar-footer {
-      padding: 16px 12px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+    .sidebar-footer { padding: 16px 12px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 4px; }
 
     /* ===================== MAIN ===================== */
-    #adminMain {
-      margin-left: var(--sidebar-w);
-      flex: 1;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Topbar */
-    .topbar {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 16px 32px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      position: sticky;
-      top: 0;
-      z-index: 50;
-    }
-
-    .topbar-title {
-      font-family: var(--font-h);
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--heading);
-    }
-
+    #adminMain { margin-left: var(--sidebar-w); flex: 1; min-height: 100vh; display: flex; flex-direction: column; }
+    .topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; gap: 16px; position: sticky; top: 0; z-index: 50; }
+    .topbar-title { font-family: var(--font-h); font-size: 18px; font-weight: 700; color: var(--heading); }
     .topbar-title span { color: var(--accent); }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
 
-    .topbar-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 9px 18px;
-      border-radius: 9px;
-      font-family: var(--font-nav);
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      border: none;
-      text-decoration: none;
-    }
-
-    .btn-primary {
-      background: var(--accent);
-      color: #fff;
-      box-shadow: 0 3px 10px rgba(5,99,187,0.25);
-    }
-
-    .btn-primary:hover {
-      background: #0452a3;
-      box-shadow: 0 5px 16px rgba(5,99,187,0.35);
-      transform: translateY(-1px);
-    }
-
-    .btn-outline {
-      background: transparent;
-      color: var(--heading);
-      border: 1.5px solid var(--border);
-    }
-
-    .btn-outline:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-      background: var(--accent-lt);
-    }
-
-    .btn-danger {
-      background: rgba(229,62,62,0.08);
-      color: var(--error);
-      border: 1.5px solid rgba(229,62,62,0.2);
-    }
-
-    .btn-danger:hover {
-      background: var(--error);
-      color: #fff;
-      border-color: var(--error);
-    }
-
+    .btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: 9px; font-family: var(--font-nav); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; border: none; text-decoration: none; }
+    .btn-primary { background: var(--accent); color: #fff; box-shadow: 0 3px 10px rgba(5,99,187,0.25); }
+    .btn-primary:hover { background: #0452a3; box-shadow: 0 5px 16px rgba(5,99,187,0.35); transform: translateY(-1px); }
+    .btn-outline { background: transparent; color: var(--heading); border: 1.5px solid var(--border); }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-lt); }
+    .btn-danger { background: rgba(229,62,62,0.08); color: var(--error); border: 1.5px solid rgba(229,62,62,0.2); }
+    .btn-danger:hover { background: var(--error); color: #fff; border-color: var(--error); }
     .btn-sm { padding: 6px 12px; font-size: 11px; }
 
-    /* Content area */
-    .content {
-      padding: 32px;
-      flex: 1;
-    }
-
-    /* Page sections */
+    .content { padding: 32px; flex: 1; }
     .page { display: none; }
     .page.active { display: block; }
 
-    /* ── Section header ── */
-    .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .section-title {
-      font-family: var(--font-h);
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--heading);
-    }
-
-    .section-title span { color: var(--accent); }
-
-    /* ── Toast notification ── */
-    #toast {
-      position: fixed;
-      bottom: 28px;
-      right: 28px;
-      background: var(--heading);
-      color: #fff;
-      padding: 14px 20px;
-      border-radius: 12px;
-      font-family: var(--font-nav);
-      font-size: 13px;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.18);
-      z-index: 9999;
-      transform: translateY(80px);
-      opacity: 0;
-      transition: transform 0.3s ease, opacity 0.3s ease;
-    }
-
+    /* ── Toast ── */
+    #toast { position: fixed; bottom: 28px; right: 28px; background: var(--heading); color: #fff; padding: 14px 20px; border-radius: 12px; font-family: var(--font-nav); font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.18); z-index: 9999; transform: translateY(80px); opacity: 0; transition: transform 0.3s ease, opacity 0.3s ease; }
     #toast.show { transform: translateY(0); opacity: 1; }
     #toast.success { background: var(--success); }
-    #toast.error   { background: var(--error); }
+    #toast.error { background: var(--error); }
 
     /* ── Modal ── */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 24px; }
     .modal-overlay.open { display: flex; }
-
-    .modal {
-      background: var(--surface);
-      border-radius: 16px;
-      width: 100%;
-      max-width: 560px;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-      animation: modalIn 0.28s ease;
-    }
-
-    @keyframes modalIn {
-      from { transform: scale(0.92); opacity: 0; }
-      to   { transform: scale(1);    opacity: 1; }
-    }
-
-    .modal-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 22px 28px 16px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .modal-title {
-      font-family: var(--font-h);
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--heading);
-    }
-
-    .modal-close {
-      width: 32px; height: 32px;
-      border-radius: 8px;
-      border: none;
-      background: var(--bg);
-      color: var(--heading);
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px;
-      transition: background 0.2s;
-    }
-
+    .modal { background: var(--surface); border-radius: 16px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); animation: modalIn 0.28s ease; }
+    @keyframes modalIn { from { transform: scale(0.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 22px 28px 16px; border-bottom: 1px solid var(--border); }
+    .modal-title { font-family: var(--font-h); font-size: 18px; font-weight: 700; color: var(--heading); }
+    .modal-close { width: 32px; height: 32px; border-radius: 8px; border: none; background: var(--bg); color: var(--heading); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: background 0.2s; }
     .modal-close:hover { background: var(--border); }
-
     .modal-body { padding: 24px 28px; }
-    .modal-footer {
-      padding: 16px 28px 24px;
-      display: flex;
-      gap: 10px;
-      justify-content: flex-end;
-      border-top: 1px solid var(--border);
-    }
+    .modal-footer { padding: 16px 28px 24px; display: flex; gap: 10px; justify-content: flex-end; border-top: 1px solid var(--border); }
 
-    /* ── Form elements ── */
+    /* ── Form ── */
     .form-group { margin-bottom: 18px; }
-    .form-label {
-      display: block;
-      font-family: var(--font-nav);
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--heading);
-      margin-bottom: 7px;
-    }
-
-    .form-input, .form-textarea, .form-select {
-      width: 100%;
-      padding: 10px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: 9px;
-      font-family: var(--font);
-      font-size: 14px;
-      color: var(--text);
-      background: var(--surface);
-      outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .form-input:focus, .form-textarea:focus, .form-select:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(5,99,187,0.1);
-    }
-
+    .form-label { display: block; font-family: var(--font-nav); font-size: 12px; font-weight: 600; color: var(--heading); margin-bottom: 7px; }
+    .form-input, .form-textarea, .form-select { width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 9px; font-family: var(--font); font-size: 14px; color: var(--text); background: var(--surface); outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+    .form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(5,99,187,0.1); }
     .form-textarea { resize: vertical; min-height: 90px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-hint { font-size: 11px; color: var(--text); opacity: 0.45; margin-top: 5px; }
 
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-
-    .form-hint {
-      font-size: 11px;
-      color: var(--text);
-      opacity: 0.45;
-      margin-top: 5px;
-    }
-
-    /* Toggle switch */
-    .toggle-wrap {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .toggle {
-      position: relative;
-      width: 40px; height: 22px;
-      flex-shrink: 0;
-    }
-
+    /* Toggle */
+    .toggle-wrap { display: flex; align-items: center; gap: 10px; }
+    .toggle { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
     .toggle input { opacity: 0; width: 0; height: 0; }
-
-    .toggle-slider {
-      position: absolute;
-      inset: 0;
-      background: var(--border);
-      border-radius: 999px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .toggle-slider::before {
-      content: '';
-      position: absolute;
-      width: 16px; height: 16px;
-      border-radius: 50%;
-      background: #fff;
-      left: 3px; top: 3px;
-      transition: transform 0.2s;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.15);
-    }
-
+    .toggle-slider { position: absolute; inset: 0; background: var(--border); border-radius: 999px; cursor: pointer; transition: background 0.2s; }
+    .toggle-slider::before { content: ''; position: absolute; width: 16px; height: 16px; border-radius: 50%; background: #fff; left: 3px; top: 3px; transition: transform 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.15); }
     .toggle input:checked + .toggle-slider { background: var(--accent); }
     .toggle input:checked + .toggle-slider::before { transform: translateX(18px); }
-
-    .toggle-label {
-      font-family: var(--font-nav);
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--heading);
-    }
+    .toggle-label { font-family: var(--font-nav); font-size: 13px; font-weight: 500; color: var(--heading); }
 
     /* ── Table ── */
-    .table-wrap {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    thead {
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
-    }
-
-    th {
-      padding: 12px 16px;
-      font-family: var(--font-nav);
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--heading);
-      text-transform: uppercase;
-      letter-spacing: 0.6px;
-      text-align: left;
-      white-space: nowrap;
-    }
-
-    td {
-      padding: 13px 16px;
-      font-size: 13px;
-      color: var(--text);
-      border-bottom: 1px solid var(--border);
-      vertical-align: middle;
-    }
-
+    .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: var(--bg); border-bottom: 1px solid var(--border); }
+    th { padding: 12px 16px; font-family: var(--font-nav); font-size: 11px; font-weight: 700; color: var(--heading); text-transform: uppercase; letter-spacing: 0.6px; text-align: left; white-space: nowrap; }
+    td { padding: 13px 16px; font-size: 13px; color: var(--text); border-bottom: 1px solid var(--border); vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
     tr:hover td { background: var(--accent-lt); }
+    .td-actions { display: flex; gap: 6px; align-items: center; }
 
-    .td-actions {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
+    .tbl-img { width: 52px; height: 40px; border-radius: 7px; object-fit: cover; background: var(--bg); border: 1px solid var(--border); }
+    .tbl-img-placeholder { width: 52px; height: 40px; border-radius: 7px; background: var(--bg); border: 1px dashed var(--border); display: flex; align-items: center; justify-content: center; font-size: 16px; color: var(--heading); opacity: 0.3; }
 
-    /* Image preview in table */
-    .tbl-img {
+    /* ── PDF preview in table ── */
+    .tbl-pdf {
       width: 52px; height: 40px;
       border-radius: 7px;
-      object-fit: cover;
-      background: var(--bg);
-      border: 1px solid var(--border);
-    }
-
-    .tbl-img-placeholder {
-      width: 52px; height: 40px;
-      border-radius: 7px;
-      background: var(--bg);
-      border: 1px dashed var(--border);
+      background: rgba(229,62,62,0.07);
+      border: 1px solid rgba(229,62,62,0.2);
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
-      color: var(--heading);
-      opacity: 0.3;
+      gap: 2px;
+      text-decoration: none;
     }
+    .tbl-pdf i { font-size: 14px; color: #e53e3e; }
+    .tbl-pdf span { font-family: var(--font-nav); font-size: 9px; font-weight: 700; color: #e53e3e; letter-spacing: 0.5px; }
 
     /* Badges */
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-family: var(--font-nav);
-      font-size: 10px;
-      font-weight: 600;
-      padding: 3px 9px;
-      border-radius: 20px;
-    }
-
+    .badge { display: inline-flex; align-items: center; gap: 4px; font-family: var(--font-nav); font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
     .badge-aktif   { background: rgba(56,161,105,0.1);  color: #2f855a; }
     .badge-selesai { background: rgba(69,80,91,0.08);   color: var(--heading); }
     .badge-org     { background: rgba(5,99,187,0.09);   color: var(--accent); }
     .badge-event   { background: rgba(13,155,121,0.1);  color: #0a8f71; }
     .badge-comp    { background: rgba(194,97,12,0.09);  color: #b5590a; }
 
-    /* Progress in table */
-    .pct-wrap {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    /* Progress */
+    .pct-wrap { display: flex; align-items: center; gap: 8px; }
+    .pct-bar { flex: 1; height: 5px; background: var(--border); border-radius: 999px; overflow: hidden; min-width: 60px; }
+    .pct-fill { height: 100%; background: linear-gradient(90deg, var(--accent), #4a9eff); border-radius: 999px; }
+    .pct-num { font-family: var(--font-nav); font-size: 11px; font-weight: 700; color: var(--accent); min-width: 30px; }
 
-    .pct-bar {
-      flex: 1;
-      height: 5px;
-      background: var(--border);
-      border-radius: 999px;
-      overflow: hidden;
-      min-width: 60px;
-    }
-
-    .pct-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent), #4a9eff);
-      border-radius: 999px;
-    }
-
-    .pct-num {
-      font-family: var(--font-nav);
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--accent);
-      min-width: 30px;
-    }
-
-    /* Empty state */
-    .empty-state {
-      text-align: center;
-      padding: 48px 24px;
-      color: var(--heading);
-      opacity: 0.45;
-    }
-
-    .empty-state i {
-      font-size: 36px;
-      margin-bottom: 12px;
-      display: block;
-    }
-
-    .empty-state p {
-      font-family: var(--font-nav);
-      font-size: 13px;
-    }
-
-    /* Loading */
-    .loading {
-      text-align: center;
-      padding: 40px;
-      color: var(--accent);
-    }
-
+    /* Empty / Loading */
+    .empty-state { text-align: center; padding: 48px 24px; color: var(--heading); opacity: 0.45; }
+    .empty-state i { font-size: 36px; margin-bottom: 12px; display: block; }
+    .empty-state p { font-family: var(--font-nav); font-size: 13px; }
+    .loading { text-align: center; padding: 40px; color: var(--accent); }
     .loading i { font-size: 24px; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Image upload field */
-    .img-upload-area {
+    /* Tags input */
+    .tags-input-wrap { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: 9px; cursor: text; min-height: 44px; transition: border-color 0.2s, box-shadow 0.2s; }
+    .tags-input-wrap:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(5,99,187,0.1); }
+    .tag-chip { display: inline-flex; align-items: center; gap: 5px; background: var(--accent-lt); color: var(--accent); border-radius: 20px; padding: 3px 10px; font-family: var(--font-nav); font-size: 12px; font-weight: 500; }
+    .tag-chip button { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 10px; padding: 0; opacity: 0.7; }
+    .tags-input { border: none; outline: none; font-size: 13px; font-family: var(--font); color: var(--text); flex: 1; min-width: 80px; background: transparent; }
+
+    /* Range */
+    .range-wrap { display: flex; align-items: center; gap: 12px; }
+    .range-wrap input[type=range] { flex: 1; accent-color: var(--accent); height: 4px; }
+    .range-val { font-family: var(--font-nav); font-size: 13px; font-weight: 700; color: var(--accent); min-width: 36px; }
+
+    /* ── File upload area ── */
+    .file-upload-area {
       border: 2px dashed var(--border);
       border-radius: 10px;
       padding: 20px;
       text-align: center;
       cursor: pointer;
       transition: border-color 0.2s, background 0.2s;
-    }
-
-    .img-upload-area:hover {
-      border-color: var(--accent);
-      background: var(--accent-lt);
-    }
-
-    .img-upload-area i {
-      font-size: 24px;
-      color: var(--accent);
-      opacity: 0.4;
-      display: block;
-      margin-bottom: 8px;
-    }
-
-    .img-upload-area p {
-      font-family: var(--font-nav);
-      font-size: 12px;
-      color: var(--heading);
-      opacity: 0.5;
-    }
-
-    .img-upload-area input { display: none; }
-
-    .img-preview-wrap {
-      display: none;
       position: relative;
-      margin-top: 10px;
     }
+    .file-upload-area:hover { border-color: var(--accent); background: var(--accent-lt); }
+    .file-upload-area input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .file-upload-area i { font-size: 24px; color: var(--accent); opacity: 0.4; display: block; margin-bottom: 8px; }
+    .file-upload-area p { font-family: var(--font-nav); font-size: 12px; color: var(--heading); opacity: 0.5; }
+    .file-upload-area .file-type-hint { font-family: var(--font-nav); font-size: 10px; color: var(--accent); opacity: 0.6; margin-top: 4px; }
 
-    .img-preview-wrap img {
-      width: 100%;
-      border-radius: 8px;
-      max-height: 180px;
-      object-fit: cover;
-    }
-
-    .img-preview-wrap .remove-img {
-      position: absolute;
-      top: 6px; right: 6px;
-      width: 26px; height: 26px;
-      border-radius: 50%;
-      background: rgba(0,0,0,0.6);
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px;
-    }
-
-    /* Tags input */
-    .tags-input-wrap {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      padding: 8px 10px;
-      border: 1.5px solid var(--border);
-      border-radius: 9px;
-      cursor: text;
-      min-height: 44px;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-
-    .tags-input-wrap:focus-within {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(5,99,187,0.1);
-    }
-
-    .tag-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: var(--accent-lt);
-      color: var(--accent);
-      border-radius: 20px;
-      padding: 3px 10px;
-      font-family: var(--font-nav);
-      font-size: 12px;
-      font-weight: 500;
-    }
-
-    .tag-chip button {
-      background: none;
-      border: none;
-      color: var(--accent);
-      cursor: pointer;
-      font-size: 10px;
-      padding: 0;
-      opacity: 0.7;
-    }
-
-    .tags-input {
-      border: none;
-      outline: none;
-      font-size: 13px;
-      font-family: var(--font);
-      color: var(--text);
-      flex: 1;
-      min-width: 80px;
-      background: transparent;
-    }
-
-    /* Range slider for percentage */
-    .range-wrap {
+    /* Current file preview */
+    .current-file-preview {
       display: flex;
       align-items: center;
       gap: 12px;
+      padding: 12px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      margin-bottom: 10px;
     }
+    .current-file-preview .file-icon { font-size: 24px; flex-shrink: 0; }
+    .current-file-preview .file-icon.img-icon { color: var(--accent); }
+    .current-file-preview .file-icon.pdf-icon { color: #e53e3e; }
+    .current-file-preview .file-info { flex: 1; min-width: 0; }
+    .current-file-preview .file-name { font-family: var(--font-nav); font-size: 12px; font-weight: 600; color: var(--heading); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .current-file-preview .file-type-badge { font-family: var(--font-nav); font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; display: inline-block; margin-top: 3px; }
+    .current-file-preview .file-type-badge.img { background: rgba(5,99,187,0.1); color: var(--accent); }
+    .current-file-preview .file-type-badge.pdf { background: rgba(229,62,62,0.1); color: #e53e3e; }
+    .current-file-preview a { color: var(--accent); font-size: 12px; text-decoration: none; white-space: nowrap; }
+    .current-file-preview a:hover { text-decoration: underline; }
 
-    .range-wrap input[type=range] {
-      flex: 1;
-      accent-color: var(--accent);
-      height: 4px;
-    }
+    /* Confirm */
+    .confirm-modal { max-width: 380px; padding: 32px; text-align: center; }
+    .confirm-icon { width: 56px; height: 56px; border-radius: 50%; background: rgba(229,62,62,0.1); color: var(--error); font-size: 22px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
+    .confirm-title { font-family: var(--font-h); font-size: 18px; font-weight: 700; color: var(--heading); margin-bottom: 8px; }
+    .confirm-text { font-size: 14px; color: var(--text); opacity: 0.65; margin-bottom: 24px; line-height: 1.6; }
+    .confirm-btns { display: flex; gap: 10px; justify-content: center; }
 
-    .range-val {
-      font-family: var(--font-nav);
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--accent);
-      min-width: 36px;
-    }
-
-    /* Confirm dialog */
-    .confirm-modal {
-      max-width: 380px;
-      padding: 32px;
-      text-align: center;
-    }
-
-    .confirm-icon {
-      width: 56px; height: 56px;
-      border-radius: 50%;
-      background: rgba(229,62,62,0.1);
-      color: var(--error);
-      font-size: 22px;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 16px;
-    }
-
-    .confirm-title {
-      font-family: var(--font-h);
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--heading);
-      margin-bottom: 8px;
-    }
-
-    .confirm-text {
-      font-size: 14px;
-      color: var(--text);
-      opacity: 0.65;
-      margin-bottom: 24px;
-      line-height: 1.6;
-    }
-
-    .confirm-btns {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-    }
-
-    /* Responsive */
     @media (max-width: 900px) {
       :root { --sidebar-w: 0px; }
       #adminSidebar { transform: translateX(-240px); width: 240px; }
@@ -779,16 +223,11 @@
       .topbar { padding: 14px 20px; }
       .content { padding: 20px; }
     }
-
-    @media (max-width: 560px) {
-      .form-row { grid-template-columns: 1fr; }
-      .modal { border-radius: 12px; }
-    }
+    @media (max-width: 560px) { .form-row { grid-template-columns: 1fr; } .modal { border-radius: 12px; } }
   </style>
 </head>
 <body>
 
-  <!-- ======================== SIDEBAR ======================== -->
   <aside id="adminSidebar">
     <div class="sidebar-brand">
       <div class="brand-row">
@@ -799,85 +238,46 @@
         </div>
       </div>
     </div>
-
     <nav class="sidebar-nav">
       <p class="nav-section-label">Menu</p>
-      <button class="sidebar-link active" data-page="skills">
-        <i class="fas fa-list-check"></i> Skills
-      </button>
-      <button class="sidebar-link" data-page="experience">
-        <i class="fas fa-briefcase"></i> Experience
-      </button>
-      <button class="sidebar-link" data-page="events">
-        <i class="fas fa-calendar-days"></i> Event / Org
-      </button>
-      <button class="sidebar-link" data-page="certifications">
-        <i class="fas fa-award"></i> Certification
-      </button>
-
+      <button class="sidebar-link active" data-page="skills"><i class="fas fa-list-check"></i> Skills</button>
+      <button class="sidebar-link" data-page="experience"><i class="fas fa-briefcase"></i> Experience</button>
+      <button class="sidebar-link" data-page="events"><i class="fas fa-calendar-days"></i> Event / Org</button>
+      <button class="sidebar-link" data-page="certifications"><i class="fas fa-award"></i> Certification</button>
       <p class="nav-section-label" style="margin-top:8px">Portfolio</p>
-      <a class="sidebar-link" href="index.html" target="_blank">
-        <i class="fas fa-eye"></i> Lihat Portfolio
-      </a>
+      <a class="sidebar-link" href="index.html" target="_blank"><i class="fas fa-eye"></i> Lihat Portfolio</a>
     </nav>
-
     <div class="sidebar-footer">
-      <button class="sidebar-link" id="btnLogout">
-        <i class="fas fa-right-from-bracket"></i> Logout
-      </button>
+      <button class="sidebar-link" id="btnLogout"><i class="fas fa-right-from-bracket"></i> Logout</button>
     </div>
   </aside>
 
-  <!-- ======================== MAIN ======================== -->
   <div id="adminMain">
-
-    <!-- Topbar -->
     <header class="topbar">
       <h1 class="topbar-title" id="topbarTitle">Manage <span>Skills</span></h1>
       <div class="topbar-right">
-        <button class="btn btn-primary" id="btnAddNew">
-          <i class="fas fa-plus"></i> Tambah Baru
-        </button>
+        <button class="btn btn-primary" id="btnAddNew"><i class="fas fa-plus"></i> Tambah Baru</button>
       </div>
     </header>
 
     <div class="content">
-
-      <!-- ═══════════════ SKILLS PAGE ═══════════════ -->
       <div class="page active" id="page-skills">
-        <div id="skillsContent">
-          <div class="loading"><i class="fas fa-circle-notch"></i></div>
-        </div>
+        <div id="skillsContent"><div class="loading"><i class="fas fa-circle-notch"></i></div></div>
       </div>
-
-      <!-- ═══════════════ EXPERIENCE PAGE ═══════════════ -->
       <div class="page" id="page-experience">
-        <div id="expContent">
-          <div class="loading"><i class="fas fa-circle-notch"></i></div>
-        </div>
+        <div id="expContent"><div class="loading"><i class="fas fa-circle-notch"></i></div></div>
       </div>
-
-      <!-- ═══════════════ EVENTS PAGE ═══════════════ -->
       <div class="page" id="page-events">
-        <div id="eventsContent">
-          <div class="loading"><i class="fas fa-circle-notch"></i></div>
-        </div>
+        <div id="eventsContent"><div class="loading"><i class="fas fa-circle-notch"></i></div></div>
       </div>
-
-      <!-- ═══════════════ CERTIFICATIONS PAGE ═══════════════ -->
       <div class="page" id="page-certifications">
-        <div id="certContent">
-          <div class="loading"><i class="fas fa-circle-notch"></i></div>
-        </div>
+        <div id="certContent"><div class="loading"><i class="fas fa-circle-notch"></i></div></div>
       </div>
-
     </div>
   </div>
 
-  <!-- ======================== TOAST ======================== -->
   <div id="toast"><i class="fas fa-check-circle"></i><span id="toastText"></span></div>
 
-  <!-- ======================== MODAL ======================== -->
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal" id="modalBox">
       <div class="modal-header">
@@ -885,16 +285,13 @@
         <button class="modal-close" id="modalClose"><i class="fas fa-times"></i></button>
       </div>
       <div class="modal-body" id="modalBody"></div>
-      <div class="modal-footer" id="modalFooter">
+      <div class="modal-footer">
         <button class="btn btn-outline" id="btnCancel">Batal</button>
-        <button class="btn btn-primary" id="btnSave">
-          <i class="fas fa-floppy-disk"></i> Simpan
-        </button>
+        <button class="btn btn-primary" id="btnSave"><i class="fas fa-floppy-disk"></i> Simpan</button>
       </div>
     </div>
   </div>
 
-  <!-- Confirm Modal -->
   <div class="modal-overlay" id="confirmOverlay">
     <div class="modal" style="max-width:360px">
       <div class="modal-body">
@@ -911,19 +308,13 @@
     </div>
   </div>
 
-  <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // ══════════════════════════════════════════════
-    // CONFIG — ganti dengan milik lo
-    // ══════════════════════════════════════════════
     const SUPABASE_URL      = 'https://vdnysjewpqunxokscaan.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkbnlzamV3cHF1bnhva3NjYWFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MjQ2MDcsImV4cCI6MjA4OTUwMDYwN30.GfnHPRuO8bDdfTJeOhLAV0gw54_PDGojQCrVPTzSA3g';
-
     const { createClient } = supabase;
     const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // ── Auth guard ──────────────────────────────────────────
     db.auth.getSession().then(({ data }) => {
       if (!data.session) window.location.href = 'admin-login.html';
     });
@@ -933,9 +324,8 @@
     // ══════════════════════════════════════════════
     function showToast(msg, type = 'success') {
       const t = document.getElementById('toast');
-      const icon = type === 'success' ? 'fa-check-circle' : 'fa-circle-exclamation';
       t.className = type;
-      t.querySelector('i').className = `fas ${icon}`;
+      t.querySelector('i').className = `fas ${type === 'success' ? 'fa-check-circle' : 'fa-circle-exclamation'}`;
       document.getElementById('toastText').textContent = msg;
       t.classList.add('show');
       setTimeout(() => t.classList.remove('show'), 3000);
@@ -963,30 +353,70 @@
 
     document.getElementById('modalClose').onclick  = closeModal;
     document.getElementById('btnCancel').onclick   = closeModal;
-    document.getElementById('confirmCancel').onclick = () =>
-      document.getElementById('confirmOverlay').classList.remove('open');
-    document.getElementById('modalOverlay').onclick = e => {
-      if (e.target === document.getElementById('modalOverlay')) closeModal();
-    };
+    document.getElementById('confirmCancel').onclick = () => document.getElementById('confirmOverlay').classList.remove('open');
+    document.getElementById('modalOverlay').onclick = e => { if (e.target === document.getElementById('modalOverlay')) closeModal(); };
 
-    // Upload image to Supabase Storage
-    async function uploadImage(file, folder) {
-      const ext  = file.name.split('.').pop();
+    // ── Upload file (gambar atau PDF) ke Supabase Storage ──
+    async function uploadFile(file, folder) {
+      const ext  = file.name.split('.').pop().toLowerCase();
       const path = `${folder}/${Date.now()}.${ext}`;
       const { error } = await db.storage.from('portfolio-images').upload(path, file, { upsert: true });
-      if (error) { showToast('Gagal upload gambar', 'error'); return null; }
+      if (error) { showToast('Gagal upload file: ' + error.message, 'error'); return null; }
       const { data } = db.storage.from('portfolio-images').getPublicUrl(path);
       return data.publicUrl;
+    }
+
+    // ── Helper: cek apakah URL adalah PDF ──
+    function isPDF(url) {
+      return url && url.toLowerCase().includes('.pdf');
+    }
+
+    // ── Render preview file di tabel ──
+    function renderTableFilePreview(url, altText) {
+      if (!url) return `<div class="tbl-img-placeholder"><i class="fas fa-file"></i></div>`;
+      if (isPDF(url)) {
+        return `<a href="${url}" target="_blank" class="tbl-pdf"><i class="fas fa-file-pdf"></i><span>PDF</span></a>`;
+      }
+      return `<img class="tbl-img" src="${url}" alt="${altText}">`;
+    }
+
+    // ── Render current file info di form modal ──
+    function renderCurrentFileInfo(url) {
+      if (!url) return '';
+      const fileName = url.split('/').pop();
+      if (isPDF(url)) {
+        return `
+          <div class="current-file-preview">
+            <i class="file-icon pdf-icon fas fa-file-pdf"></i>
+            <div class="file-info">
+              <p class="file-name">${fileName}</p>
+              <span class="file-type-badge pdf">PDF</span>
+            </div>
+            <a href="${url}" target="_blank"><i class="fas fa-external-link-alt"></i> Buka</a>
+          </div>
+          <p class="form-hint" style="margin-bottom:8px">Upload file baru untuk mengganti</p>`;
+      }
+      return `
+        <div class="current-file-preview">
+          <i class="file-icon img-icon fas fa-image"></i>
+          <div class="file-info">
+            <p class="file-name">${fileName}</p>
+            <span class="file-type-badge img">Gambar</span>
+          </div>
+          <a href="${url}" target="_blank"><i class="fas fa-external-link-alt"></i> Buka</a>
+        </div>
+        <img src="${url}" style="width:100%;border-radius:8px;max-height:140px;object-fit:cover;margin-bottom:8px">
+        <p class="form-hint" style="margin-bottom:8px">Upload file baru untuk mengganti</p>`;
     }
 
     // ══════════════════════════════════════════════
     // NAVIGATION
     // ══════════════════════════════════════════════
     const pageMap = {
-      skills:         { title: 'Manage <span>Skills</span>',         load: loadSkills },
-      experience:     { title: 'Manage <span>Experience</span>',     load: loadExperience },
-      events:         { title: 'Manage <span>Event / Org</span>',    load: loadEvents },
-      certifications: { title: 'Manage <span>Certification</span>',  load: loadCertifications },
+      skills:         { title: 'Manage <span>Skills</span>',        load: loadSkills },
+      experience:     { title: 'Manage <span>Experience</span>',    load: loadExperience },
+      events:         { title: 'Manage <span>Event / Org</span>',   load: loadEvents },
+      certifications: { title: 'Manage <span>Certification</span>', load: loadCertifications },
     };
 
     let currentPage = 'skills';
@@ -1004,13 +434,7 @@
     });
 
     document.getElementById('btnAddNew').addEventListener('click', () => {
-      const actions = {
-        skills:         openSkillForm,
-        experience:     openExpForm,
-        events:         openEventForm,
-        certifications: openCertForm,
-      };
-      actions[currentPage]();
+      ({ skills: openSkillForm, experience: openExpForm, events: openEventForm, certifications: openCertForm })[currentPage]();
     });
 
     // ══════════════════════════════════════════════
@@ -1022,12 +446,8 @@
       const { data, error } = await db.from('skills').select('*').order('category').order('sort_order');
       if (error || !data) { el.innerHTML = '<p style="color:red;padding:20px">Gagal load data.</p>'; return; }
 
-      // Group by category
       const groups = {};
-      data.forEach(s => {
-        if (!groups[s.category]) groups[s.category] = [];
-        groups[s.category].push(s);
-      });
+      data.forEach(s => { if (!groups[s.category]) groups[s.category] = []; groups[s.category].push(s); });
 
       let html = '';
       for (const [cat, items] of Object.entries(groups)) {
@@ -1036,39 +456,21 @@
             <h3 style="font-family:var(--font-h);font-size:15px;font-weight:700;color:var(--heading);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)">
               <i class="${items[0].category_icon}" style="color:var(--accent);margin-right:8px"></i>${cat}
             </h3>
-            <div class="table-wrap">
-              <table>
-                <thead><tr>
-                  <th>Skill</th><th>Persentase</th><th style="width:100px">Aksi</th>
-                </tr></thead>
-                <tbody>
-                  ${items.map(s => `
-                    <tr>
-                      <td><i class="${s.skill_icon}" style="color:var(--accent);margin-right:8px;opacity:.7"></i>${s.skill_name}</td>
-                      <td>
-                        <div class="pct-wrap">
-                          <div class="pct-bar"><div class="pct-fill" style="width:${s.percentage}%"></div></div>
-                          <span class="pct-num">${s.percentage}%</span>
-                        </div>
-                      </td>
-                      <td>
-                        <div class="td-actions">
-                          <button class="btn btn-outline btn-sm" onclick="openSkillForm(${JSON.stringify(s).replace(/"/g,'&quot;')})">
-                            <i class="fas fa-pen"></i>
-                          </button>
-                          <button class="btn btn-danger btn-sm" onclick="deleteSkill(${s.id},'${s.skill_name}')">
-                            <i class="fas fa-trash"></i>
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            </div>
+            <div class="table-wrap"><table>
+              <thead><tr><th>Skill</th><th>Persentase</th><th style="width:100px">Aksi</th></tr></thead>
+              <tbody>${items.map(s => `
+                <tr>
+                  <td><i class="${s.skill_icon}" style="color:var(--accent);margin-right:8px;opacity:.7"></i>${s.skill_name}</td>
+                  <td><div class="pct-wrap"><div class="pct-bar"><div class="pct-fill" style="width:${s.percentage}%"></div></div><span class="pct-num">${s.percentage}%</span></div></td>
+                  <td><div class="td-actions">
+                    <button class="btn btn-outline btn-sm" onclick="openSkillForm(${JSON.stringify(s).replace(/"/g,'&quot;')})"><i class="fas fa-pen"></i></button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteSkill(${s.id},'${s.skill_name}')"><i class="fas fa-trash"></i></button>
+                  </div></td>
+                </tr>`).join('')}
+              </tbody>
+            </table></div>
           </div>`;
       }
-
       el.innerHTML = html || '<div class="empty-state"><i class="fas fa-list-check"></i><p>Belum ada skill.</p></div>';
     }
 
@@ -1078,10 +480,10 @@
         <div class="form-group">
           <label class="form-label">Kategori</label>
           <select class="form-select" id="f_cat">
-            <option value="Frontend"      ${data?.category==='Frontend'?'selected':''}>Frontend</option>
-            <option value="Backend"       ${data?.category==='Backend'?'selected':''}>Backend</option>
-            <option value="Design"        ${data?.category==='Design'?'selected':''}>Design</option>
-            <option value="Tools & Others"${data?.category==='Tools & Others'?'selected':''}>Tools & Others</option>
+            <option value="Frontend"       ${data?.category==='Frontend'?'selected':''}>Frontend</option>
+            <option value="Backend"        ${data?.category==='Backend'?'selected':''}>Backend</option>
+            <option value="Design"         ${data?.category==='Design'?'selected':''}>Design</option>
+            <option value="Tools & Others" ${data?.category==='Tools & Others'?'selected':''}>Tools & Others</option>
           </select>
         </div>
         <div class="form-group">
@@ -1102,8 +504,7 @@
         <div class="form-group">
           <label class="form-label">Persentase: <span id="pctLabel" style="color:var(--accent);font-weight:700">${data?.percentage||70}%</span></label>
           <div class="range-wrap">
-            <input type="range" id="f_pct" min="0" max="100" value="${data?.percentage||70}"
-              oninput="document.getElementById('pctLabel').textContent=this.value+'%'"/>
+            <input type="range" id="f_pct" min="0" max="100" value="${data?.percentage||70}" oninput="document.getElementById('pctLabel').textContent=this.value+'%'"/>
             <span class="range-val" id="pctDisp">${data?.percentage||70}%</span>
           </div>
         </div>
@@ -1116,22 +517,12 @@
           percentage:    parseInt(document.getElementById('f_pct').value),
           sort_order:    parseInt(document.getElementById('f_sort').value),
         };
-
-        const { error } = isEdit
-          ? await db.from('skills').update(payload).eq('id', data.id)
-          : await db.from('skills').insert(payload);
-
+        const { error } = isEdit ? await db.from('skills').update(payload).eq('id', data.id) : await db.from('skills').insert(payload);
         if (error) { showToast('Gagal menyimpan', 'error'); return; }
-        closeModal();
-        showToast(isEdit ? 'Skill diperbarui!' : 'Skill ditambahkan!');
-        loadSkills();
+        closeModal(); showToast(isEdit ? 'Skill diperbarui!' : 'Skill ditambahkan!'); loadSkills();
       });
-
-      // Sync range display
       setTimeout(() => {
-        document.getElementById('f_pct')?.addEventListener('input', function() {
-          document.getElementById('pctDisp').textContent = this.value + '%';
-        });
+        document.getElementById('f_pct')?.addEventListener('input', function() { document.getElementById('pctDisp').textContent = this.value + '%'; });
       }, 50);
     }
 
@@ -1139,8 +530,7 @@
       confirmDelete(`Hapus skill "${name}"?`, async () => {
         const { error } = await db.from('skills').delete().eq('id', id);
         if (error) { showToast('Gagal hapus', 'error'); return; }
-        showToast('Skill dihapus!');
-        loadSkills();
+        showToast('Skill dihapus!'); loadSkills();
       });
     }
 
@@ -1154,141 +544,115 @@
       if (error || !data) { el.innerHTML = '<p style="color:red;padding:20px">Gagal load data.</p>'; return; }
 
       el.innerHTML = data.length ? `
-        <div class="table-wrap">
-          <table>
-            <thead><tr>
-              <th>Jabatan</th><th>Perusahaan</th><th>Periode</th><th>Status</th><th style="width:100px">Aksi</th>
-            </tr></thead>
-            <tbody>
-              ${data.map(e => `
-                <tr>
-                  <td style="font-weight:600;color:var(--heading)">${e.job_title}</td>
-                  <td>${e.company}</td>
-                  <td style="font-size:12px;opacity:.7">${e.period_start} — ${e.period_end||'Sekarang'}</td>
-                  <td><span class="badge ${e.is_active?'badge-aktif':'badge-selesai'}">${e.is_active?'Aktif':'Selesai'}</span></td>
-                  <td>
-                    <div class="td-actions">
-                      <button class="btn btn-outline btn-sm" onclick="openExpForm(${JSON.stringify(e).replace(/"/g,'&quot;')})">
-                        <i class="fas fa-pen"></i>
-                      </button>
-                      <button class="btn btn-danger btn-sm" onclick="deleteExp(${e.id},'${e.job_title.replace(/'/g,'\\\'')}')" >
-                        <i class="fas fa-trash"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>` : '<div class="empty-state"><i class="fas fa-briefcase"></i><p>Belum ada experience.</p></div>';
+        <div class="table-wrap"><table>
+          <thead><tr><th>Jabatan</th><th>Perusahaan</th><th>Periode</th><th>Status</th><th style="width:100px">Aksi</th></tr></thead>
+          <tbody>${data.map(e => `
+            <tr>
+              <td style="font-weight:600;color:var(--heading)">${e.job_title}</td>
+              <td>${e.company}</td>
+              <td style="font-size:12px;opacity:.7">${e.period_start} — ${e.period_end||'Sekarang'}</td>
+              <td><span class="badge ${e.is_active?'badge-aktif':'badge-selesai'}">${e.is_active?'Aktif':'Selesai'}</span></td>
+              <td><div class="td-actions">
+                <button class="btn btn-outline btn-sm" onclick="openExpForm(${JSON.stringify(e).replace(/"/g,'&quot;')})"><i class="fas fa-pen"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="deleteExp(${e.id},'${e.job_title.replace(/'/g,'\\\'')}')" ><i class="fas fa-trash"></i></button>
+              </div></td>
+            </tr>`).join('')}
+          </tbody>
+        </table></div>` : '<div class="empty-state"><i class="fas fa-briefcase"></i><p>Belum ada experience.</p></div>';
     }
 
     function openExpForm(data = null) {
-  const isEdit = !!data?.id;
-  const tagsArr = data?.tags || [];
-  openModal(isEdit ? 'Edit Experience' : 'Tambah Experience', `
-    <div class="form-group">
-      <label class="form-label">Nama Jabatan / Posisi</label>
-      <input class="form-input" id="f_title" value="${data?.job_title||''}" placeholder="cth: Web Developer Intern"/>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Perusahaan / Instansi</label>
-      <input class="form-input" id="f_company" value="${data?.company||''}" placeholder="cth: PT. ABC"/>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Periode Mulai</label>
-        <input class="form-input" id="f_start" value="${data?.period_start||''}" placeholder="cth: Januari 2024"/>
-      </div>
-      <!-- ✅ Tambah id wrapper supaya bisa disembunyikan -->
-      <div class="form-group" id="f_end_wrap" style="${data?.is_active ? 'display:none' : ''}">
-        <label class="form-label">Periode Akhir</label>
-        <input class="form-input" id="f_end" value="${data?.is_active ? '' : (data?.period_end||'')}" placeholder="cth: Maret 2024"/>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Durasi</label>
-        <input class="form-input" id="f_dur" value="${data?.duration||''}" placeholder="cth: 6 bln"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Sort Order</label>
-        <input class="form-input" id="f_sort" type="number" value="${data?.sort_order||0}"/>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Deskripsi</label>
-      <textarea class="form-textarea" id="f_desc" placeholder="Deskripsi singkat pengalaman...">${data?.description||''}</textarea>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Tags <span style="opacity:.4">(tekan Enter/koma untuk tambah)</span></label>
-      <div class="tags-input-wrap" id="tagsWrap">
-        ${tagsArr.map(t=>`<span class="tag-chip">${t}<button onclick="removeTag(this)">✕</button></span>`).join('')}
-        <input class="tags-input" id="tagInput" placeholder="cth: PHP"/>
-      </div>
-    </div>
-    <div class="form-group">
-      <div class="toggle-wrap">
-        <label class="toggle">
-          <input type="checkbox" id="f_active" ${data?.is_active?'checked':''}>
-          <span class="toggle-slider"></span>
-        </label>
-        <span class="toggle-label">Masih aktif / sedang berlangsung</span>
-      </div>
-    </div>
-  `, async () => {
-    const isActive = document.getElementById('f_active').checked;
-    const tags = [...document.querySelectorAll('#tagsWrap .tag-chip')]
-      .map(c => c.textContent.replace('✕','').trim());
-    const payload = {
-      job_title:    document.getElementById('f_title').value,
-      company:      document.getElementById('f_company').value,
-      period_start: document.getElementById('f_start').value,
-      // ✅ Kalau aktif, otomatis "Saat Ini", kalau tidak ambil dari input
-      period_end:   isActive ? 'Saat Ini' : (document.getElementById('f_end').value || null),
-      duration:     document.getElementById('f_dur').value,
-      description:  document.getElementById('f_desc').value,
-      tags,
-      is_active:    isActive,
-      sort_order:   parseInt(document.getElementById('f_sort').value)||0,
-    };
+      const isEdit = !!data?.id;
+      const tagsArr = data?.tags || [];
+      openModal(isEdit ? 'Edit Experience' : 'Tambah Experience', `
+        <div class="form-group">
+          <label class="form-label">Nama Jabatan / Posisi</label>
+          <input class="form-input" id="f_title" value="${data?.job_title||''}" placeholder="cth: Web Developer Intern"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Perusahaan / Instansi</label>
+          <input class="form-input" id="f_company" value="${data?.company||''}" placeholder="cth: PT. ABC"/>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Periode Mulai</label>
+            <input class="form-input" id="f_start" value="${data?.period_start||''}" placeholder="cth: Januari 2024"/>
+          </div>
+          <div class="form-group" id="f_end_wrap" style="${data?.is_active ? 'display:none' : ''}">
+            <label class="form-label">Periode Akhir</label>
+            <input class="form-input" id="f_end" value="${data?.is_active ? '' : (data?.period_end||'')}" placeholder="cth: Maret 2024"/>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Durasi</label>
+            <input class="form-input" id="f_dur" value="${data?.duration||''}" placeholder="cth: 6 bln"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sort Order</label>
+            <input class="form-input" id="f_sort" type="number" value="${data?.sort_order||0}"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Deskripsi</label>
+          <textarea class="form-textarea" id="f_desc" placeholder="Gunakan '- ' untuk poin, contoh: - Poin pertama - Poin kedua">${data?.description||''}</textarea>
+          <p class="form-hint">Awali setiap poin dengan "- " agar tampil sebagai bullet point di halaman portfolio</p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tags <span style="opacity:.4">(tekan Enter/koma untuk tambah)</span></label>
+          <div class="tags-input-wrap" id="tagsWrap">
+            ${tagsArr.map(t=>`<span class="tag-chip">${t}<button onclick="removeTag(this)">✕</button></span>`).join('')}
+            <input class="tags-input" id="tagInput" placeholder="cth: PHP"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="toggle-wrap">
+            <label class="toggle">
+              <input type="checkbox" id="f_active" ${data?.is_active?'checked':''}>
+              <span class="toggle-slider"></span>
+            </label>
+            <span class="toggle-label">Masih aktif / sedang berlangsung</span>
+          </div>
+        </div>
+      `, async () => {
+        const isActive = document.getElementById('f_active').checked;
+        const tags = [...document.querySelectorAll('#tagsWrap .tag-chip')].map(c => c.textContent.replace('✕','').trim());
+        const payload = {
+          job_title:    document.getElementById('f_title').value,
+          company:      document.getElementById('f_company').value,
+          period_start: document.getElementById('f_start').value,
+          period_end:   isActive ? 'Saat Ini' : (document.getElementById('f_end').value || null),
+          duration:     document.getElementById('f_dur').value,
+          description:  document.getElementById('f_desc').value,
+          tags,
+          is_active:    isActive,
+          sort_order:   parseInt(document.getElementById('f_sort').value)||0,
+        };
+        const { error } = isEdit ? await db.from('experience').update(payload).eq('id', data.id) : await db.from('experience').insert(payload);
+        if (error) { showToast('Gagal menyimpan', 'error'); return; }
+        closeModal(); showToast(isEdit ? 'Experience diperbarui!' : 'Experience ditambahkan!'); loadExperience();
+      });
 
-    const { error } = isEdit
-      ? await db.from('experience').update(payload).eq('id', data.id)
-      : await db.from('experience').insert(payload);
-
-    if (error) { showToast('Gagal menyimpan', 'error'); return; }
-    closeModal();
-    showToast(isEdit ? 'Experience diperbarui!' : 'Experience ditambahkan!');
-    loadExperience();
-  });
-
-  setTimeout(() => {
-    // ✅ Logic toggle show/hide field Periode Akhir
-    document.getElementById('f_active')?.addEventListener('change', function() {
-      const endWrap = document.getElementById('f_end_wrap');
-      if (this.checked) {
-        endWrap.style.display = 'none';
-        document.getElementById('f_end').value = '';
-      } else {
-        endWrap.style.display = 'block';
-      }
-    });
-
-    document.getElementById('tagInput')?.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ',') {
-        e.preventDefault();
-        const val = e.target.value.trim().replace(/,$/, '');
-        if (!val) return;
-        const chip = document.createElement('span');
-        chip.className = 'tag-chip';
-        chip.innerHTML = `${val}<button onclick="removeTag(this)">✕</button>`;
-        document.getElementById('tagsWrap').insertBefore(chip, e.target);
-        e.target.value = '';
-      }
-    });
-  }, 50);
-}
+      setTimeout(() => {
+        document.getElementById('f_active')?.addEventListener('change', function() {
+          const endWrap = document.getElementById('f_end_wrap');
+          endWrap.style.display = this.checked ? 'none' : 'block';
+          if (this.checked) document.getElementById('f_end').value = '';
+        });
+        document.getElementById('tagInput')?.addEventListener('keydown', e => {
+          if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            const val = e.target.value.trim().replace(/,$/, '');
+            if (!val) return;
+            const chip = document.createElement('span');
+            chip.className = 'tag-chip';
+            chip.innerHTML = `${val}<button onclick="removeTag(this)">✕</button>`;
+            document.getElementById('tagsWrap').insertBefore(chip, e.target);
+            e.target.value = '';
+          }
+        });
+      }, 50);
+    }
 
     function removeTag(btn) { btn.parentElement.remove(); }
 
@@ -1296,8 +660,7 @@
       confirmDelete(`Hapus experience "${name}"?`, async () => {
         const { error } = await db.from('experience').delete().eq('id', id);
         if (error) { showToast('Gagal hapus', 'error'); return; }
-        showToast('Experience dihapus!');
-        loadExperience();
+        showToast('Experience dihapus!'); loadExperience();
       });
     }
 
@@ -1314,37 +677,22 @@
       const typeLabel = { org:'Organisasi', event:'Event', comp:'Kompetisi' };
 
       el.innerHTML = data.length ? `
-        <div class="table-wrap">
-          <table>
-            <thead><tr>
-              <th>Foto</th><th>Nama Kegiatan</th><th>Tipe</th><th>Peran</th><th>Periode</th><th style="width:100px">Aksi</th>
-            </tr></thead>
-            <tbody>
-              ${data.map(e => `
-                <tr>
-                  <td>${e.image_url
-                    ? `<img class="tbl-img" src="${e.image_url}" alt="${e.name}">`
-                    : `<div class="tbl-img-placeholder"><i class="fas fa-image"></i></div>`
-                  }</td>
-                  <td style="font-weight:600;color:var(--heading)">${e.name}</td>
-                  <td><span class="badge ${typeBadge[e.type]}">${typeLabel[e.type]}</span></td>
-                  <td style="font-size:12px">${e.role||'-'}</td>
-                  <td style="font-size:12px;opacity:.7">${e.period||'-'}</td>
-                  <td>
-                    <div class="td-actions">
-                      <button class="btn btn-outline btn-sm" onclick="openEventForm(${JSON.stringify(e).replace(/"/g,'&quot;')})">
-                        <i class="fas fa-pen"></i>
-                      </button>
-                      <button class="btn btn-danger btn-sm" onclick="deleteEvent(${e.id},'${e.name.replace(/'/g,'\\\'')}')" >
-                        <i class="fas fa-trash"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>` : '<div class="empty-state"><i class="fas fa-calendar-days"></i><p>Belum ada event / organisasi.</p></div>';
+        <div class="table-wrap"><table>
+          <thead><tr><th>Foto</th><th>Nama Kegiatan</th><th>Tipe</th><th>Peran</th><th>Periode</th><th style="width:100px">Aksi</th></tr></thead>
+          <tbody>${data.map(e => `
+            <tr>
+              <td>${renderTableFilePreview(e.image_url, e.name)}</td>
+              <td style="font-weight:600;color:var(--heading)">${e.name}</td>
+              <td><span class="badge ${typeBadge[e.type]}">${typeLabel[e.type]}</span></td>
+              <td style="font-size:12px">${e.role||'-'}</td>
+              <td style="font-size:12px;opacity:.7">${e.period||'-'}</td>
+              <td><div class="td-actions">
+                <button class="btn btn-outline btn-sm" onclick="openEventForm(${JSON.stringify(e).replace(/"/g,'&quot;')})"><i class="fas fa-pen"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="deleteEvent(${e.id},'${e.name.replace(/'/g,'\\\'')}')" ><i class="fas fa-trash"></i></button>
+              </div></td>
+            </tr>`).join('')}
+          </tbody>
+        </table></div>` : '<div class="empty-state"><i class="fas fa-calendar-days"></i><p>Belum ada event / organisasi.</p></div>';
     }
 
     function openEventForm(data = null) {
@@ -1382,9 +730,13 @@
         </div>
         <div class="form-group">
           <label class="form-label">Foto Kegiatan</label>
-          ${data?.image_url ? `<img src="${data.image_url}" style="width:100%;border-radius:8px;max-height:140px;object-fit:cover;margin-bottom:8px">
-          <p class="form-hint">Upload baru untuk mengganti foto</p>` : ''}
-          <input type="file" id="f_img" accept="image/*" class="form-input" style="padding:8px"/>
+          ${renderCurrentFileInfo(data?.image_url)}
+          <div class="file-upload-area">
+            <input type="file" id="f_img" accept="image/*"/>
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Klik untuk upload foto</p>
+            <p class="file-type-hint">JPG, PNG, WEBP</p>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">Sort Order</label>
@@ -1393,29 +745,16 @@
       `, async () => {
         let imageUrl = data?.image_url || null;
         const imgFile = document.getElementById('f_img').files[0];
-        if (imgFile) {
-          imageUrl = await uploadImage(imgFile, 'events');
-          if (!imageUrl) return;
-        }
+        if (imgFile) { imageUrl = await uploadFile(imgFile, 'events'); if (!imageUrl) return; }
         const payload = {
-          type:        document.getElementById('f_type').value,
-          name:        document.getElementById('f_name').value,
-          role:        document.getElementById('f_role').value,
-          period:      document.getElementById('f_period').value,
-          location:    document.getElementById('f_loc').value,
-          description: document.getElementById('f_desc').value,
-          image_url:   imageUrl,
-          sort_order:  parseInt(document.getElementById('f_sort').value)||0,
+          type: document.getElementById('f_type').value, name: document.getElementById('f_name').value,
+          role: document.getElementById('f_role').value, period: document.getElementById('f_period').value,
+          location: document.getElementById('f_loc').value, description: document.getElementById('f_desc').value,
+          image_url: imageUrl, sort_order: parseInt(document.getElementById('f_sort').value)||0,
         };
-
-        const { error } = isEdit
-          ? await db.from('events').update(payload).eq('id', data.id)
-          : await db.from('events').insert(payload);
-
+        const { error } = isEdit ? await db.from('events').update(payload).eq('id', data.id) : await db.from('events').insert(payload);
         if (error) { showToast('Gagal menyimpan', 'error'); return; }
-        closeModal();
-        showToast(isEdit ? 'Event diperbarui!' : 'Event ditambahkan!');
-        loadEvents();
+        closeModal(); showToast(isEdit ? 'Event diperbarui!' : 'Event ditambahkan!'); loadEvents();
       });
     }
 
@@ -1423,8 +762,7 @@
       confirmDelete(`Hapus "${name}"?`, async () => {
         const { error } = await db.from('events').delete().eq('id', id);
         if (error) { showToast('Gagal hapus', 'error'); return; }
-        showToast('Event dihapus!');
-        loadEvents();
+        showToast('Event dihapus!'); loadEvents();
       });
     }
 
@@ -1438,40 +776,22 @@
       if (error || !data) { el.innerHTML = '<p style="color:red;padding:20px">Gagal load data.</p>'; return; }
 
       el.innerHTML = data.length ? `
-        <div class="table-wrap">
-          <table>
-            <thead><tr>
-              <th>Preview</th><th>Nama Sertifikat</th><th>Issuer</th><th>Tanggal</th><th>Link</th><th style="width:100px">Aksi</th>
-            </tr></thead>
-            <tbody>
-              ${data.map(c => `
-                <tr>
-                  <td>${c.image_url
-                    ? `<img class="tbl-img" src="${c.image_url}" alt="${c.cert_name}">`
-                    : `<div class="tbl-img-placeholder"><i class="fas fa-certificate"></i></div>`
-                  }</td>
-                  <td style="font-weight:600;color:var(--heading)">${c.cert_name}</td>
-                  <td style="font-size:12px"><i class="${c.issuer_icon||'fas fa-building'}" style="color:var(--accent);margin-right:6px"></i>${c.issuer}</td>
-                  <td style="font-size:12px;opacity:.7">${c.issued_date||'-'}</td>
-                  <td>${c.cert_url
-                    ? `<a href="${c.cert_url}" target="_blank" style="color:var(--accent);font-size:12px"><i class="fas fa-external-link-alt"></i> Lihat</a>`
-                    : '<span style="opacity:.3;font-size:12px">—</span>'
-                  }</td>
-                  <td>
-                    <div class="td-actions">
-                      <button class="btn btn-outline btn-sm" onclick="openCertForm(${JSON.stringify(c).replace(/"/g,'&quot;')})">
-                        <i class="fas fa-pen"></i>
-                      </button>
-                      <button class="btn btn-danger btn-sm" onclick="deleteCert(${c.id},'${c.cert_name.replace(/'/g,'\\\'')}')" >
-                        <i class="fas fa-trash"></i>
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>` : '<div class="empty-state"><i class="fas fa-award"></i><p>Belum ada sertifikasi.</p></div>';
+        <div class="table-wrap"><table>
+          <thead><tr><th>Preview</th><th>Nama Sertifikat</th><th>Issuer</th><th>Tanggal</th><th>Link</th><th style="width:100px">Aksi</th></tr></thead>
+          <tbody>${data.map(c => `
+            <tr>
+              <td>${renderTableFilePreview(c.image_url, c.cert_name)}</td>
+              <td style="font-weight:600;color:var(--heading)">${c.cert_name}</td>
+              <td style="font-size:12px"><i class="${c.issuer_icon||'fas fa-building'}" style="color:var(--accent);margin-right:6px"></i>${c.issuer}</td>
+              <td style="font-size:12px;opacity:.7">${c.issued_date||'-'}</td>
+              <td>${c.cert_url ? `<a href="${c.cert_url}" target="_blank" style="color:var(--accent);font-size:12px"><i class="fas fa-external-link-alt"></i> Lihat</a>` : '<span style="opacity:.3;font-size:12px">—</span>'}</td>
+              <td><div class="td-actions">
+                <button class="btn btn-outline btn-sm" onclick="openCertForm(${JSON.stringify(c).replace(/"/g,'&quot;')})"><i class="fas fa-pen"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="deleteCert(${c.id},'${c.cert_name.replace(/'/g,'\\\'')}')" ><i class="fas fa-trash"></i></button>
+              </div></td>
+            </tr>`).join('')}
+          </tbody>
+        </table></div>` : '<div class="empty-state"><i class="fas fa-award"></i><p>Belum ada sertifikasi.</p></div>';
     }
 
     function openCertForm(data = null) {
@@ -1506,18 +826,19 @@
           <input class="form-input" id="f_url" value="${data?.cert_url||''}" placeholder="https://dicoding.com/certificates/..."/>
         </div>
         <div class="form-group">
-          <label class="form-label">Upload Foto Sertifikat</label>
-          ${data?.image_url ? `<img src="${data.image_url}" style="width:100%;border-radius:8px;max-height:140px;object-fit:cover;margin-bottom:8px">
-          <p class="form-hint">Upload baru untuk mengganti foto</p>` : ''}
-          <input type="file" id="f_img" accept="image/*" class="form-input" style="padding:8px"/>
+          <label class="form-label">Upload Sertifikat <span style="opacity:.4">(Foto atau PDF)</span></label>
+          ${renderCurrentFileInfo(data?.image_url)}
+          <div class="file-upload-area">
+            <input type="file" id="f_img" accept="image/*,.pdf"/>
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Klik untuk upload file sertifikat</p>
+            <p class="file-type-hint">JPG, PNG, WEBP atau PDF</p>
+          </div>
         </div>
       `, async () => {
         let imageUrl = data?.image_url || null;
-        const imgFile = document.getElementById('f_img').files[0];
-        if (imgFile) {
-          imageUrl = await uploadImage(imgFile, 'certs');
-          if (!imageUrl) return;
-        }
+        const file = document.getElementById('f_img').files[0];
+        if (file) { imageUrl = await uploadFile(file, 'certs'); if (!imageUrl) return; }
         const payload = {
           cert_name:   document.getElementById('f_name').value,
           issuer:      document.getElementById('f_issuer').value,
@@ -1527,15 +848,9 @@
           image_url:   imageUrl,
           sort_order:  parseInt(document.getElementById('f_sort').value)||0,
         };
-
-        const { error } = isEdit
-          ? await db.from('certifications').update(payload).eq('id', data.id)
-          : await db.from('certifications').insert(payload);
-
+        const { error } = isEdit ? await db.from('certifications').update(payload).eq('id', data.id) : await db.from('certifications').insert(payload);
         if (error) { showToast('Gagal menyimpan', 'error'); return; }
-        closeModal();
-        showToast(isEdit ? 'Sertifikat diperbarui!' : 'Sertifikat ditambahkan!');
-        loadCertifications();
+        closeModal(); showToast(isEdit ? 'Sertifikat diperbarui!' : 'Sertifikat ditambahkan!'); loadCertifications();
       });
     }
 
@@ -1543,8 +858,7 @@
       confirmDelete(`Hapus sertifikat "${name}"?`, async () => {
         const { error } = await db.from('certifications').delete().eq('id', id);
         if (error) { showToast('Gagal hapus', 'error'); return; }
-        showToast('Sertifikat dihapus!');
-        loadCertifications();
+        showToast('Sertifikat dihapus!'); loadCertifications();
       });
     }
 
@@ -1556,7 +870,6 @@
       window.location.href = 'admin-login.html';
     });
 
-    // ── INIT ────────────────────────────────────────────────────
     loadSkills();
   </script>
 </body>
