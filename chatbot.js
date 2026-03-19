@@ -186,7 +186,7 @@ class EkaChatbot {
       if (!this.avatarUrl && this.context.profile.photo_url) {
         this.avatarUrl = this.context.profile.photo_url;
         const el = document.getElementById('cb-header-avatar');
-        if (el) el.innerHTML = `<img src="${this.avatarUrl}" alt="Eka">`;
+        if (el) el.innerHTML = `<img src="${this.avatarUrl}" alt="Danar">`;
       }
       
       this.systemPrompt = this._buildSystemPrompt();
@@ -284,7 +284,7 @@ class EkaChatbot {
     const id   = 'cb-countdown-' + Date.now();
     const div  = document.createElement('div');
     div.className = 'cb-msg bot';
-    const avatarInner = this.avatarUrl ? `<img src="${this.avatarUrl}" alt="Eka">` : '<i class="fas fa-robot"></i>';
+    const avatarInner = this.avatarUrl ? `<img src="${this.avatarUrl}" alt="Danar">` : '<i class="fas fa-robot"></i>';
     div.innerHTML = `<div class="cb-msg-avatar">${avatarInner}</div><div class="cb-msg-bubble">Lagi sibuk nih 🔄 Auto-retry dalam <strong id="${id}-sec">${seconds}</strong>s...<span style="opacity:0.5;font-size:11px;display:block;margin-top:3px">Percobaan ${attempt} dari ${max}</span></div>`;
     msgs.appendChild(div);
     this._scrollToBottom();
@@ -333,7 +333,7 @@ class EkaChatbot {
     const div  = document.createElement('div');
     div.className = 'cb-msg bot';
     // Ini buat nampilin foto di bubble chat
-    const avatarInner = this.avatarUrl ? `<img src="${this.avatarUrl}" alt="Eka">` : `<i class="fas fa-robot"></i>`;
+    const avatarInner = this.avatarUrl ? `<img src="${this.avatarUrl}" alt="Danar">` : `<i class="fas fa-robot"></i>`;
     div.innerHTML = `<div class="cb-msg-avatar">${avatarInner}</div><div class="cb-msg-bubble">${this._formatText(text)}</div>`;
     msgs.appendChild(div);
     this._scrollToBottom();
@@ -345,7 +345,7 @@ class EkaChatbot {
     const div  = document.createElement('div');
     div.className = 'cb-msg bot cb-typing';
     div.id = id;
-    const avatarInner = this.avatarUrl ? `<img src="${this.avatarUrl}" alt="Eka">` : `<i class="fas fa-robot"></i>`;
+    const avatarInner = this.avatarUrl ? `<img src="${this.avatarUrl}" alt="Danar">` : `<i class="fas fa-robot"></i>`;
     div.innerHTML = `<div class="cb-msg-avatar">${avatarInner}</div><div class="cb-msg-bubble"><div class="cb-dots"><span></span><span></span><span></span></div></div>`;
     msgs.appendChild(div);
     this._scrollToBottom();
