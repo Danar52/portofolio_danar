@@ -179,7 +179,7 @@
     async function loadSkills() {
       const grid = document.getElementById('skillsGrid');
 
-      const { data, error } = await db
+      const { data, error } = await supabase
         .from('skills')
         .select('*')
         .order('category')

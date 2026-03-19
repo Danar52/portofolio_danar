@@ -128,7 +128,7 @@
     async function loadEvents() {
       const grid = document.getElementById('eventGrid');
 
-      const { data, error } = await db
+      const { data, error } = await supabase
         .from('events')
         .select('*')
         .order('sort_order');

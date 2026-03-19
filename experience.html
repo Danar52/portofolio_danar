@@ -121,7 +121,7 @@
     async function loadExperience() {
       const el = document.getElementById('expTimeline');
 
-      const { data, error } = await db
+      const { data, error } = await supabase
         .from('experience')
         .select('*')
         .order('sort_order');

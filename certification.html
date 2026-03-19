@@ -145,7 +145,7 @@
     async function loadCertifications() {
       const grid = document.getElementById('certGrid');
 
-      const { data, error } = await db
+      const { data, error } = await supabase
         .from('certifications')
         .select('*')
         .order('sort_order');

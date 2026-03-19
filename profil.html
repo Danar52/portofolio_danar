@@ -124,9 +124,9 @@
 
       // Load profile + education parallel
       const [profRes, eduRes] = await Promise.all([
-        db.from('profile').select('*').single(),
-        db.from('education').select('*').order('sort_order')
-      ]);
+  supabase.from('profile').select('*').single(),
+  supabase.from('education').select('*').order('sort_order')
+]);
 
       if (profRes.error || !profRes.data) {
         el.innerHTML = `<div class="state-box"><i class="fas fa-triangle-exclamation"></i><p>Gagal memuat data profil.</p></div>`;
