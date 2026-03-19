@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Eka Danar Arrasyid — Experience</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&family=Poppins:wght@400;500;600&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <style>
+    :root {
+      --default-font: "Roboto", system-ui, sans-serif;
+      --heading-font: "Raleway", sans-serif;
+      --nav-font:     "Poppins", sans-serif;
+      --background-color: #ffffff; --default-color: #272829;
+      --heading-color: #45505b;   --accent-color: #0563bb;
+      --surface-color: #ffffff;   --contrast-color: #ffffff;
+      --nav-color: #45505b;       --nav-hover-color: #0563bb;
+      --nav-active-bg: #0563bb;
+      --sidebar-width: 72px; --sidebar-bg: #f8f9fa; --sidebar-border: #e9ecef; --nav-btn-size: 46px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--default-font); background-color: var(--background-color); color: var(--default-color); min-height: 100vh; display: flex; }
+    ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-thumb { background: rgba(5,99,187,0.2); border-radius: 10px; }
+
+    #sidebar { position: fixed; top: 0; left: 0; width: var(--sidebar-width); height: 100vh; background: var(--sidebar-bg); border-right: 1px solid var(--sidebar-border); display: flex; flex-direction: column; align-items: center; padding: 28px 0; gap: 10px; z-index: 1000; }
+
+    .nav-btn { width: var(--nav-btn-size); height: var(--nav-btn-size); border-radius: 50%; background: transparent; color: var(--nav-color); font-size: 17px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.25s, color 0.25s, transform 0.2s; text-decoration: none; position: relative; }
+    .nav-btn:hover { background: rgba(5,99,187,0.1); color: var(--nav-hover-color); transform: scale(1.08); }
+    .nav-btn.active { background: var(--nav-active-bg); color: var(--contrast-color); box-shadow: 0 4px 14px rgba(5,99,187,0.35); }
+    .nav-btn::after { content: attr(data-tooltip); position: absolute; left: calc(100% + 14px); top: 50%; transform: translateY(-50%); background: var(--heading-color); color: #fff; padding: 5px 11px; border-radius: 6px; font-family: var(--nav-font); font-size: 12px; font-weight: 500; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .nav-btn::before { content: ''; position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%); border: 5px solid transparent; border-right-color: var(--heading-color); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .nav-btn:hover::after, .nav-btn:hover::before { opacity: 1; }
+
+    #main-content { margin-left: var(--sidebar-width); flex: 1; min-height: 100vh; padding: 60px 80px; }
+
+    .page-header { margin-bottom: 52px; opacity: 0; transform: translateY(20px); animation: fadeUp 0.6s ease 0.1s forwards; }
+    .page-title { font-family: var(--heading-font); font-size: clamp(32px,4vw,52px); font-weight: 700; color: var(--heading-color); margin-bottom: 6px; }
+    .page-title span { color: var(--accent-color); }
+    .page-subtitle { font-family: var(--nav-font); font-size: 14px; color: var(--default-color); opacity: 0.5; }
+
+    /* Timeline */
+    .exp-timeline { position: relative; padding-left: 36px; max-width: 820px; }
+    .exp-timeline::before { content: ''; position: absolute; left: 7px; top: 8px; bottom: 24px; width: 2px; background: linear-gradient(to bottom, var(--accent-color), rgba(5,99,187,0.05)); }
+
+    .exp-item { position: relative; margin-bottom: 36px; opacity: 0; transform: translateX(-16px); }
+    .exp-item:last-child { margin-bottom: 0; }
+
+    .exp-dot { position: absolute; left: -30px; top: 20px; width: 16px; height: 16px; border-radius: 50%; background: var(--accent-color); border: 3px solid #fff; box-shadow: 0 0 0 2px var(--accent-color); z-index: 1; transition: transform 0.2s; }
+    .exp-dot.inactive { background: #c8d3db; box-shadow: 0 0 0 2px #c8d3db; }
+    .exp-item:hover .exp-dot { transform: scale(1.25); }
+
+    .exp-card { background: var(--surface-color); border: 1px solid var(--sidebar-border); border-radius: 16px; padding: 26px 30px; transition: box-shadow 0.25s, transform 0.25s, border-color 0.25s; }
+    .exp-card:hover { box-shadow: 0 8px 32px rgba(5,99,187,0.09); transform: translateX(5px); border-color: rgba(5,99,187,0.2); }
+
+    .exp-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 6px; flex-wrap: wrap; }
+    .exp-title { font-family: var(--heading-font); font-size: 18px; font-weight: 700; color: var(--heading-color); }
+
+    .exp-badge { display: inline-flex; align-items: center; gap: 5px; font-family: var(--nav-font); font-size: 11px; font-weight: 600; padding: 4px 13px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+    .exp-badge.aktif { background: rgba(5,99,187,0.1); color: var(--accent-color); }
+    .exp-badge.selesai { background: rgba(69,80,91,0.07); color: var(--heading-color); }
+
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-color); animation: pulseDot 1.5s ease-in-out infinite; }
+    @keyframes pulseDot { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.5; transform:scale(0.7); } }
+
+    .exp-company { font-family: var(--nav-font); font-size: 13px; font-weight: 600; color: var(--accent-color); margin-bottom: 6px; }
+    .exp-period { display: flex; align-items: center; gap: 7px; font-size: 12px; color: var(--default-color); opacity: 0.5; margin-bottom: 14px; }
+    .exp-period i { font-size: 11px; color: var(--accent-color); opacity: 0.7; }
+    .exp-desc { font-size: 14px; line-height: 1.75; color: var(--default-color); opacity: 0.78; margin-bottom: 16px; }
+
+    .exp-tags { display: flex; flex-wrap: wrap; gap: 7px; }
+    .exp-tag { font-family: var(--nav-font); font-size: 11px; font-weight: 500; background: var(--sidebar-bg); color: var(--heading-color); border: 1px solid var(--sidebar-border); padding: 3px 11px; border-radius: 20px; transition: background 0.2s, color 0.2s; }
+    .exp-tag:hover { background: rgba(5,99,187,0.08); color: var(--accent-color); }
+
+    .state-box { text-align: center; padding: 60px 24px; color: var(--heading-color); opacity: 0.45; }
+    .state-box i { font-size: 36px; margin-bottom: 12px; display: block; }
+    .state-box p { font-family: var(--nav-font); font-size: 13px; }
+    .spin { animation: spinAnim 0.8s linear infinite; }
+    @keyframes spinAnim { to { transform: rotate(360deg); } }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
+
+    @media (max-width: 768px) {
+      :root { --sidebar-width: 0px; }
+      #sidebar { width: 100%; height: 62px; flex-direction: row; justify-content: center; top: auto; bottom: 0; border-right: none; border-top: 1px solid var(--sidebar-border); padding: 0 16px; gap: 8px; }
+      .nav-btn::after, .nav-btn::before { display: none; }
+      #main-content { margin-left: 0; margin-bottom: 62px; padding: 40px 28px; }
+      .exp-timeline { padding-left: 28px; }
+    }
+
+    @media (max-width: 480px) { #main-content { padding: 32px 20px; } .exp-card { padding: 20px 18px; } }
+  </style>
+</head>
+<body>
+
+  <nav id="sidebar">
+    <a href="index.html"         class="nav-btn" data-tooltip="Home"><i class="fas fa-house"></i></a>
+    <a href="profil.html"        class="nav-btn" data-tooltip="Profil"><i class="fas fa-user"></i></a>
+    <a href="skills.html"        class="nav-btn" data-tooltip="Skills"><i class="fas fa-list-check"></i></a>
+    <a href="experience.html"    class="nav-btn active" data-tooltip="Experience"><i class="fas fa-briefcase"></i></a>
+    <a href="event.html"         class="nav-btn" data-tooltip="Event / Organization"><i class="fas fa-calendar-days"></i></a>
+    <a href="certification.html" class="nav-btn" data-tooltip="Certification"><i class="fas fa-award"></i></a>
+  </nav>
+
+  <main id="main-content">
+    <div class="page-header">
+      <h1 class="page-title">Experi<span>ence</span></h1>
+      <p class="page-subtitle">Riwayat pekerjaan & pengalaman</p>
+    </div>
+    <div class="exp-timeline" id="expTimeline">
+      <div class="state-box"><i class="fas fa-circle-notch spin"></i><p>Memuat data...</p></div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { db } from './supabase.js';
+
+    async function loadExperience() {
+      const el = document.getElementById('expTimeline');
+
+      const { data, error } = await db
+        .from('experience')
+        .select('*')
+        .order('sort_order');
+
+      if (error || !data || data.length === 0) {
+        el.innerHTML = `<div class="state-box"><i class="fas fa-triangle-exclamation"></i><p>Gagal memuat data experience.</p></div>`;
+        return;
+      }
+
+      let html = '';
+      let delay = 0.25;
+
+      data.forEach(e => {
+        const tags = (e.tags || []).map(t => `<span class="exp-tag">${t}</span>`).join('');
+        const badge = e.is_active
+          ? `<span class="exp-badge aktif"><span class="badge-dot"></span> Aktif</span>`
+          : `<span class="exp-badge selesai"><i class="fas fa-check" style="font-size:9px"></i> Selesai</span>`;
+
+        html += `
+          <div class="exp-item" style="animation: slideIn 0.55s ease ${delay}s forwards;">
+            <div class="exp-dot ${e.is_active ? '' : 'inactive'}"></div>
+            <div class="exp-card">
+              <div class="exp-top">
+                <span class="exp-title">${e.job_title}</span>
+                ${badge}
+              </div>
+              <p class="exp-company">${e.company}</p>
+              <p class="exp-period">
+                <i class="fas fa-calendar-alt"></i>
+                ${e.period_start} — ${e.period_end || 'Sekarang'}
+                ${e.duration ? `&nbsp;·&nbsp; ${e.duration}` : ''}
+              </p>
+              <p class="exp-desc">${e.description || ''}</p>
+              ${tags ? `<div class="exp-tags">${tags}</div>` : ''}
+            </div>
+          </div>`;
+        delay += 0.15;
+      });
+
+      el.innerHTML = html;
+    }
+
+    loadExperience();
+  </script>
+</body>
+</html>

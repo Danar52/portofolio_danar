@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Eka Danar Arrasyid — Certification</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&family=Poppins:wght@400;500;600&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <style>
+    :root {
+      --default-font: "Roboto", system-ui, sans-serif; --heading-font: "Raleway", sans-serif; --nav-font: "Poppins", sans-serif;
+      --background-color: #ffffff; --default-color: #272829; --heading-color: #45505b; --accent-color: #0563bb;
+      --surface-color: #ffffff; --contrast-color: #ffffff; --nav-color: #45505b; --nav-hover-color: #0563bb; --nav-active-bg: #0563bb;
+      --sidebar-width: 72px; --sidebar-bg: #f8f9fa; --sidebar-border: #e9ecef; --nav-btn-size: 46px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--default-font); background-color: var(--background-color); color: var(--default-color); min-height: 100vh; display: flex; }
+    ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-thumb { background: rgba(5,99,187,0.2); border-radius: 10px; }
+
+    #sidebar { position: fixed; top: 0; left: 0; width: var(--sidebar-width); height: 100vh; background: var(--sidebar-bg); border-right: 1px solid var(--sidebar-border); display: flex; flex-direction: column; align-items: center; padding: 28px 0; gap: 10px; z-index: 1000; }
+    .nav-btn { width: var(--nav-btn-size); height: var(--nav-btn-size); border-radius: 50%; background: transparent; color: var(--nav-color); font-size: 17px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.25s, color 0.25s, transform 0.2s; text-decoration: none; position: relative; }
+    .nav-btn:hover { background: rgba(5,99,187,0.1); color: var(--nav-hover-color); transform: scale(1.08); }
+    .nav-btn.active { background: var(--nav-active-bg); color: var(--contrast-color); box-shadow: 0 4px 14px rgba(5,99,187,0.35); }
+    .nav-btn::after { content: attr(data-tooltip); position: absolute; left: calc(100% + 14px); top: 50%; transform: translateY(-50%); background: var(--heading-color); color: #fff; padding: 5px 11px; border-radius: 6px; font-family: var(--nav-font); font-size: 12px; font-weight: 500; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .nav-btn::before { content: ''; position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%); border: 5px solid transparent; border-right-color: var(--heading-color); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .nav-btn:hover::after, .nav-btn:hover::before { opacity: 1; }
+
+    #main-content { margin-left: var(--sidebar-width); flex: 1; min-height: 100vh; padding: 60px 80px; }
+
+    .page-header { margin-bottom: 28px; opacity: 0; transform: translateY(20px); animation: fadeUp 0.6s ease 0.1s forwards; }
+    .page-title { font-family: var(--heading-font); font-size: clamp(32px,4vw,52px); font-weight: 700; color: var(--heading-color); margin-bottom: 6px; }
+    .page-title span { color: var(--accent-color); }
+    .page-subtitle { font-family: var(--nav-font); font-size: 14px; color: var(--default-color); opacity: 0.5; }
+
+    /* Stats */
+    .cert-stats { display: flex; gap: 32px; margin-bottom: 40px; flex-wrap: wrap; opacity: 0; transform: translateY(14px); animation: fadeUp 0.6s ease 0.22s forwards; }
+    .stat-item { display: flex; flex-direction: column; gap: 2px; }
+    .stat-number { font-family: var(--heading-font); font-size: 28px; font-weight: 800; color: var(--accent-color); line-height: 1; }
+    .stat-label { font-family: var(--nav-font); font-size: 11px; font-weight: 500; color: var(--default-color); opacity: 0.5; text-transform: uppercase; letter-spacing: 0.8px; }
+    .stat-divider { width: 1px; height: 36px; background: var(--sidebar-border); align-self: center; }
+
+    /* Grid */
+    .cert-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 22px; }
+
+    .cert-card { background: var(--surface-color); border: 1px solid var(--sidebar-border); border-radius: 16px; overflow: hidden; opacity: 0; transform: translateY(28px); transition: box-shadow 0.25s, transform 0.25s, border-color 0.25s; }
+    .cert-card:hover { box-shadow: 0 10px 32px rgba(5,99,187,0.11); transform: translateY(-5px); border-color: rgba(5,99,187,0.18); }
+
+    .cert-img-wrap { width: 100%; aspect-ratio: 4/3; background: linear-gradient(135deg, #f0f5fd, #dce9f8); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid var(--sidebar-border); cursor: pointer; }
+    .cert-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+    .cert-card:hover .cert-img-wrap img { transform: scale(1.04); }
+
+    .cert-img-placeholder { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; width: 100%; height: 100%; padding: 24px; }
+    .cert-frame { width: 120px; height: 84px; border: 2px solid rgba(5,99,187,0.18); border-radius: 8px; background: rgba(5,99,187,0.03); display: flex; align-items: center; justify-content: center; position: relative; }
+    .cert-frame::before { content: ''; position: absolute; top: -2px; left: -2px; width: 12px; height: 12px; border-width: 2px 0 0 2px; border-style: solid; border-color: var(--accent-color); opacity: 0.35; border-radius: 3px 0 0 0; }
+    .cert-frame::after  { content: ''; position: absolute; bottom: -2px; right: -2px; width: 12px; height: 12px; border-width: 0 2px 2px 0; border-style: solid; border-color: var(--accent-color); opacity: 0.35; border-radius: 0 0 3px 0; }
+    .cert-frame i { font-size: 30px; color: var(--accent-color); opacity: 0.22; }
+    .cert-placeholder-label { font-family: var(--nav-font); font-size: 11px; color: var(--accent-color); opacity: 0.42; }
+
+    /* Zoom overlay */
+    .cert-zoom-overlay { position: absolute; inset: 0; background: rgba(5,99,187,0.82); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; opacity: 0; transition: opacity 0.22s; }
+    .cert-img-wrap:hover .cert-zoom-overlay { opacity: 1; }
+    .cert-zoom-overlay i { font-size: 22px; color: #fff; }
+    .cert-zoom-overlay span { font-family: var(--nav-font); font-size: 12px; font-weight: 600; color: #fff; }
+
+    .cert-body { padding: 18px 20px 20px; }
+    .cert-issuer-row { display: flex; align-items: center; gap: 9px; margin-bottom: 10px; }
+    .cert-issuer-icon { width: 30px; height: 30px; border-radius: 8px; background: rgba(5,99,187,0.08); display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--accent-color); flex-shrink: 0; }
+    .cert-issuer { font-family: var(--nav-font); font-size: 11px; font-weight: 700; color: var(--accent-color); letter-spacing: 0.6px; text-transform: uppercase; }
+    .cert-name { font-family: var(--heading-font); font-size: 14px; font-weight: 700; color: var(--heading-color); line-height: 1.4; margin-bottom: 14px; }
+
+    .cert-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 13px; border-top: 1px solid var(--sidebar-border); gap: 8px; flex-wrap: wrap; }
+    .cert-date { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--default-color); opacity: 0.5; }
+    .cert-date i { font-size: 10px; color: var(--accent-color); opacity: 0.6; }
+    .cert-link { font-family: var(--nav-font); font-size: 11px; font-weight: 600; color: var(--accent-color); text-decoration: none; display: inline-flex; align-items: center; gap: 5px; padding: 5px 13px; border-radius: 20px; border: 1.5px solid rgba(5,99,187,0.22); transition: all 0.2s; }
+    .cert-link:hover { background: var(--accent-color); border-color: var(--accent-color); color: #fff; }
+
+    /* Lightbox */
+    .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999; align-items: center; justify-content: center; padding: 24px; }
+    .lightbox.open { display: flex; }
+    .lightbox-inner { position: relative; max-width: 800px; width: 100%; animation: zoomIn 0.28s ease; }
+    @keyframes zoomIn { from { transform: scale(0.88); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .lightbox-inner img { width: 100%; border-radius: 12px; display: block; }
+    .lightbox-close { position: absolute; top: -14px; right: -14px; width: 36px; height: 36px; border-radius: 50%; background: #fff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: var(--heading-color); box-shadow: 0 4px 14px rgba(0,0,0,0.25); transition: transform 0.2s; }
+    .lightbox-close:hover { transform: scale(1.12); }
+
+    .state-box { text-align: center; padding: 60px 24px; color: var(--heading-color); opacity: 0.45; }
+    .state-box i { font-size: 36px; margin-bottom: 12px; display: block; }
+    .state-box p { font-family: var(--nav-font); font-size: 13px; }
+    .spin { animation: spinAnim 0.8s linear infinite; }
+    @keyframes spinAnim { to { transform: rotate(360deg); } }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+    @media (max-width: 768px) {
+      :root { --sidebar-width: 0px; }
+      #sidebar { width: 100%; height: 62px; flex-direction: row; justify-content: center; top: auto; bottom: 0; border-right: none; border-top: 1px solid var(--sidebar-border); padding: 0 16px; gap: 8px; }
+      .nav-btn::after, .nav-btn::before { display: none; }
+      #main-content { margin-left: 0; margin-bottom: 62px; padding: 40px 28px; }
+    }
+    @media (max-width: 560px) { .cert-grid { grid-template-columns: 1fr; } #main-content { padding: 32px 20px; } .cert-stats { gap: 20px; } }
+  </style>
+</head>
+<body>
+
+  <nav id="sidebar">
+    <a href="index.html"         class="nav-btn" data-tooltip="Home"><i class="fas fa-house"></i></a>
+    <a href="profil.html"        class="nav-btn" data-tooltip="Profil"><i class="fas fa-user"></i></a>
+    <a href="skills.html"        class="nav-btn" data-tooltip="Skills"><i class="fas fa-list-check"></i></a>
+    <a href="experience.html"    class="nav-btn" data-tooltip="Experience"><i class="fas fa-briefcase"></i></a>
+    <a href="event.html"         class="nav-btn" data-tooltip="Event / Organization"><i class="fas fa-calendar-days"></i></a>
+    <a href="certification.html" class="nav-btn active" data-tooltip="Certification"><i class="fas fa-award"></i></a>
+  </nav>
+
+  <main id="main-content">
+    <div class="page-header">
+      <h1 class="page-title">Certifi<span>cation</span></h1>
+      <p class="page-subtitle">Sertifikasi & penghargaan yang diraih</p>
+    </div>
+
+    <div class="cert-stats" id="certStats">
+      <div class="stat-item"><span class="stat-number" id="statTotal">—</span><span class="stat-label">Total Sertifikat</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat-item"><span class="stat-number" id="statIssuer">—</span><span class="stat-label">Issuer</span></div>
+    </div>
+
+    <div class="cert-grid" id="certGrid">
+      <div class="state-box" style="grid-column:1/-1"><i class="fas fa-circle-notch spin"></i><p>Memuat data...</p></div>
+    </div>
+  </main>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <div class="lightbox-inner">
+      <button class="lightbox-close" id="lightboxClose"><i class="fas fa-times"></i></button>
+      <img src="" alt="Sertifikat" id="lightboxImg"/>
+    </div>
+  </div>
+
+  <script type="module">
+    import { db } from './supabase.js';
+
+    async function loadCertifications() {
+      const grid = document.getElementById('certGrid');
+
+      const { data, error } = await db
+        .from('certifications')
+        .select('*')
+        .order('sort_order');
+
+      if (error || !data || data.length === 0) {
+        grid.innerHTML = `<div class="state-box" style="grid-column:1/-1"><i class="fas fa-triangle-exclamation"></i><p>Gagal memuat data sertifikasi.</p></div>`;
+        return;
+      }
+
+      // Update stats
+      const uniqueIssuers = new Set(data.map(c => c.issuer)).size;
+      document.getElementById('statTotal').textContent  = data.length;
+      document.getElementById('statIssuer').textContent = uniqueIssuers;
+
+      let delay = 0.3;
+      grid.innerHTML = data.map(c => {
+        const imgHtml = c.image_url
+          ? `<img src="${c.image_url}" alt="${c.cert_name}" loading="lazy">
+             <div class="cert-zoom-overlay"><i class="fas fa-magnifying-glass-plus"></i><span>Lihat Sertifikat</span></div>`
+          : `<div class="cert-img-placeholder">
+               <div class="cert-frame"><i class="fas fa-certificate"></i></div>
+               <span class="cert-placeholder-label">Belum ada foto</span>
+             </div>`;
+
+        const d = delay;
+        delay += 0.1;
+
+        return `
+          <div class="cert-card" style="animation: fadeUp 0.55s ease ${d}s forwards;">
+            <div class="cert-img-wrap" ${c.image_url ? `data-src="${c.image_url}"` : ''}>
+              ${imgHtml}
+            </div>
+            <div class="cert-body">
+              <div class="cert-issuer-row">
+                <div class="cert-issuer-icon"><i class="${c.issuer_icon || 'fas fa-building'}"></i></div>
+                <span class="cert-issuer">${c.issuer}</span>
+              </div>
+              <p class="cert-name">${c.cert_name}</p>
+              <div class="cert-footer">
+                <span class="cert-date"><i class="fas fa-calendar"></i> ${c.issued_date || '—'}</span>
+                ${c.cert_url ? `<a href="${c.cert_url}" target="_blank" class="cert-link"><i class="fas fa-arrow-up-right-from-square"></i> Lihat</a>` : ''}
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+
+      // Lightbox
+      document.querySelectorAll('.cert-img-wrap[data-src]').forEach(wrap => {
+        wrap.style.cursor = 'zoom-in';
+        wrap.addEventListener('click', () => {
+          document.getElementById('lightboxImg').src = wrap.dataset.src;
+          document.getElementById('lightbox').classList.add('open');
+        });
+      });
+    }
+
+    // Lightbox close
+    document.getElementById('lightboxClose').addEventListener('click', () =>
+      document.getElementById('lightbox').classList.remove('open'));
+    document.getElementById('lightbox').addEventListener('click', e => {
+      if (e.target === document.getElementById('lightbox'))
+        document.getElementById('lightbox').classList.remove('open');
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') document.getElementById('lightbox').classList.remove('open');
+    });
+
+    loadCertifications();
+  </script>
+</body>
+</html>
