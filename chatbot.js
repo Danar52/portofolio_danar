@@ -179,33 +179,48 @@ const STYLES = `
 
 // ── MARKDOWN PARSER ───────────────────────────────────────────────────────
 function parseMarkdown(raw) {
-  let html = raw
-    // Escape HTML dulu
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
-    // Code block (``` ```)
+  // ── Step 1: Lindungi URL dulu SEBELUM escape HTML ──
+  // Simpan semua URL ke placeholder biar ga kena escape
+  const urlPlaceholders = [];
+  let protected_raw = raw.replace(/(https?:\/\/[^\s<>"]+?)([.,!?:;）)]*(?=\s|$))/g, (match, url, trailing) => {
+    const idx = urlPlaceholders.length;
+    urlPlaceholders.push(`<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>${trailing}`);
+    return `\x00URL${idx}\x00`;
+  });
+
+  // ── Step 2: Escape HTML (aman, karena URL sudah di-placeholder) ──
+  let html = protected_raw
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+  // ── Step 3: Restore URL placeholders ──
+  html = html.replace(/\x00URL(\d+)\x00/g, (_, idx) => urlPlaceholders[parseInt(idx)]);
+
+  // ── Step 4: Markdown formatting ──
+  html = html
+    // Code block
     .replace(/```[\w]*\n?([\s\S]*?)```/g, (_, code) =>
       `<pre><code>${code.trim()}</code></pre>`)
     // Inline code
     .replace(/`([^`]+)`/g, '<code>$1</code>')
     // Bold
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    // Italic
-    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    // Italic (hindari conflict dengan bullet)
+    .replace(/(?<!\*)\*(?!\*)([^*\n]+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>')
     // Horizontal rule
-    .replace(/^---$/gm, '<hr>')
-    // URL auto-linkify (trailing punctuation excluded)
-    .replace(/(https?:\/\/[^\s&lt;&gt;&quot;]+?)([.,!?:;）)]*(?:\s|$))/g,
-      '<a href="$1" target="_blank" rel="noopener">$1</a>$2');
+    .replace(/^---$/gm, '<hr>');
 
-  // Bullet list: baris yang mulai dengan "- " atau "* "
-  html = html.replace(/((?:^[ \t]*[-*] .+\n?)+)/gm, (block) => {
+  // ── Step 5: List processing ──
+  // Bullet list
+  html = html.replace(/((?:^[ \t]*[-•] .+\n?)+)/gm, (block) => {
     const items = block.trim().split('\n').map(line =>
-      `<li>${line.replace(/^[ \t]*[-*] /, '').trim()}</li>`
+      `<li>${line.replace(/^[ \t]*[-•] /, '').trim()}</li>`
     ).join('');
     return `<ul>${items}</ul>`;
   });
-
-  // Ordered list: baris yang mulai dengan "1. "
+  // Ordered list
   html = html.replace(/((?:^\d+\. .+\n?)+)/gm, (block) => {
     const items = block.trim().split('\n').map(line =>
       `<li>${line.replace(/^\d+\. /, '').trim()}</li>`
@@ -213,9 +228,8 @@ function parseMarkdown(raw) {
     return `<ol>${items}</ol>`;
   });
 
-  // Newline → <br> (kecuali di dalam block elements)
+  // ── Step 6: Newlines ──
   html = html.replace(/\n/g, '<br>');
-  // Fix double <br> setelah block elements
   html = html.replace(/(<\/ul>|<\/ol>|<\/pre>|<hr>)<br>/g, '$1');
 
   return html;
