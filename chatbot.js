@@ -8,10 +8,10 @@ import { supabase } from './supabase.js';
 // ─── 🔗 SETTINGAN UTAMA LO DI SINI ───────────────────────────────────────
 const BACKEND_URL = 'https://backend-chatbot-self.vercel.app/api/chat';
 
-// Masukin path/link foto lo di sini! 
+// Masukin path/link foto lo di sini!
 // Pastiin fotonya rasio 1:1 (Kotak) biar pas jadi bulet. Resolusi 128x128px atau 256x256px.
 // Contoh lokal: './assets/foto-eka-bot.png' atau link: 'https://domainlo.com/foto.jpg'
-const BOT_PHOTO_URL = './assets/bot_avatar.png'; 
+const BOT_PHOTO_URL = './assets/bot_avatar.png';
 // ─────────────────────────────────────────────────────────────────────────
 
 const SUGGESTIONS = [
@@ -79,6 +79,27 @@ const STYLES = `
   @media (max-width: 768px) { #cb-window { width: calc(100vw - 32px); right: 16px; bottom: 80px; } #cb-bubble { bottom: 16px; right: 16px; } #cb-notif { bottom: 60px; right: 14px; } #cb-tooltip { display: none; } }
 `;
 
+// ── ERROR MESSAGE POOL — biar ga monoton ──────────────────────────────────
+const ERROR_OVERLOAD = [
+  'Server lagi overload, coba lagi bentar 🔄',
+  'API-nya lagi antri panjang, tunggu sebentar ya.',
+  'Lagi rame banget nih, retry dulu deh.'
+];
+
+const ERROR_BACKEND = [
+  'Backend nge-lag, ketik ulang ya 😅',
+  'Ada gangguan di server, coba sekali lagi.',
+  'Hmm, ada yang aneh di belakang layar, kirim ulang pesan lo.'
+];
+
+const ERROR_NETWORK = [
+  'Koneksi putus, cek internet lo dulu 📡',
+  'Gagal nyambung ke server, refresh dulu bro.',
+  'Network error nih, coba lagi sebentar.'
+];
+
+const _randomMsg = (pool) => pool[Math.floor(Math.random() * pool.length)];
+
 // ── MAIN CLASS ─────────────────────────────────────────────────────────────
 class EkaChatbot {
   constructor() {
@@ -86,7 +107,7 @@ class EkaChatbot {
     this.isLoading = false;
     this.history   = [];
     this.context   = null;
-    
+
     // Set Avatar langsung dari konfig atas
     this.avatarUrl = BOT_PHOTO_URL;
     this.systemPrompt = '';
@@ -181,14 +202,14 @@ class EkaChatbot {
         certifications: certRes.data  || [],
       };
 
-      // Kalau lu naruh foto di database Supabase (photo_url) dan BOT_PHOTO_URL kosong,
-      // dia bakal prioritasin foto dari database lu
+      // Kalau foto ada di database Supabase (photo_url) dan BOT_PHOTO_URL kosong,
+      // prioritasin foto dari database
       if (!this.avatarUrl && this.context.profile.photo_url) {
         this.avatarUrl = this.context.profile.photo_url;
         const el = document.getElementById('cb-header-avatar');
         if (el) el.innerHTML = `<img src="${this.avatarUrl}" alt="Danar">`;
       }
-      
+
       this.systemPrompt = this._buildSystemPrompt();
     } catch (err) {
       console.warn('Chatbot: gagal load context', err);
@@ -199,12 +220,12 @@ class EkaChatbot {
 
   _buildGreeting() {
     const name = this.context?.profile?.full_name?.split(' ')[0] || 'Danar';
-    return `Hei! Gw ${name} — versi AI-nya 😎\nGw bisa jawab pertanyaan seputar skills, pengalaman, pendidikan, atau gimana cara menghubungi Gw sendiri.\n\nLo, mau tanya apa nih?`;
+    return `Yo! Gw ${name} — versi AI 🤖\nTanya aja soal skills, pengalaman, atau cara kontak gw langsung.\nMau mulai dari mana?`;
   }
 
   _buildSystemPrompt() {
     const p = this.context?.profile || {};
-    return `Lo adalah AI persona dari ${p.full_name || 'Eka Danar Arrasyid'}, seorang ${p.role || 'Informatics Engineering Student'}. Jawab dalam bahasa Indonesia yang santai tapi profesional. Gunakan gaya orang pertama ("Gw"). Jawab ringkas maksimal 3 kalimat.`;
+    return `Lo adalah AI persona dari ${p.full_name || 'Eka Danar Arrasyid'}, seorang ${p.role || 'Informatics Engineering Student'}. Jawab dalam bahasa Indonesia yang santai tapi profesional. Gunakan gaya orang pertama ("Gw"). Jawab ringkas maksimal 2 kalimat. Langsung ke inti, jangan echo pertanyaan user.`;
   }
 
   async _send() {
@@ -218,17 +239,16 @@ class EkaChatbot {
     this._addUserMessage(text);
     this.history.push({ role: 'user', parts: [{ text }] });
 
-    await this._callGemini(1);
+    await this._callBackend(1);
   }
 
-  async _callGemini(attempt) {
+  async _callBackend(attempt) {
     const MAX_ATTEMPTS = 3;
     this.isLoading = true;
     document.getElementById('cb-send').disabled = true;
     const typingId = this._addTyping();
 
     try {
-      // Karena system prompt udh di-handle server.js, kita bisa cukup kirim history aja
       const contents = [...this.history];
 
       const response = await fetch(BACKEND_URL, {
@@ -240,6 +260,7 @@ class EkaChatbot {
       const data = await response.json();
       this._removeTyping(typingId);
 
+      // Handle rate limit (429)
       if (response.status === 429 || data?.error?.code === 429) {
         const retryMsg   = data?.error?.message || '';
         const retryMatch = retryMsg.match(/retry in ([\d.]+)s/i);
@@ -249,28 +270,29 @@ class EkaChatbot {
           const countdownId = this._addCountdownMessage(retryAfter, attempt, MAX_ATTEMPTS);
           await this._countdown(retryAfter, countdownId);
           document.getElementById(countdownId)?.remove();
-          await this._callGemini(attempt + 1);
+          await this._callBackend(attempt + 1);
         } else {
           this.history.pop();
-          this._addBotMessage('API gw lagi sibuk cuy!');
+          this._addBotMessage(_randomMsg(ERROR_OVERLOAD));
         }
         return;
       }
 
+      // Handle error lain dari backend
       if (data.error) {
         this.history.pop();
-        this._addBotMessage('Aduh ada error nih dari backend, coba lu ketik lagi!');
+        this._addBotMessage(_randomMsg(ERROR_BACKEND));
         return;
       }
 
-      const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry bro gw agak ngeblank';
+      const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry gw ngeblank sebentar, coba lagi ya.';
       this.history.push({ role: 'model', parts: [{ text: reply }] });
       this._addBotMessage(reply);
 
     } catch (err) {
       this._removeTyping(typingId);
       this.history.pop();
-      this._addBotMessage('Hadohhh, error koneksi nih brok, tunggu bentar ya');
+      this._addBotMessage(_randomMsg(ERROR_NETWORK));
       console.error('Chatbot fetch error:', err);
     } finally {
       this.isLoading = false;
@@ -285,7 +307,7 @@ class EkaChatbot {
     const div  = document.createElement('div');
     div.className = 'cb-msg bot';
     const avatarInner = this.avatarUrl ? `<img src="${this.avatarUrl}" alt="Danar">` : '<i class="fas fa-robot"></i>';
-    div.innerHTML = `<div class="cb-msg-avatar">${avatarInner}</div><div class="cb-msg-bubble">Lagi sibuk nih 🔄 Auto-retry dalam <strong id="${id}-sec">${seconds}</strong>s...<span style="opacity:0.5;font-size:11px;display:block;margin-top:3px">Percobaan ${attempt} dari ${max}</span></div>`;
+    div.innerHTML = `<div class="cb-msg-avatar">${avatarInner}</div><div class="cb-msg-bubble">Lagi rame nih 🔄 Auto-retry dalam <strong id="${id}-sec">${seconds}</strong>s...<span style="opacity:0.5;font-size:11px;display:block;margin-top:3px">Percobaan ${attempt} dari ${max}</span></div>`;
     msgs.appendChild(div);
     this._scrollToBottom();
     return id;
@@ -332,7 +354,6 @@ class EkaChatbot {
     const msgs = document.getElementById('cb-messages');
     const div  = document.createElement('div');
     div.className = 'cb-msg bot';
-    // Ini buat nampilin foto di bubble chat
     const avatarInner = this.avatarUrl ? `<img src="${this.avatarUrl}" alt="Danar">` : `<i class="fas fa-robot"></i>`;
     div.innerHTML = `<div class="cb-msg-avatar">${avatarInner}</div><div class="cb-msg-bubble">${this._formatText(text)}</div>`;
     msgs.appendChild(div);
