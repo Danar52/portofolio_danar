@@ -10,15 +10,15 @@ const BACKEND_URL = 'https://backend-chatbot-self.vercel.app/api/chat';
 
 // Masukin path/link foto lo di sini!
 // Pastiin fotonya rasio 1:1 (Kotak) biar pas jadi bulet. Resolusi 128x128px atau 256x256px.
-// Contoh lokal: './assets/foto-eka-bot.png' atau link: 'https://domainlo.com/foto.jpg'
 const BOT_PHOTO_URL = './assets/bot_avatar.png';
 // ─────────────────────────────────────────────────────────────────────────
 
+// Suggestion chips — variatif, ada yang serius ada yang santai
 const SUGGESTIONS = [
-  'Skill apa aja yang kamu punya?',
-  'Ceritain pengalaman organisasimu',
-  'Lagi kuliah di mana sekarang?',
-  'Gimana cara hire / kontak kamu?',
+  'Tech stack lo apa aja?',
+  'Ada project yang bisa gw lihat?',
+  'Lagi sibuk ngerjain apa sekarang?',
+  'Gimana cara hire / kontak lo?',
 ];
 
 // ── STYLES ───────────────────────────────────────────────────────────────
@@ -55,7 +55,9 @@ const STYLES = `
   .cb-msg-avatar { width: 26px; height: 26px; border-radius: 50%; background: var(--cb-surface); border: 1px solid var(--cb-border); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--cb-accent); flex-shrink: 0; overflow: hidden; }
   .cb-msg-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
   .cb-msg-bubble { max-width: 78%; padding: 9px 13px; border-radius: 14px; font-family: var(--cb-font-body); font-size: 13px; line-height: 1.6; color: var(--cb-text); background: var(--cb-surface); border: 1px solid var(--cb-border); word-break: break-word; }
+  .cb-msg-bubble a { color: var(--cb-accent); text-decoration: underline; word-break: break-all; }
   .cb-msg.user .cb-msg-bubble { background: var(--cb-accent); color: #fff; border-color: var(--cb-accent); border-bottom-right-radius: 4px; }
+  .cb-msg.user .cb-msg-bubble a { color: #cce0ff; }
   .cb-msg.bot .cb-msg-bubble { border-bottom-left-radius: 4px; }
   .cb-typing .cb-msg-bubble { padding: 12px 16px; }
   .cb-dots { display: flex; gap: 4px; align-items: center; height: 14px; }
@@ -79,36 +81,45 @@ const STYLES = `
   @media (max-width: 768px) { #cb-window { width: calc(100vw - 32px); right: 16px; bottom: 80px; } #cb-bubble { bottom: 16px; right: 16px; } #cb-notif { bottom: 60px; right: 14px; } #cb-tooltip { display: none; } }
 `;
 
-// ── ERROR MESSAGE POOL — biar ga monoton ──────────────────────────────────
+// ── ERROR MESSAGE POOLS ───────────────────────────────────────────────────
 const ERROR_OVERLOAD = [
   'Server lagi overload, coba lagi bentar 🔄',
   'API-nya lagi antri panjang, tunggu sebentar ya.',
-  'Lagi rame banget nih, retry dulu deh.'
+  'Lagi rame banget nih, retry dulu deh.',
+  'Waduh padet banget nih, bentar ya.'
 ];
 
 const ERROR_BACKEND = [
   'Backend nge-lag, ketik ulang ya 😅',
   'Ada gangguan di server, coba sekali lagi.',
-  'Hmm, ada yang aneh di belakang layar, kirim ulang pesan lo.'
+  'Hmm ada yang aneh di balik layar, kirim ulang pesan lo.',
+  'Server lagi drama, coba lagi deh.'
 ];
 
 const ERROR_NETWORK = [
   'Koneksi putus, cek internet lo dulu 📡',
   'Gagal nyambung ke server, refresh dulu bro.',
-  'Network error nih, coba lagi sebentar.'
+  'Network error nih, coba lagi sebentar.',
+  'Sinyal ilang kayaknya, coba lagi ya.'
 ];
 
 const _randomMsg = (pool) => pool[Math.floor(Math.random() * pool.length)];
 
-// ── MAIN CLASS ─────────────────────────────────────────────────────────────
+// ── TOOLTIP MESSAGES — lebih variatif ────────────────────────────────────
+const TOOLTIP_MSGS = [
+  'Hei! Ada yang bisa gw bantu? 👋',
+  'Tanya apa aja soal gw!',
+  'Psst, gw online nih 👀',
+  'Mau tau skill gw? Tanya aja!',
+];
+
+// ── MAIN CLASS ────────────────────────────────────────────────────────────
 class EkaChatbot {
   constructor() {
     this.isOpen    = false;
     this.isLoading = false;
     this.history   = [];
     this.context   = null;
-
-    // Set Avatar langsung dari konfig atas
     this.avatarUrl = BOT_PHOTO_URL;
     this.systemPrompt = '';
 
@@ -117,6 +128,7 @@ class EkaChatbot {
     this._bindEvents();
     this._loadContext();
 
+    // Tooltip muncul random setelah 3 detik
     setTimeout(() => this._showTooltip(), 3000);
   }
 
@@ -130,9 +142,12 @@ class EkaChatbot {
     const wrap = document.createElement('div');
     wrap.id = 'cb-root';
     wrap.innerHTML = `
-      <div id="cb-tooltip">Hei! Ada yang bisa Gw bantu? 👋</div>
+      <div id="cb-tooltip">${TOOLTIP_MSGS[Math.floor(Math.random() * TOOLTIP_MSGS.length)]}</div>
       <div id="cb-notif"></div>
-      <button id="cb-bubble" aria-label="Buka chatbot"><i class="fas fa-comment-dots cb-icon-chat"></i><i class="fas fa-times cb-icon-close"></i></button>
+      <button id="cb-bubble" aria-label="Buka chatbot">
+        <i class="fas fa-comment-dots cb-icon-chat"></i>
+        <i class="fas fa-times cb-icon-close"></i>
+      </button>
       <div id="cb-window" role="dialog" aria-label="Chatbot Eka Danar">
         <div class="cb-header">
           <div class="cb-avatar" id="cb-header-avatar">
@@ -140,14 +155,16 @@ class EkaChatbot {
           </div>
           <div class="cb-header-info">
             <div class="cb-header-name">Danar Alter</div>
-            <div class="cb-header-status"><span class="cb-status-dot"></span>Online</div>
+            <div class="cb-header-status"><span class="cb-status-dot"></span>Online — AI Ver.</div>
           </div>
-          <button class="cb-clear-btn" id="cb-clear" title="Reset percakapan"><i class="fas fa-rotate-right"></i></button>
+          <button class="cb-clear-btn" id="cb-clear" title="Reset percakapan">
+            <i class="fas fa-rotate-right"></i>
+          </button>
         </div>
         <div class="cb-messages" id="cb-messages"></div>
         <div class="cb-suggestions" id="cb-suggestions"></div>
         <div class="cb-input-area">
-          <textarea id="cb-input" placeholder="Tanya sesuatu tentang Danar..." rows="1"></textarea>
+          <textarea id="cb-input" placeholder="Tanya apa aja tentang Danar..." rows="1"></textarea>
           <button id="cb-send" aria-label="Kirim"><i class="fas fa-paper-plane"></i></button>
         </div>
       </div>
@@ -184,48 +201,54 @@ class EkaChatbot {
 
   async _loadContext() {
     try {
-      const [profRes, eduRes, skillRes, expRes, eventRes, certRes] = await Promise.all([
+      const [profRes, eduRes, skillRes, expRes, eventRes, certRes, portfolioRes] = await Promise.all([
         supabase.from('profile').select('*').single(),
         supabase.from('education').select('*').order('sort_order'),
         supabase.from('skills').select('*').order('sort_order').limit(40),
         supabase.from('experience').select('*').order('sort_order').limit(20),
         supabase.from('events').select('*').order('sort_order').limit(20),
         supabase.from('certifications').select('*').order('sort_order').limit(20),
+        supabase.from('portfolio')
+          .select('title, type, tags, year, url_live, url_github')
+          .eq('is_published', true)
+          .order('sort_order')
+          .limit(20),
       ]);
 
       this.context = {
-        profile:        profRes.data  || {},
-        education:      eduRes.data   || [],
-        skills:         skillRes.data || [],
-        experience:     expRes.data   || [],
-        events:         eventRes.data || [],
-        certifications: certRes.data  || [],
+        profile:        profRes.data        || {},
+        education:      eduRes.data         || [],
+        skills:         skillRes.data       || [],
+        experience:     expRes.data         || [],
+        events:         eventRes.data       || [],
+        certifications: certRes.data        || [],
+        portfolio:      portfolioRes.data   || [],
       };
 
-      // Kalau foto ada di database Supabase (photo_url) dan BOT_PHOTO_URL kosong,
-      // prioritasin foto dari database
+      // Prioritasin foto dari DB kalau BOT_PHOTO_URL kosong
       if (!this.avatarUrl && this.context.profile.photo_url) {
         this.avatarUrl = this.context.profile.photo_url;
         const el = document.getElementById('cb-header-avatar');
         if (el) el.innerHTML = `<img src="${this.avatarUrl}" alt="Danar">`;
       }
 
-      this.systemPrompt = this._buildSystemPrompt();
     } catch (err) {
       console.warn('Chatbot: gagal load context', err);
-      this.systemPrompt = this._buildSystemPrompt();
+      this.context = {};
     }
+
     this._addBotMessage(this._buildGreeting());
   }
 
   _buildGreeting() {
     const name = this.context?.profile?.full_name?.split(' ')[0] || 'Danar';
-    return `Yo! Gw ${name} — versi AI 🤖\nTanya aja soal skills, pengalaman, atau cara kontak gw langsung.\nMau mulai dari mana?`;
-  }
-
-  _buildSystemPrompt() {
-    const p = this.context?.profile || {};
-    return `Lo adalah AI persona dari ${p.full_name || 'Eka Danar Arrasyid'}, seorang ${p.role || 'Informatics Engineering Student'}. Jawab dalam bahasa Indonesia yang santai tapi profesional. Gunakan gaya orang pertama ("Gw"). Jawab ringkas maksimal 2 kalimat. Langsung ke inti, jangan echo pertanyaan user.`;
+    const portfolioCount = this.context?.portfolio?.length || 0;
+    const greetings = [
+      `Yo! Gw ${name} — versi AI 🤖\nTanya soal skills, project, pengalaman, atau cara kontak gw. Gas!`,
+      `Hei! Gw AI-nya ${name}.\nMau tau soal skill, karya, atau pengalaman gw? Tanya aja langsung.`,
+      `Sup! Gw ${name} tapi versi digital 🤖\n${portfolioCount > 0 ? `Gw punya ${portfolioCount} project di portfolio. ` : ''}Mau mulai dari mana?`,
+    ];
+    return greetings[Math.floor(Math.random() * greetings.length)];
   }
 
   async _send() {
@@ -249,18 +272,16 @@ class EkaChatbot {
     const typingId = this._addTyping();
 
     try {
-      const contents = [...this.history];
-
       const response = await fetch(BACKEND_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents }),
+        body: JSON.stringify({ contents: [...this.history] }),
       });
 
       const data = await response.json();
       this._removeTyping(typingId);
 
-      // Handle rate limit (429)
+      // Rate limit 429
       if (response.status === 429 || data?.error?.code === 429) {
         const retryMsg   = data?.error?.message || '';
         const retryMatch = retryMsg.match(/retry in ([\d.]+)s/i);
@@ -278,14 +299,14 @@ class EkaChatbot {
         return;
       }
 
-      // Handle error lain dari backend
       if (data.error) {
         this.history.pop();
         this._addBotMessage(_randomMsg(ERROR_BACKEND));
         return;
       }
 
-      const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry gw ngeblank sebentar, coba lagi ya.';
+      const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text
+        || 'Sorry gw ngeblank sebentar, coba lagi ya.';
       this.history.push({ role: 'model', parts: [{ text: reply }] });
       this._addBotMessage(reply);
 
@@ -307,7 +328,12 @@ class EkaChatbot {
     const div  = document.createElement('div');
     div.className = 'cb-msg bot';
     const avatarInner = this.avatarUrl ? `<img src="${this.avatarUrl}" alt="Danar">` : '<i class="fas fa-robot"></i>';
-    div.innerHTML = `<div class="cb-msg-avatar">${avatarInner}</div><div class="cb-msg-bubble">Lagi rame nih 🔄 Auto-retry dalam <strong id="${id}-sec">${seconds}</strong>s...<span style="opacity:0.5;font-size:11px;display:block;margin-top:3px">Percobaan ${attempt} dari ${max}</span></div>`;
+    div.innerHTML = `
+      <div class="cb-msg-avatar">${avatarInner}</div>
+      <div class="cb-msg-bubble">
+        Lagi rame nih 🔄 Auto-retry dalam <strong id="${id}-sec">${seconds}</strong>s...
+        <span style="opacity:0.5;font-size:11px;display:block;margin-top:3px">Percobaan ${attempt} dari ${max}</span>
+      </div>`;
     msgs.appendChild(div);
     this._scrollToBottom();
     return id;
@@ -327,11 +353,14 @@ class EkaChatbot {
 
   _toggle() {
     this.isOpen = !this.isOpen;
-    document.getElementById('cb-bubble').classList.toggle('open',  this.isOpen);
-    document.getElementById('cb-window').classList.toggle('open',  this.isOpen);
+    document.getElementById('cb-bubble').classList.toggle('open', this.isOpen);
+    document.getElementById('cb-window').classList.toggle('open', this.isOpen);
     document.getElementById('cb-notif').classList.add('hidden');
     document.getElementById('cb-tooltip').classList.remove('visible');
-    if (this.isOpen) { setTimeout(() => document.getElementById('cb-input')?.focus(), 300); this._scrollToBottom(); }
+    if (this.isOpen) {
+      setTimeout(() => document.getElementById('cb-input')?.focus(), 300);
+      this._scrollToBottom();
+    }
   }
 
   _reset() {
@@ -345,7 +374,9 @@ class EkaChatbot {
     const msgs = document.getElementById('cb-messages');
     const div  = document.createElement('div');
     div.className = 'cb-msg user';
-    div.innerHTML = `<div class="cb-msg-avatar"><i class="fas fa-user"></i></div><div class="cb-msg-bubble">${this._escapeHtml(text)}</div>`;
+    div.innerHTML = `
+      <div class="cb-msg-avatar"><i class="fas fa-user"></i></div>
+      <div class="cb-msg-bubble">${this._escapeHtml(text)}</div>`;
     msgs.appendChild(div);
     this._scrollToBottom();
   }
@@ -354,8 +385,12 @@ class EkaChatbot {
     const msgs = document.getElementById('cb-messages');
     const div  = document.createElement('div');
     div.className = 'cb-msg bot';
-    const avatarInner = this.avatarUrl ? `<img src="${this.avatarUrl}" alt="Danar">` : `<i class="fas fa-robot"></i>`;
-    div.innerHTML = `<div class="cb-msg-avatar">${avatarInner}</div><div class="cb-msg-bubble">${this._formatText(text)}</div>`;
+    const avatarInner = this.avatarUrl
+      ? `<img src="${this.avatarUrl}" alt="Danar">`
+      : `<i class="fas fa-robot"></i>`;
+    div.innerHTML = `
+      <div class="cb-msg-avatar">${avatarInner}</div>
+      <div class="cb-msg-bubble">${this._formatText(text)}</div>`;
     msgs.appendChild(div);
     this._scrollToBottom();
   }
@@ -366,18 +401,49 @@ class EkaChatbot {
     const div  = document.createElement('div');
     div.className = 'cb-msg bot cb-typing';
     div.id = id;
-    const avatarInner = this.avatarUrl ? `<img src="${this.avatarUrl}" alt="Danar">` : `<i class="fas fa-robot"></i>`;
-    div.innerHTML = `<div class="cb-msg-avatar">${avatarInner}</div><div class="cb-msg-bubble"><div class="cb-dots"><span></span><span></span><span></span></div></div>`;
+    const avatarInner = this.avatarUrl
+      ? `<img src="${this.avatarUrl}" alt="Danar">`
+      : `<i class="fas fa-robot"></i>`;
+    div.innerHTML = `
+      <div class="cb-msg-avatar">${avatarInner}</div>
+      <div class="cb-msg-bubble"><div class="cb-dots"><span></span><span></span><span></span></div></div>`;
     msgs.appendChild(div);
     this._scrollToBottom();
     return id;
   }
 
   _removeTyping(id) { document.getElementById(id)?.remove(); }
-  _scrollToBottom() { const msgs = document.getElementById('cb-messages'); if (msgs) setTimeout(() => msgs.scrollTop = msgs.scrollHeight, 50); }
-  _showTooltip() { if (this.isOpen) return; const tooltip = document.getElementById('cb-tooltip'); tooltip.classList.add('visible'); setTimeout(() => tooltip.classList.remove('visible'), 4000); }
-  _formatText(text) { return this._escapeHtml(text).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>').replace(/\n/g, '<br>'); }
-  _escapeHtml(str) { return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+  _scrollToBottom() {
+    const msgs = document.getElementById('cb-messages');
+    if (msgs) setTimeout(() => msgs.scrollTop = msgs.scrollHeight, 50);
+  }
+
+  _showTooltip() {
+    if (this.isOpen) return;
+    const tooltip = document.getElementById('cb-tooltip');
+    // Update teks tooltip secara random tiap kali muncul
+    tooltip.textContent = TOOLTIP_MSGS[Math.floor(Math.random() * TOOLTIP_MSGS.length)];
+    tooltip.classList.add('visible');
+    setTimeout(() => tooltip.classList.remove('visible'), 4000);
+  }
+
+  _formatText(text) {
+    return this._escapeHtml(text)
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      // Auto-linkify URL
+      .replace(/(https?:\/\/[^\s<>"]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')
+      .replace(/\n/g, '<br>');
+  }
+
+  _escapeHtml(str) {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
 }
 
 if (document.readyState === 'loading') {
