@@ -88,6 +88,7 @@
     .badge{display:inline-flex;align-items:center;gap:4px;font-family:var(--font-nav);font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px}
     .badge-aktif{background:rgba(56,161,105,.1);color:#2f855a} .badge-selesai{background:rgba(69,80,91,.08);color:var(--heading)}
     .badge-org{background:rgba(5,99,187,.09);color:var(--accent)} .badge-event{background:rgba(13,155,121,.1);color:#0a8f71} .badge-comp{background:rgba(194,97,12,.09);color:#b5590a}
+    .badge-web{background:rgba(13,155,121,.1);color:#0a8f71} .badge-design{background:rgba(5,99,187,.1);color:var(--accent)} .badge-ui{background:rgba(138,43,226,.1);color:#7b2fbe} .badge-branding{background:rgba(229,114,0,.1);color:#b5590a} .badge-motion{background:rgba(220,38,38,.1);color:#c53030} .badge-other{background:rgba(69,80,91,.08);color:var(--heading)}
     .pct-wrap{display:flex;align-items:center;gap:8px}
     .pct-bar{flex:1;height:5px;background:var(--border);border-radius:999px;overflow:hidden;min-width:60px}
     .pct-fill{height:100%;background:linear-gradient(90deg,var(--accent),#4a9eff);border-radius:999px}
@@ -167,6 +168,7 @@
       <button class="sidebar-link" data-page="profile"><i class="fas fa-user-circle"></i> Edit Profil</button>
       <p class="nav-section-label">Konten</p>
       <button class="sidebar-link active" data-page="skills"><i class="fas fa-list-check"></i> Skills</button>
+      <button class="sidebar-link" data-page="portfolio"><i class="fas fa-briefcase-clock"></i> Portfolio</button>
       <button class="sidebar-link" data-page="experience"><i class="fas fa-briefcase"></i> Experience</button>
       <button class="sidebar-link" data-page="events"><i class="fas fa-calendar-days"></i> Event / Org</button>
       <button class="sidebar-link" data-page="certifications"><i class="fas fa-award"></i> Certification</button>
@@ -189,6 +191,7 @@
     <div class="content">
       <div class="page" id="page-profile"><div id="profileContent"><div class="loading"><i class="fas fa-circle-notch"></i></div></div></div>
       <div class="page active" id="page-skills"><div id="skillsContent"><div class="loading"><i class="fas fa-circle-notch"></i></div></div></div>
+      <div class="page" id="page-portfolio"><div id="portfolioContent"><div class="loading"><i class="fas fa-circle-notch"></i></div></div></div>
       <div class="page" id="page-experience"><div id="expContent"><div class="loading"><i class="fas fa-circle-notch"></i></div></div></div>
       <div class="page" id="page-events"><div id="eventsContent"><div class="loading"><i class="fas fa-circle-notch"></i></div></div></div>
       <div class="page" id="page-certifications"><div id="certContent"><div class="loading"><i class="fas fa-circle-notch"></i></div></div></div>
@@ -334,6 +337,7 @@
     const pageMap = {
       profile:        { title:'Edit <span>Profil</span>',           load:loadProfile,        hasAdd:false },
       skills:         { title:'Manage <span>Skills</span>',         load:loadSkills,         hasAdd:true  },
+      portfolio:      { title:'Manage <span>Portfolio</span>',      load:loadPortfolio,      hasAdd:true  },
       experience:     { title:'Manage <span>Experience</span>',     load:loadExperience,     hasAdd:true  },
       events:         { title:'Manage <span>Event / Org</span>',    load:loadEvents,         hasAdd:true  },
       certifications: { title:'Manage <span>Certification</span>',  load:loadCertifications, hasAdd:true  },
@@ -354,8 +358,173 @@
       });
     });
     document.getElementById('btnAddNew').addEventListener('click', () => {
-      ({skills:openSkillForm,experience:openExpForm,events:openEventForm,certifications:openCertForm})[currentPage]?.();
+      ({skills:openSkillForm,portfolio:openPortfolioForm,experience:openExpForm,events:openEventForm,certifications:openCertForm})[currentPage]?.();
     });
+
+    // ══ PORTFOLIO ══
+    const PORTFOLIO_TYPES = [
+      {val:'web',      label:'Web Dev'},
+      {val:'design',   label:'Design'},
+      {val:'ui',       label:'UI/UX'},
+      {val:'branding', label:'Branding'},
+      {val:'motion',   label:'Motion'},
+      {val:'other',    label:'Lainnya'},
+    ];
+
+    async function loadPortfolio() {
+      const el = document.getElementById('portfolioContent');
+      el.innerHTML = '<div class="loading"><i class="fas fa-circle-notch"></i></div>';
+      const { data, error } = await db.from('portfolio').select('*').order('sort_order').order('created_at', { ascending: false });
+      if (error||!data) { el.innerHTML='<p style="color:red;padding:20px">Gagal load data.</p>'; return; }
+
+      const typeLabel = Object.fromEntries(PORTFOLIO_TYPES.map(t=>[t.val,t.label]));
+      const typeBadgeCls = { web:'badge-web', design:'badge-design', ui:'badge-ui', branding:'badge-branding', motion:'badge-motion', other:'badge-other' };
+
+      el.innerHTML = data.length ? `<div class="table-wrap"><table>
+        <thead><tr><th>Preview</th><th>Judul</th><th>Tipe</th><th>Tahun</th><th>Status</th><th style="width:110px">Aksi</th></tr></thead>
+        <tbody>${data.map(p=>`<tr>
+          <td>${p.thumbnail_url
+            ? `<img class="tbl-img" src="${p.thumbnail_url}" alt="${p.title}">`
+            : `<div class="tbl-img-placeholder"><i class="fas fa-image"></i></div>`}</td>
+          <td style="font-weight:600;color:var(--heading);max-width:200px">
+            <p style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.title}</p>
+            ${p.is_featured?'<span style="font-family:var(--font-nav);font-size:10px;color:#b5590a;font-weight:700">★ Featured</span>':''}
+          </td>
+          <td><span class="badge ${typeBadgeCls[p.type]||'badge-other'}">${typeLabel[p.type]||p.type}</span></td>
+          <td style="font-size:12px;opacity:.7">${p.year||'—'}</td>
+          <td><span class="badge ${p.is_published?'badge-aktif':'badge-selesai'}">${p.is_published?'Published':'Draft'}</span></td>
+          <td><div class="td-actions">
+            <button class="btn btn-outline btn-sm" onclick="openPortfolioForm(${JSON.stringify(p).replace(/"/g,'&quot;')})"><i class="fas fa-pen"></i></button>
+            <button class="btn btn-danger btn-sm" onclick="deletePortfolio(${p.id},'${p.title.replace(/'/g,'\\\'').replace(/"/g,'&quot;')}')"><i class="fas fa-trash"></i></button>
+          </div></td></tr>`).join('')}
+        </tbody></table></div>`
+        : '<div class="empty-state"><i class="fas fa-briefcase-clock"></i><p>Belum ada portfolio.</p></div>';
+    }
+
+    function openPortfolioForm(data=null) {
+      const isEdit = !!data?.id;
+      const tagsArr = data?.tags || [];
+      const typeOptions = PORTFOLIO_TYPES.map(t =>
+        `<option value="${t.val}" ${data?.type===t.val?'selected':''}>${t.label}</option>`
+      ).join('');
+
+      openModal(isEdit?'Edit Portfolio':'Tambah Portfolio', `
+        <div class="form-group"><label class="form-label">Judul Project</label>
+          <input class="form-input" id="f_title" value="${data?.title||''}" placeholder="cth: Redesign App E-Commerce"/></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Tipe</label>
+            <select class="form-select" id="f_type">${typeOptions}</select></div>
+          <div class="form-group"><label class="form-label">Tahun</label>
+            <input class="form-input" id="f_year" value="${data?.year||''}" placeholder="cth: 2024"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Deskripsi</label>
+          <textarea class="form-textarea" id="f_desc" placeholder="Ceritakan project ini...">${data?.description||''}</textarea></div>
+
+        <div class="form-group"><label class="form-label">Tags <span style="opacity:.4">(Enter/koma untuk tambah)</span></label>
+          <div class="tags-input-wrap" id="tagsWrap">
+            ${tagsArr.map(t=>`<span class="tag-chip">${t}<button onclick="removeTag(this)">✕</button></span>`).join('')}
+            <input class="tags-input" id="tagInput" placeholder="cth: Figma, Laravel..."/>
+          </div></div>
+
+        <div class="form-group"><label class="form-label">Thumbnail / Cover</label>
+          ${data?.thumbnail_url?`<img src="${data.thumbnail_url}" style="width:100%;border-radius:8px;max-height:140px;object-fit:cover;margin-bottom:8px"><p class="form-hint" style="margin-bottom:8px">Upload baru untuk mengganti</p>`:''}
+          <div class="file-upload-area"><input type="file" id="f_thumb" accept="image/*"/>
+            <i class="fas fa-cloud-upload-alt"></i><p>Klik untuk upload thumbnail</p><p class="file-type-hint">JPG, PNG, WEBP</p>
+          </div></div>
+
+        <p style="font-family:var(--font-nav);font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)">Link Terkait <span style="opacity:.4;font-weight:400;text-transform:none;letter-spacing:0">(semua opsional)</span></p>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label"><i class="fas fa-external-link-alt" style="color:var(--accent);margin-right:5px"></i>URL Live / Demo</label>
+            <input class="form-input" id="f_live" value="${data?.url_live||''}" placeholder="https://..."/></div>
+          <div class="form-group"><label class="form-label"><i class="fab fa-github" style="color:var(--accent);margin-right:5px"></i>GitHub</label>
+            <input class="form-input" id="f_github" value="${data?.url_github||''}" placeholder="https://github.com/..."/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label"><i class="fab fa-behance" style="color:var(--accent);margin-right:5px"></i>Behance</label>
+            <input class="form-input" id="f_behance" value="${data?.url_behance||''}" placeholder="https://behance.net/..."/></div>
+          <div class="form-group"><label class="form-label"><i class="fab fa-figma" style="color:var(--accent);margin-right:5px"></i>Figma</label>
+            <input class="form-input" id="f_figma" value="${data?.url_figma||''}" placeholder="https://figma.com/..."/></div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Sort Order</label>
+            <input class="form-input" id="f_sort" type="number" value="${data?.sort_order||0}"/>
+            <p class="form-hint">Urutan tampil (kecil = duluan)</p></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px">
+          <div class="toggle-wrap">
+            <label class="toggle"><input type="checkbox" id="f_featured" ${data?.is_featured?'checked':''}><span class="toggle-slider"></span></label>
+            <span class="toggle-label">Featured (tampil lebih menonjol)</span>
+          </div>
+          <div class="toggle-wrap">
+            <label class="toggle"><input type="checkbox" id="f_published" ${data?.is_published!==false?'checked':''}><span class="toggle-slider"></span></label>
+            <span class="toggle-label">Published (tampil di halaman publik)</span>
+          </div>
+        </div>
+      `, async () => {
+        const btnSave = document.getElementById('btnSave');
+        btnSave.disabled = true;
+        btnSave.innerHTML = '<i class="fas fa-circle-notch" style="animation:spin .8s linear infinite"></i> Menyimpan...';
+
+        let thumbnailUrl = data?.thumbnail_url || null;
+        const thumbFile = document.getElementById('f_thumb').files[0];
+        if (thumbFile) {
+          thumbnailUrl = await uploadFile(thumbFile, 'portfolio');
+          if (!thumbnailUrl) { btnSave.disabled=false; btnSave.innerHTML='<i class="fas fa-floppy-disk"></i> Simpan'; return; }
+        }
+
+        const tags = [...document.querySelectorAll('#tagsWrap .tag-chip')].map(c=>c.textContent.replace('✕','').trim());
+        const payload = {
+          title:         document.getElementById('f_title').value.trim(),
+          type:          document.getElementById('f_type').value,
+          year:          document.getElementById('f_year').value.trim() || null,
+          description:   document.getElementById('f_desc').value.trim(),
+          tags,
+          thumbnail_url: thumbnailUrl,
+          url_live:      document.getElementById('f_live').value.trim() || null,
+          url_github:    document.getElementById('f_github').value.trim() || null,
+          url_behance:   document.getElementById('f_behance').value.trim() || null,
+          url_figma:     document.getElementById('f_figma').value.trim() || null,
+          sort_order:    parseInt(document.getElementById('f_sort').value) || 0,
+          is_featured:   document.getElementById('f_featured').checked,
+          is_published:  document.getElementById('f_published').checked,
+          updated_at:    new Date().toISOString(),
+        };
+
+        if (!payload.title) { showToast('Judul tidak boleh kosong','error'); btnSave.disabled=false; btnSave.innerHTML='<i class="fas fa-floppy-disk"></i> Simpan'; return; }
+
+        const { error } = isEdit
+          ? await db.from('portfolio').update(payload).eq('id', data.id)
+          : await db.from('portfolio').insert(payload);
+
+        btnSave.disabled=false; btnSave.innerHTML='<i class="fas fa-floppy-disk"></i> Simpan';
+        if (error) { showToast('Gagal menyimpan: '+error.message,'error'); return; }
+        closeModal(); showToast(isEdit?'Portfolio diperbarui!':'Portfolio ditambahkan!'); loadPortfolio();
+      });
+
+      setTimeout(() => {
+        document.getElementById('tagInput')?.addEventListener('keydown', e => {
+          if (e.key==='Enter'||e.key===',') {
+            e.preventDefault();
+            const val = e.target.value.trim().replace(/,$/,'');
+            if (!val) return;
+            const chip = document.createElement('span');
+            chip.className = 'tag-chip';
+            chip.innerHTML = `${val}<button onclick="removeTag(this)">✕</button>`;
+            document.getElementById('tagsWrap').insertBefore(chip, e.target);
+            e.target.value = '';
+          }
+        });
+      }, 50);
+    }
+
+    async function deletePortfolio(id, title) {
+      confirmDelete(`Hapus portfolio "${title}"?`, async () => {
+        const { error } = await db.from('portfolio').delete().eq('id', id);
+        if (error) { showToast('Gagal hapus','error'); return; }
+        showToast('Portfolio dihapus!'); loadPortfolio();
+      });
+    }
 
     // ══ PROFILE ══
     let profileId = null;

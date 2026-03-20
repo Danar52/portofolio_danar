@@ -68,6 +68,18 @@
     .profil-social-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--sidebar-bg); border: 1px solid var(--sidebar-border); color: var(--heading-color); font-size: 14px; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.22s; }
     .profil-social-btn:hover { background: var(--accent-color); border-color: var(--accent-color); color: #fff; transform: translateY(-3px); box-shadow: 0 6px 14px rgba(5,99,187,0.28); }
 
+    /* ── STATS DI KIRI ── */
+    .left-stats { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+    .left-stat-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px; background: var(--sidebar-bg);
+      border: 1px solid var(--sidebar-border); border-radius: 10px;
+      transition: all 0.22s;
+    }
+    .left-stat-item:hover { border-color: var(--accent-color); background: rgba(5,99,187,0.04); transform: translateX(3px); }
+    .left-stat-label { font-family: var(--nav-font); font-size: 11px; font-weight: 500; color: var(--heading-color); opacity: 0.7; }
+    .left-stat-value { font-family: var(--heading-font); font-size: 16px; font-weight: 800; color: var(--accent-color); }
+
     /* ── KOLOM KANAN ── */
     .profil-right { opacity: 0; transform: translateY(24px); animation: fadeUp 0.65s ease 0.38s forwards; display: flex; flex-direction: column; gap: 18px; }
 
@@ -92,13 +104,6 @@
     .status-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500; color: #1a8f4e; }
     .status-badge::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #1a8f4e; display: inline-block; animation: pulseDot 1.8s ease-in-out infinite; }
     @keyframes pulseDot { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.5; transform:scale(1.3); } }
-
-    /* Stats */
-    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-    .stat-box { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 12px; border-radius: 12px; background: var(--sidebar-bg); border: 1px solid var(--sidebar-border); text-align: center; transition: all 0.22s; cursor: default; }
-    .stat-box:hover { border-color: var(--accent-color); background: rgba(5,99,187,0.04); transform: translateY(-3px); box-shadow: 0 6px 20px rgba(5,99,187,0.1); }
-    .stat-number { font-family: var(--heading-font); font-size: 26px; font-weight: 800; color: var(--accent-color); line-height: 1; margin-bottom: 6px; }
-    .stat-label { font-family: var(--nav-font); font-size: 10px; font-weight: 600; color: var(--heading-color); opacity: 0.6; letter-spacing: 0.8px; text-transform: uppercase; }
 
     /* Minat */
     .interest-tags { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -131,6 +136,8 @@
       .profil-wrapper { grid-template-columns: 1fr; gap: 36px; }
       .profil-left { position: static; flex-direction: row; align-items: flex-start; flex-wrap: wrap; gap: 28px; }
       .profil-contact-list { width: auto; flex-direction: row; flex-wrap: wrap; }
+      .left-stats { width: auto; flex-direction: row; flex-wrap: wrap; }
+      .left-stat-item { min-width: 120px; flex: 1; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
     }
     @media (max-width: 768px) {
       :root { --sidebar-width: 0px; }
@@ -140,8 +147,6 @@
     }
     @media (max-width: 560px) {
       .profil-info-grid { grid-template-columns: 1fr; }
-      .stats-grid { grid-template-columns: repeat(3,1fr); gap: 10px; }
-      .stat-number { font-size: 20px; }
       #main-content { padding: 32px 20px; }
       .section-card { padding: 20px 18px; }
     }
@@ -255,7 +260,7 @@
         </div>
       `).join('');
 
-      // Interests — baca dari DB kalau ada, fallback ke default
+      // Interests
       let interests = [
         { icon: 'fas fa-code',        label: 'Web Development' },
         { icon: 'fas fa-palette',     label: 'UI/UX Design' },
@@ -283,6 +288,24 @@
             <div class="left-divider"></div>
             ${contactsHtml ? `<div class="profil-contact-list">${contactsHtml}</div>` : ''}
             <div class="profil-socials">${socialsHtml}</div>
+            <div class="left-divider"></div>
+
+            <!-- Ringkasan di kiri -->
+            <div class="left-stats">
+              <div class="left-stat-item">
+                <span class="left-stat-label">Usia</span>
+                <span class="left-stat-value">${age} thn</span>
+              </div>
+              <div class="left-stat-item">
+                <span class="left-stat-label">Tahun Belajar</span>
+                <span class="left-stat-value">${yearsLearning}+</span>
+              </div>
+              <div class="left-stat-item">
+                <span class="left-stat-label">Jenjang Pendidikan</span>
+                <span class="left-stat-value">${eduList.length}</span>
+              </div>
+            </div>
+
           </div>
 
           <!-- ═══ KANAN ═══ -->
@@ -323,29 +346,7 @@
               </div>
             </div>
 
-            <!-- 3. Ringkasan -->
-            <div class="section-card">
-              <div class="section-card-header">
-                <div class="section-card-icon"><i class="fas fa-chart-simple"></i></div>
-                <span class="section-label">Ringkasan</span>
-              </div>
-              <div class="stats-grid">
-                <div class="stat-box">
-                  <div class="stat-number">${age}</div>
-                  <div class="stat-label">Usia</div>
-                </div>
-                <div class="stat-box">
-                  <div class="stat-number">${yearsLearning}+</div>
-                  <div class="stat-label">Tahun Belajar</div>
-                </div>
-                <div class="stat-box">
-                  <div class="stat-number">${eduList.length}</div>
-                  <div class="stat-label">Jenjang Pendidikan</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- 4. Minat & Ketertarikan -->
+            <!-- 3. Minat & Ketertarikan -->
             <div class="section-card">
               <div class="section-card-header">
                 <div class="section-card-icon"><i class="fas fa-heart"></i></div>
@@ -354,7 +355,7 @@
               <div class="interest-tags">${interestsHtml}</div>
             </div>
 
-            <!-- 5. Riwayat Pendidikan -->
+            <!-- 4. Riwayat Pendidikan -->
             ${eduHtml ? `
             <div class="section-card">
               <div class="section-card-header">
