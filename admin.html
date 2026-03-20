@@ -72,6 +72,9 @@
     .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
     .form-hint{font-size:11px;color:var(--text);opacity:.45;margin-top:5px}
 
+    /* Datalist suggestion styling */
+    .form-input-suggest { position: relative; }
+
     .toggle-wrap{display:flex;align-items:center;gap:10px}
     .toggle{position:relative;width:40px;height:22px;flex-shrink:0}
     .toggle input{opacity:0;width:0;height:0}
@@ -120,7 +123,6 @@
     .range-wrap input[type=range]{flex:1;accent-color:var(--accent);height:4px}
     .range-val{font-family:var(--font-nav);font-size:13px;font-weight:700;color:var(--accent);min-width:36px}
 
-    /* ── File Upload ── */
     .file-upload-area{border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;position:relative}
     .file-upload-area:hover{border-color:var(--accent);background:var(--accent-lt)}
     .file-upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
@@ -128,13 +130,11 @@
     .file-upload-area p{font-family:var(--font-nav);font-size:12px;color:var(--heading);opacity:.5}
     .file-type-hint{font-family:var(--font-nav);font-size:10px;color:var(--accent);opacity:.6;margin-top:4px}
 
-    /* ── Upload Progress ── */
     .upload-progress{display:none;align-items:center;gap:12px;padding:12px 14px;background:var(--accent-lt);border:1px solid rgba(5,99,187,.2);border-radius:9px;margin-top:10px}
     .upload-progress.show{display:flex}
     .upload-progress i{color:var(--accent);font-size:16px;animation:spin .8s linear infinite}
     .upload-progress span{font-family:var(--font-nav);font-size:12px;color:var(--accent);font-weight:500}
 
-    /* ── Current file preview ── */
     .current-file-preview{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:9px;margin-bottom:10px}
     .current-file-preview .file-icon{font-size:22px;flex-shrink:0}
     .current-file-preview .file-icon.img-icon{color:var(--accent)} .current-file-preview .file-icon.pdf-icon{color:#e53e3e}
@@ -144,7 +144,6 @@
     .current-file-preview .file-type-badge.img{background:rgba(5,99,187,.1);color:var(--accent)} .current-file-preview .file-type-badge.pdf{background:rgba(229,62,62,.1);color:#e53e3e}
     .current-file-preview a{color:var(--accent);font-size:12px;text-decoration:none;white-space:nowrap}
 
-    /* ── Confirm ── */
     .confirm-modal{max-width:380px;padding:32px;text-align:center}
     .confirm-icon{width:56px;height:56px;border-radius:50%;background:rgba(229,62,62,.1);color:var(--error);font-size:22px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
     .confirm-title{font-family:var(--font-h);font-size:18px;font-weight:700;color:var(--heading);margin-bottom:8px}
@@ -274,7 +273,6 @@
     document.getElementById('confirmCancel').onclick = () => document.getElementById('confirmOverlay').classList.remove('open');
     document.getElementById('modalOverlay').onclick  = e => { if (e.target===document.getElementById('modalOverlay')) closeModal(); };
 
-    // ── Upload file ke Storage ──
     async function uploadFile(file, folder) {
       const ext  = file.name.split('.').pop().toLowerCase();
       const path = `${folder}/${Date.now()}.${ext}`;
@@ -283,7 +281,6 @@
       return db.storage.from('portfolio-images').getPublicUrl(path).data.publicUrl;
     }
 
-    // ── Generate thumbnail PNG dari halaman pertama PDF ──
     async function generatePDFThumbnail(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -303,18 +300,13 @@
       });
     }
 
-    // ── Upload sertifikat (PDF atau gambar) + auto-thumbnail ──
     async function uploadCertFile(file, progressEl) {
       const isPDFFile = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
       const ts = Date.now();
-
       if (progressEl) { progressEl.classList.add('show'); progressEl.querySelector('span').textContent = isPDFFile ? 'Mengupload PDF...' : 'Mengupload gambar...'; }
-
       const fileUrl = await uploadFile(file, 'certs');
       if (!fileUrl) { if (progressEl) progressEl.classList.remove('show'); return null; }
-
-      let thumbnailUrl = fileUrl; // Default untuk gambar
-
+      let thumbnailUrl = fileUrl;
       if (isPDFFile) {
         if (progressEl) progressEl.querySelector('span').textContent = 'Membuat thumbnail dari PDF...';
         try {
@@ -322,19 +314,14 @@
           const thumbPath = `certs/thumb_${ts}.png`;
           const { error } = await db.storage.from('portfolio-images').upload(thumbPath, blob, { upsert: true, contentType: 'image/png' });
           thumbnailUrl = error ? null : db.storage.from('portfolio-images').getPublicUrl(thumbPath).data.publicUrl;
-        } catch(err) {
-          console.warn('Gagal buat thumbnail:', err);
-          thumbnailUrl = null;
-        }
+        } catch(err) { console.warn('Gagal buat thumbnail:', err); thumbnailUrl = null; }
       }
-
       if (progressEl) progressEl.classList.remove('show');
       return { fileUrl, thumbnailUrl };
     }
 
     function isPDF(url) { return url && url.toLowerCase().includes('.pdf'); }
 
-    // ── Render preview di tabel ──
     function renderTablePreview(c) {
       if (c.thumbnail_url) return `<img class="tbl-img" src="${c.thumbnail_url}" alt="thumb">`;
       if (c.image_url && !isPDF(c.image_url)) return `<img class="tbl-img" src="${c.image_url}" alt="cert">`;
@@ -342,7 +329,6 @@
       return `<div class="tbl-img-placeholder"><i class="fas fa-certificate"></i></div>`;
     }
 
-    // ── Render info file saat ini di form ──
     function renderCurrentFileInfo(c) {
       if (!c?.image_url) return '';
       const fileName   = c.image_url.split('/').pop();
@@ -390,22 +376,29 @@
     // ══════════════════════════════
     // SKILLS
     // ══════════════════════════════
+
+    // Simpan kategori yang udah ada buat suggestion di form
+    let existingCategories = [];
+
     async function loadSkills() {
       const el = document.getElementById('skillsContent');
       el.innerHTML = '<div class="loading"><i class="fas fa-circle-notch"></i></div>';
       const { data, error } = await db.from('skills').select('*').order('category').order('sort_order');
       if (error||!data) { el.innerHTML='<p style="color:red;padding:20px">Gagal load data.</p>'; return; }
+
+      // Simpan daftar kategori unik untuk suggestion di form nanti
+      existingCategories = [...new Set(data.map(s => s.category).filter(Boolean))];
+
       const groups = {};
       data.forEach(s => { if(!groups[s.category]) groups[s.category]=[]; groups[s.category].push(s); });
       let html = '';
       for (const [cat, items] of Object.entries(groups)) {
         html += `<div style="margin-bottom:28px">
-          <h3 style="font-family:var(--font-h);font-size:15px;font-weight:700;color:var(--heading);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)">
-            <i class="${items[0].category_icon}" style="color:var(--accent);margin-right:8px"></i>${cat}</h3>
+          <h3 style="font-family:var(--font-h);font-size:15px;font-weight:700;color:var(--heading);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)">${cat}</h3>
           <div class="table-wrap"><table>
             <thead><tr><th>Skill</th><th>Persentase</th><th style="width:100px">Aksi</th></tr></thead>
             <tbody>${items.map(s=>`<tr>
-              <td><i class="${s.skill_icon}" style="color:var(--accent);margin-right:8px;opacity:.7"></i>${s.skill_name}</td>
+              <td>${s.skill_name}</td>
               <td><div class="pct-wrap"><div class="pct-bar"><div class="pct-fill" style="width:${s.percentage}%"></div></div><span class="pct-num">${s.percentage}%</span></div></td>
               <td><div class="td-actions">
                 <button class="btn btn-outline btn-sm" onclick="openSkillForm(${JSON.stringify(s).replace(/"/g,'&quot;')})"><i class="fas fa-pen"></i></button>
@@ -418,42 +411,71 @@
 
     function openSkillForm(data=null) {
       const isEdit = !!data?.id;
+
+      // Buat datalist dari kategori yang sudah ada
+      const datalistOptions = existingCategories
+        .map(c => `<option value="${c}">`)
+        .join('');
+
       openModal(isEdit?'Edit Skill':'Tambah Skill', `
-        <div class="form-group"><label class="form-label">Kategori</label>
-          <select class="form-select" id="f_cat">
-            <option value="Frontend" ${data?.category==='Frontend'?'selected':''}>Frontend</option>
-            <option value="Backend" ${data?.category==='Backend'?'selected':''}>Backend</option>
-            <option value="Design" ${data?.category==='Design'?'selected':''}>Design</option>
-            <option value="Tools & Others" ${data?.category==='Tools & Others'?'selected':''}>Tools & Others</option>
-          </select></div>
-        <div class="form-group"><label class="form-label">Nama Skill</label>
-          <input class="form-input" id="f_name" placeholder="cth: PHP" value="${data?.skill_name||''}"/></div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Icon Skill (FA class)</label>
-            <input class="form-input" id="f_icon" placeholder="fab fa-php" value="${data?.skill_icon||''}"/>
-            <p class="form-hint">Cari di fontawesome.com</p></div>
-          <div class="form-group"><label class="form-label">Sort Order</label>
-            <input class="form-input" id="f_sort" type="number" value="${data?.sort_order||0}"/></div>
+        <datalist id="categoryList">${datalistOptions}</datalist>
+
+        <div class="form-group">
+          <label class="form-label">Kategori</label>
+          <input
+            class="form-input"
+            id="f_cat"
+            list="categoryList"
+            placeholder="cth: Frontend, Backend, Design..."
+            value="${data?.category||''}"
+            autocomplete="off"
+          />
+          <p class="form-hint">Ketik nama kategori bebas. Kategori yang sudah ada akan muncul sebagai saran.</p>
         </div>
-        <div class="form-group"><label class="form-label">Persentase: <span id="pctLabel" style="color:var(--accent);font-weight:700">${data?.percentage||70}%</span></label>
-          <div class="range-wrap">
-            <input type="range" id="f_pct" min="0" max="100" value="${data?.percentage||70}" oninput="document.getElementById('pctLabel').textContent=this.value+'%'"/>
-            <span class="range-val" id="pctDisp">${data?.percentage||70}%</span>
-          </div></div>
+
+        <div class="form-group">
+          <label class="form-label">Nama Skill</label>
+          <input class="form-input" id="f_name" placeholder="cth: PHP" value="${data?.skill_name||''}"/>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Sort Order</label>
+            <input class="form-input" id="f_sort" type="number" value="${data?.sort_order||0}"/>
+            <p class="form-hint">Urutan tampil dalam kategori (kecil = duluan)</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Persentase: <span id="pctLabel" style="color:var(--accent);font-weight:700">${data?.percentage||70}%</span></label>
+            <div class="range-wrap" style="margin-top:8px">
+              <input type="range" id="f_pct" min="0" max="100" value="${data?.percentage||70}" oninput="document.getElementById('pctLabel').textContent=this.value+'%';document.getElementById('pctDisp').textContent=this.value+'%'"/>
+              <span class="range-val" id="pctDisp">${data?.percentage||70}%</span>
+            </div>
+          </div>
+        </div>
       `, async () => {
+        const catVal = document.getElementById('f_cat').value.trim();
+        if (!catVal) { showToast('Kategori tidak boleh kosong', 'error'); return; }
+
         const payload = {
-          category: document.getElementById('f_cat').value,
-          category_icon: {Frontend:'fas fa-laptop-code',Backend:'fas fa-server',Design:'fas fa-pen-ruler','Tools & Others':'fas fa-screwdriver-wrench'}[document.getElementById('f_cat').value],
-          skill_name: document.getElementById('f_name').value,
-          skill_icon: document.getElementById('f_icon').value,
-          percentage: parseInt(document.getElementById('f_pct').value),
-          sort_order: parseInt(document.getElementById('f_sort').value),
+          category:      catVal,
+          category_icon: 'fas fa-star', // default icon, ga ditampilkan di frontend
+          skill_name:    document.getElementById('f_name').value.trim(),
+          skill_icon:    '',
+          percentage:    parseInt(document.getElementById('f_pct').value),
+          sort_order:    parseInt(document.getElementById('f_sort').value) || 0,
         };
-        const {error} = isEdit ? await db.from('skills').update(payload).eq('id',data.id) : await db.from('skills').insert(payload);
-        if (error) { showToast('Gagal menyimpan','error'); return; }
-        closeModal(); showToast(isEdit?'Skill diperbarui!':'Skill ditambahkan!'); loadSkills();
+
+        if (!payload.skill_name) { showToast('Nama skill tidak boleh kosong', 'error'); return; }
+
+        const {error} = isEdit
+          ? await db.from('skills').update(payload).eq('id', data.id)
+          : await db.from('skills').insert(payload);
+
+        if (error) { showToast('Gagal menyimpan: ' + error.message, 'error'); return; }
+        closeModal();
+        showToast(isEdit ? 'Skill diperbarui!' : 'Skill ditambahkan!');
+        loadSkills();
       });
-      setTimeout(() => { document.getElementById('f_pct')?.addEventListener('input',function(){document.getElementById('pctDisp').textContent=this.value+'%';}); }, 50);
     }
 
     async function deleteSkill(id,name) {
@@ -706,23 +728,16 @@
         const btnSave = document.getElementById('btnSave');
         btnSave.disabled = true;
         btnSave.innerHTML = '<i class="fas fa-circle-notch" style="animation:spin .8s linear infinite"></i> Menyimpan...';
-
         let imageUrl     = data?.image_url     || null;
         let thumbnailUrl = data?.thumbnail_url || null;
-
         const file = document.getElementById('f_cert_file').files[0];
         if (file) {
           const progressEl = document.getElementById('uploadProgress');
           const result = await uploadCertFile(file, progressEl);
-          if (!result) {
-            btnSave.disabled = false;
-            btnSave.innerHTML = '<i class="fas fa-floppy-disk"></i> Simpan';
-            return;
-          }
+          if (!result) { btnSave.disabled = false; btnSave.innerHTML = '<i class="fas fa-floppy-disk"></i> Simpan'; return; }
           imageUrl     = result.fileUrl;
           thumbnailUrl = result.thumbnailUrl;
         }
-
         const payload = {
           cert_name:     document.getElementById('f_name').value,
           issuer:        document.getElementById('f_issuer').value,
@@ -733,14 +748,11 @@
           thumbnail_url: thumbnailUrl,
           sort_order:    parseInt(document.getElementById('f_sort').value)||0,
         };
-
         const {error} = isEdit
           ? await db.from('certifications').update(payload).eq('id',data.id)
           : await db.from('certifications').insert(payload);
-
         btnSave.disabled = false;
         btnSave.innerHTML = '<i class="fas fa-floppy-disk"></i> Simpan';
-
         if (error) { showToast('Gagal menyimpan: '+error.message,'error'); return; }
         closeModal();
         showToast(isEdit?'Sertifikat diperbarui!':'Sertifikat ditambahkan!');
