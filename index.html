@@ -3,196 +3,116 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="icon" type="image/png" href="./assets/Title HTML.jpg"/>
   <title>Eka Danar Arrasyid — Home</title>
 
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&family=Poppins:wght@400;500;600&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"/>
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
   <style>
-    /* ===================== CSS VARIABLES ===================== */
     :root {
-      --default-font:  "Roboto", system-ui, -apple-system, sans-serif;
+      --default-font:  "Roboto", system-ui, sans-serif;
       --heading-font:  "Raleway", sans-serif;
       --nav-font:      "Poppins", sans-serif;
-
       --background-color: #ffffff;
       --default-color:    #272829;
       --heading-color:    #45505b;
       --accent-color:     #0563bb;
-      --surface-color:    #ffffff;
       --contrast-color:   #ffffff;
-
-      --nav-color:       #45505b;
-      --nav-hover-color: #0563bb;
-      --nav-active-bg:   #0563bb;
-
-      --sidebar-width:   72px;
-      --sidebar-bg:      #f8f9fa;
-      --sidebar-border:  #e9ecef;
-      --nav-btn-size:    46px;
+      --nav-color:        #45505b;
+      --nav-hover-color:  #0563bb;
+      --nav-active-bg:    #0563bb;
+      --sidebar-width:    72px;
+      --sidebar-bg:       #f8f9fa;
+      --sidebar-border:   #e9ecef;
+      --nav-btn-size:     46px;
     }
 
-    /* ===================== RESET ===================== */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-
     body {
       font-family: var(--default-font);
       background-color: var(--background-color);
       color: var(--default-color);
       min-height: 100vh;
       display: flex;
+      overflow-x: hidden;
     }
 
-    /* ===================== SCROLLBAR ===================== */
     ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(5,99,187,0.2); border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
 
-    /* ===================== SIDEBAR ===================== */
+    /* ── SIDEBAR ── */
     #sidebar {
-      position: fixed;
-      top: 0; left: 0;
-      width: var(--sidebar-width);
-      height: 100vh;
+      position: fixed; top: 0; left: 0;
+      width: var(--sidebar-width); height: 100vh;
       background: var(--sidebar-bg);
       border-right: 1px solid var(--sidebar-border);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 28px 0;
-      gap: 10px;
-      z-index: 1000;
+      display: flex; flex-direction: column;
+      align-items: center; padding: 28px 0; gap: 10px; z-index: 1000;
     }
-
     .nav-btn {
-      width: var(--nav-btn-size);
-      height: var(--nav-btn-size);
-      border-radius: 50%;
-      background: transparent;
-      color: var(--nav-color);
-      font-size: 17px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: background 0.25s ease, color 0.25s ease, transform 0.2s ease;
-      text-decoration: none;
-      position: relative;
+      width: var(--nav-btn-size); height: var(--nav-btn-size);
+      border-radius: 50%; background: transparent;
+      color: var(--nav-color); font-size: 17px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.25s, color 0.25s, transform 0.2s;
+      text-decoration: none; position: relative;
     }
+    .nav-btn:hover { background: rgba(5,99,187,0.1); color: var(--nav-hover-color); transform: scale(1.08); }
+    .nav-btn.active { background: var(--nav-active-bg); color: var(--contrast-color); box-shadow: 0 4px 14px rgba(5,99,187,0.35); }
+    .nav-btn::after { content: attr(data-tooltip); position: absolute; left: calc(100% + 14px); top: 50%; transform: translateY(-50%); background: var(--heading-color); color: #fff; padding: 5px 11px; border-radius: 6px; font-family: var(--nav-font); font-size: 12px; font-weight: 500; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .nav-btn::before { content: ''; position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%); border: 5px solid transparent; border-right-color: var(--heading-color); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
+    .nav-btn:hover::after, .nav-btn:hover::before { opacity: 1; }
 
-    .nav-btn:hover {
-      background: rgba(5,99,187,0.1);
-      color: var(--nav-hover-color);
-      transform: scale(1.08);
-    }
-
-    .nav-btn.active {
-      background: var(--nav-active-bg);
-      color: var(--contrast-color);
-      box-shadow: 0 4px 14px rgba(5,99,187,0.35);
-    }
-
-    /* Tooltip */
-    .nav-btn::after {
-      content: attr(data-tooltip);
-      position: absolute;
-      left: calc(100% + 14px);
-      top: 50%; transform: translateY(-50%);
-      background: var(--heading-color);
-      color: #fff;
-      padding: 5px 11px;
-      border-radius: 6px;
-      font-family: var(--nav-font);
-      font-size: 12px;
-      font-weight: 500;
-      white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease;
-    }
-
-    .nav-btn::before {
-      content: '';
-      position: absolute;
-      left: calc(100% + 8px);
-      top: 50%; transform: translateY(-50%);
-      border: 5px solid transparent;
-      border-right-color: var(--heading-color);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s ease;
-    }
-
-    .nav-btn:hover::after,
-    .nav-btn:hover::before { opacity: 1; }
-
-    /* ===================== MAIN CONTENT ===================== */
+    /* ── MAIN ── */
     #main-content {
       margin-left: var(--sidebar-width);
-      flex: 1;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-    }
-
-    /* ===================== HOME HERO ===================== */
-    .home-hero {
-      padding: 0 80px;
-      width: 100%;
-      position: relative;
+      flex: 1; min-height: 100vh;
+      display: flex; align-items: center;
       overflow: hidden;
     }
 
-    /* Background decoration */
+    /* ── HERO LAYOUT — 2 kolom ── */
+    .home-hero {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      padding: 0 60px 0 80px;
+      gap: 0;
+      position: relative;
+    }
+
     .home-hero::before {
       content: '';
-      position: fixed;
-      top: -150px; right: -150px;
-      width: 600px; height: 600px;
-      border-radius: 50%;
+      position: fixed; top: -150px; right: -150px;
+      width: 600px; height: 600px; border-radius: 50%;
       background: radial-gradient(circle, rgba(5,99,187,0.05) 0%, transparent 70%);
       pointer-events: none;
     }
 
-    .home-hero::after {
-      content: '';
-      position: fixed;
-      bottom: -80px; right: 80px;
-      width: 350px; height: 350px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(5,99,187,0.03) 0%, transparent 70%);
-      pointer-events: none;
-    }
+    /* ── KIRI: teks ── */
+    .hero-text { display: flex; flex-direction: column; }
 
-    /* ── Name ── */
     .home-name {
       font-family: var(--heading-font);
-      font-size: clamp(42px, 6vw, 78px);
+      font-size: clamp(42px, 5.5vw, 76px);
       font-weight: 700;
       color: var(--heading-color);
       line-height: 1.08;
       letter-spacing: -1.5px;
-      opacity: 0;
-      transform: translateY(32px);
+      opacity: 0; transform: translateY(32px);
       animation: fadeUp 0.75s ease 0.15s forwards;
     }
 
-    /* ── Tagline / Typewriter ── */
     .home-tagline {
       font-family: var(--default-font);
-      font-size: clamp(16px, 2.2vw, 22px);
+      font-size: clamp(16px, 2vw, 22px);
       font-weight: 300;
       color: var(--default-color);
       margin-top: 18px;
-      letter-spacing: 0.2px;
-      opacity: 0;
-      transform: translateY(22px);
+      opacity: 0; transform: translateY(22px);
       animation: fadeUp 0.75s ease 0.35s forwards;
     }
 
@@ -203,170 +123,400 @@
       padding-right: 3px;
       animation: blink 0.75s step-end infinite;
     }
-
     @keyframes blink { 50% { border-color: transparent; } }
 
-    /* ── Divider ── */
     .home-divider {
-      width: 56px;
-      height: 3px;
+      width: 56px; height: 3px;
       background: var(--accent-color);
-      border-radius: 2px;
-      margin: 30px 0;
+      border-radius: 2px; margin: 30px 0;
       opacity: 0;
       animation: fadeUp 0.75s ease 0.52s forwards;
     }
 
-    /* ── Social Icons ── */
     .social-links {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-      opacity: 0;
-      transform: translateY(18px);
+      display: flex; gap: 20px; align-items: center;
+      opacity: 0; transform: translateY(18px);
       animation: fadeUp 0.75s ease 0.68s forwards;
     }
-
     .social-link {
-      color: var(--heading-color);
-      font-size: 20px;
-      text-decoration: none;
+      color: var(--heading-color); font-size: 20px;
+      text-decoration: none; display: flex; align-items: center;
+      transition: color 0.2s, transform 0.2s;
+    }
+    .social-link:hover { color: var(--accent-color); transform: translateY(-3px); }
+
+    /* ── KANAN: chibi stage ── */
+    .chibi-stage {
+      position: relative;
+      width: clamp(280px, 38vw, 520px);
+      height: 100vh;
       display: flex;
-      align-items: center;
+      align-items: flex-end;
       justify-content: center;
-      transition: color 0.2s ease, transform 0.2s ease;
+      /* Sembunyikan overflow agar chibi tidak keliatan saat di luar stage */
+      overflow: hidden;
+      pointer-events: none;
     }
 
-    .social-link:hover {
-      color: var(--accent-color);
-      transform: translateY(-3px);
+    /*
+      chibi-wrap: container posisi absolut di bawah stage.
+      Dua gambar di-stack di sini untuk crossfade + slide.
+    */
+    .chibi-wrap {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
     }
 
-    /* ===================== ANIMATIONS ===================== */
-    @keyframes fadeUp {
-      to { opacity: 1; transform: translateY(0); }
+    /*
+      Setiap chibi-img: posisi absolut, bottom-aligned.
+      State diatur lewat class JS: .state-idle, .state-enter, .state-exit
+    */
+    .chibi-img {
+      position: absolute;
+      bottom: 0;
+      height: 92vh;
+      max-height: 900px;
+      min-height: 400px;
+      width: auto;
+      object-fit: contain;
+      display: block;
+      user-select: none;
+      filter: drop-shadow(0 16px 40px rgba(5,99,187,0.12));
+
+      /*
+        Posisi awal: tersembunyi di kanan (translateX 110%)
+        opacity & transform diatur via state class
+      */
+      opacity: 0;
+      transform: translateX(110%);
+      /* Transisi default — override di setiap state */
+      transition:
+        opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.65s cubic-bezier(0.34, 1.2, 0.64, 1);
     }
 
-    /* ===================== RESPONSIVE ===================== */
+    /* STATE: idle — chibi di posisi normal, idle breathing */
+    .chibi-img.state-idle {
+      opacity: 1;
+      transform: translateX(0);
+      filter: drop-shadow(0 16px 40px rgba(5,99,187,0.12)) blur(0px);
+      animation: chibiBreathe 3.6s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    }
+
+    /*
+      STATE: enter — masuk dari kanan ke tengah.
+      JS set ini dulu (translateX 110%, opacity 0 — via reset),
+      lalu di next frame set ke state-idle agar CSS transition aktif.
+      Transisi override: spring masuk lebih responsif.
+    */
+    .chibi-img.state-enter {
+      opacity: 0;
+      transform: translateX(110%);
+      transition:
+        opacity 0.0s,
+        transform 0.0s;
+    }
+
+    /*
+      STATE: entering (setelah state-enter di-apply, frame berikutnya)
+      Ini yang bikin chibi meluncur masuk.
+    */
+    .chibi-img.state-entering {
+      opacity: 1;
+      transform: translateX(0);
+      filter: drop-shadow(0 16px 40px rgba(5,99,187,0.12)) blur(0px);
+      transition:
+        opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+        transform 0.7s cubic-bezier(0.34, 1.15, 0.64, 1),
+        filter 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* STATE: exit — chibi dissolve: blur + fade + sedikit scale down */
+    .chibi-img.state-exit {
+      opacity: 0;
+      transform: translateX(0) scale(0.88);
+      filter: drop-shadow(0 16px 40px rgba(5,99,187,0.12)) blur(18px);
+      transition:
+        opacity 0.48s cubic-bezier(0.4, 0, 1, 1),
+        transform 0.48s cubic-bezier(0.4, 0, 1, 1),
+        filter 0.48s cubic-bezier(0.4, 0, 1, 1);
+    }
+
+    /* ── Idle bounce — chibi napas ── */
+    @keyframes chibiBreathe {
+      0%   { transform: translateX(0) translateY(0px)   scaleY(1);    }
+      30%  { transform: translateX(0) translateY(-12px) scaleY(1.01); }
+      55%  { transform: translateX(0) translateY(-14px) scaleY(1.02); }
+      75%  { transform: translateX(0) translateY(-6px)  scaleY(1.01); }
+      100% { transform: translateX(0) translateY(0px)   scaleY(1);    }
+    }
+
+    /* ── Squash saat mendarat ── */
+    @keyframes chibiLand {
+      0%   { transform: translateX(0) translateY(0)   scaleX(1)    scaleY(1);    }
+      15%  { transform: translateX(0) translateY(3px)  scaleX(1.06) scaleY(0.93); }
+      40%  { transform: translateX(0) translateY(0)   scaleX(0.98) scaleY(1.02); }
+      100% { transform: translateX(0) translateY(0)   scaleX(1)    scaleY(1);    }
+    }
+
+    /* State: landing — squash setelah masuk */
+    .chibi-img.state-landing {
+      opacity: 1;
+      animation: chibiLand 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      transition: none;
+    }
+
+    /* ── Bayangan kaki ── */
+    .chibi-shadow {
+      position: absolute;
+      bottom: 4px;
+      width: 50%;
+      height: 20px;
+      background: radial-gradient(ellipse, rgba(5,99,187,0.09) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      transition: transform 0.5s cubic-bezier(0.34, 1.4, 0.64, 1),
+                  opacity 0.4s ease;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .home-hero { grid-template-columns: 1fr; padding: 40px 32px; justify-items: center; text-align: center; }
+      .hero-text { align-items: center; }
+      .chibi-stage { width: 100%; height: 360px; overflow: hidden; }
+      .chibi-img { height: 340px; max-height: 340px; min-height: 340px; }
+    }
+
     @media (max-width: 768px) {
       :root { --sidebar-width: 0px; }
-
-      #sidebar {
-        width: 100%;
-        height: 62px;
-        flex-direction: row;
-        justify-content: center;
-        top: auto; bottom: 0;
-        border-right: none;
-        border-top: 1px solid var(--sidebar-border);
-        padding: 0 16px;
-        gap: 8px;
-      }
-
-      .nav-btn::after,
-      .nav-btn::before { display: none; }
-
+      #sidebar { width: 100%; height: 62px; flex-direction: row; justify-content: center; top: auto; bottom: 0; border-right: none; border-top: 1px solid var(--sidebar-border); padding: 0 16px; gap: 8px; }
+      .nav-btn::after, .nav-btn::before { display: none; }
       #main-content { margin-left: 0; margin-bottom: 62px; }
-
-      .home-hero { padding: 40px 32px; }
-    }
-
-    @media (max-width: 480px) {
       .home-hero { padding: 32px 24px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- ======================== SIDEBAR ======================== -->
   <nav id="sidebar">
-    <a href="index.html"         class="nav-btn active" data-tooltip="Home">
-      <i class="fas fa-house"></i>
-    </a>
-    <a href="profil.html"        class="nav-btn" data-tooltip="Profil">
-      <i class="fas fa-user"></i>
-    </a>
-    <a href="skills.html"        class="nav-btn" data-tooltip="Skills">
-      <i class="fas fa-list-check"></i>
-    </a>
-    <a href="experience.html"    class="nav-btn" data-tooltip="Experience">
-      <i class="fas fa-briefcase"></i>
-    </a>
-    <a href="event.html"         class="nav-btn" data-tooltip="Event / Organization">
-      <i class="fas fa-calendar-days"></i>
-    </a>
-    <a href="certification.html" class="nav-btn" data-tooltip="Certification">
-      <i class="fas fa-award"></i>
-    </a>
-    <a href="portfolio.html" class="nav-btn" data-tooltip="Portfolio">
-  <i class="fas fa-briefcase-clock"></i>
-</a>
+    <a href="index.html"         class="nav-btn active" data-tooltip="Home"><i class="fas fa-house"></i></a>
+    <a href="profil.html"        class="nav-btn" data-tooltip="Profil"><i class="fas fa-user"></i></a>
+    <a href="skills.html"        class="nav-btn" data-tooltip="Skills"><i class="fas fa-list-check"></i></a>
+    <a href="portfolio.html"     class="nav-btn" data-tooltip="Portfolio"><i class="fas fa-briefcase-clock"></i></a>
+    <a href="experience.html"    class="nav-btn" data-tooltip="Experience"><i class="fas fa-briefcase"></i></a>
+    <a href="event.html"         class="nav-btn" data-tooltip="Event / Organization"><i class="fas fa-calendar-days"></i></a>
+    <a href="certification.html" class="nav-btn" data-tooltip="Certification"><i class="fas fa-award"></i></a>
   </nav>
 
-  <!-- ======================== MAIN ======================== -->
   <main id="main-content">
     <div class="home-hero">
 
-      <h1 class="home-name">Eka Danar Arrasyid</h1>
+      <!-- KIRI: teks -->
+      <div class="hero-text">
+        <h1 class="home-name">Eka Danar Arrasyid</h1>
+        <p class="home-tagline">
+          We Are <span class="typewriter-text" id="typewriter"></span>
+        </p>
+        <div class="home-divider"></div>
+        <div class="social-links">
+          <a href="https://x.com/DanarrArrsyd"                   target="_blank" class="social-link" title="X / Twitter"><i class="fab fa-x-twitter"></i></a>
+          <a href="https://www.tiktok.com/@danararrsyd"           target="_blank" class="social-link" title="TikTok"><i class="fab fa-tiktok"></i></a>
+          <a href="https://www.instagram.com/danar_arrsyd/"       target="_blank" class="social-link" title="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="https://www.linkedin.com/in/ekadanararrasyid/" target="_blank" class="social-link" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+          <a href="https://github.com/Danar52"                    target="_blank" class="social-link" title="GitHub"><i class="fab fa-github"></i></a>
+          <a href="https://www.behance.net/ekadanararrasyid"      target="_blank" class="social-link" title="Behance"><i class="fab fa-behance"></i></a>
+        </div>
+      </div>
 
-      <p class="home-tagline">
-        We Are <span class="typewriter-text" id="typewriter"></span>
-      </p>
-
-      <div class="home-divider"></div>
-
-      <div class="social-links">
-        <a href="https://x.com/DanarrArrsyd"                  target="_blank" class="social-link" title="X / Twitter">
-          <i class="fab fa-x-twitter"></i>
-        </a>
-        <a href="https://www.tiktok.com/@danararrsyd"          target="_blank" class="social-link" title="TikTok">
-          <i class="fab fa-tiktok"></i>
-        </a>
-        <a href="https://www.instagram.com/danar_arrsyd/"      target="_blank" class="social-link" title="Instagram">
-          <i class="fab fa-instagram"></i>
-        </a>
-        <a href="https://www.linkedin.com/in/ekadanararrasyid/" target="_blank" class="social-link" title="LinkedIn">
-          <i class="fab fa-linkedin-in"></i>
-        </a>
-        <a href="https://github.com/Danar52"                   target="_blank" class="social-link" title="GitHub">
-          <i class="fab fa-github"></i>
-        </a>
-        <a href="https://www.behance.net/ekadanararrasyid"     target="_blank" class="social-link" title="Behance">
-          <i class="fab fa-behance"></i>
-        </a>
+      <!-- KANAN: chibi stage — 2 gambar untuk slide + crossfade -->
+      <div class="chibi-stage">
+        <div class="chibi-shadow" id="chibiShadow"></div>
+        <div class="chibi-wrap" id="chibiWrap">
+          <!-- imgA: aktif pertama, pose 0 -->
+          <img class="chibi-img" id="chibiImgA" src="./assets/chibi_1.png" alt="Chibi Danar"/>
+          <!-- imgB: buffer, pose berikutnya -->
+          <img class="chibi-img" id="chibiImgB" src="./assets/chibi_2.png" alt="Chibi Danar"/>
+        </div>
       </div>
 
     </div>
   </main>
 
-  <!-- ======================== JS ======================== -->
   <script>
-    // ── Typewriter ──────────────────────────────────────────────
-    const words    = ['One', 'Developer', 'Designer', 'Engineer', 'Tech Enthusiast'];
-    const el       = document.getElementById('typewriter');
+    // ── Typewriter ────────────────────────────────────────────
+    const words = ['One', 'Developer', 'Engineer', 'Technologist'];
+    const el    = document.getElementById('typewriter');
     let wIdx = 0, cIdx = 0, deleting = false;
-
     function type() {
       const word = words[wIdx];
       if (!deleting) {
         el.textContent = word.slice(0, ++cIdx);
-        if (cIdx === word.length) {
-          deleting = true;
-          setTimeout(type, 1800);
-          return;
-        }
+        if (cIdx === word.length) { deleting = true; setTimeout(type, 1800); return; }
       } else {
         el.textContent = word.slice(0, --cIdx);
-        if (cIdx === 0) {
-          deleting = false;
-          wIdx = (wIdx + 1) % words.length;
-        }
+        if (cIdx === 0) { deleting = false; wIdx = (wIdx + 1) % words.length; }
       }
       setTimeout(type, deleting ? 65 : 105);
     }
-
     setTimeout(type, 900);
+
+    // ── Chibi Slide In/Out Animation ─────────────────────────
+    const CHIBI_POSES = [
+      './assets/chibi_1.png',
+      './assets/chibi_2.png',
+      './assets/chibi_3.png',
+      // './assets/chibi_4.png',
+    ];
+
+    // Timing (ms)
+    const IDLE_DURATION  = 4000;  // lama chibi idle sebelum ganti
+    const EXIT_DUR       = 480;   // durasi dissolve blur+fade
+    const ENTER_DUR      = 700;   // durasi slide masuk dari kanan
+    const LAND_DUR       = 500;   // durasi squash saat mendarat
+    const FRAME          = 16;    // 1 frame requestAnimationFrame approx
+
+    const imgA   = document.getElementById('chibiImgA');
+    const imgB   = document.getElementById('chibiImgB');
+    const shadow = document.getElementById('chibiShadow');
+
+    let poseIdx     = 0;
+    let activeImg   = imgA;
+    let inactiveImg = imgB;
+    let isTransitioning = false;
+
+    // Preload semua poses biar seamless
+    function preloadAll() {
+      CHIBI_POSES.forEach((src, i) => {
+        if (i === 0) return;
+        const img = new Image();
+        img.src = src;
+      });
+    }
+    preloadAll();
+
+    /*
+      Helper: set tepat satu state class, hapus yang lain.
+      State yang ada: state-enter, state-entering, state-idle,
+                      state-exit, state-landing
+    */
+    const ALL_STATES = ['state-enter','state-entering','state-idle','state-exit','state-landing'];
+    function setState(imgEl, state) {
+      imgEl.classList.remove(...ALL_STATES);
+      if (state) imgEl.classList.add(state);
+    }
+
+    /*
+      Tampilkan chibi aktif pertama kali:
+      - Reset ke state-enter (posisi offscreen kanan, tanpa transisi)
+      - Frame berikutnya masuk ke state-entering (transisi slide masuk)
+      - Setelah transisi selesai: state-landing → state-idle
+    */
+    function initFirstPose() {
+      setState(activeImg, 'state-enter');
+
+      // Double rAF agar browser sempat paint state-enter dulu
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setState(activeImg, 'state-entering');
+
+          // Shadow fade in
+          shadow.style.opacity = '1';
+
+          setTimeout(() => {
+            setState(activeImg, 'state-landing');
+
+            // Shadow squash
+            shadow.style.transform = 'scaleX(1.15)';
+            setTimeout(() => { shadow.style.transform = ''; }, LAND_DUR);
+
+            setTimeout(() => {
+              setState(activeImg, 'state-idle');
+              scheduleNext();
+            }, LAND_DUR);
+          }, ENTER_DUR);
+        });
+      });
+    }
+
+    /*
+      Fungsi utama transisi pose:
+      1. activeImg  → slide EXIT ke kiri
+      2. Sambil itu, siapkan inactiveImg di offscreen kanan
+      3. Setelah exit selesai: slide ENTER inactiveImg dari kanan
+      4. Landing squash → idle breathing
+      5. Swap referensi, jadwalkan berikutnya
+    */
+    function doTransition() {
+      if (isTransitioning) return;
+      isTransitioning = true;
+
+      const nextIdx = (poseIdx + 1) % CHIBI_POSES.length;
+
+      // ── Siapkan gambar berikutnya di buffer (offscreen, tanpa transisi) ──
+      inactiveImg.src = CHIBI_POSES[nextIdx];
+      setState(inactiveImg, 'state-enter'); // posisi awal: kanan offscreen
+
+      // ── EXIT: activeImg meluncur ke kiri ──
+      setState(activeImg, 'state-exit');
+
+      // Shadow menghilang saat exit
+      shadow.style.opacity = '0.3';
+      shadow.style.transform = 'scaleX(0.85)';
+
+      // Setelah exit selesai → ENTER inactiveImg
+      setTimeout(() => {
+        // Pastikan gambar buffer sudah siap, lalu masukkan
+        // Double rAF agar transition aktif (bukan langsung)
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            setState(inactiveImg, 'state-entering');
+
+            // Shadow masuk lagi
+            shadow.style.opacity = '1';
+
+            setTimeout(() => {
+              // ── Landing squash ──
+              setState(inactiveImg, 'state-landing');
+              shadow.style.transform = 'scaleX(1.15)';
+              setTimeout(() => { shadow.style.transform = ''; }, LAND_DUR);
+
+              // ── Idle breathing ──
+              setTimeout(() => {
+                setState(inactiveImg, 'state-idle');
+
+                // Cleanup: reset activeImg yang sudah exit (sembunyikan total)
+                setState(activeImg, ''); // hapus semua state → opacity 0 via base style
+
+                // Swap referensi
+                [activeImg, inactiveImg] = [inactiveImg, activeImg];
+                poseIdx = nextIdx;
+                isTransitioning = false;
+
+                scheduleNext();
+              }, LAND_DUR);
+            }, ENTER_DUR);
+          });
+        });
+      }, EXIT_DUR);
+    }
+
+    function scheduleNext() {
+      setTimeout(doTransition, IDLE_DURATION);
+    }
+
+    // Mulai!
+    initFirstPose();
   </script>
+
   <script type="module" src="chatbot.js"></script>
 </body>
 </html>
