@@ -432,8 +432,8 @@ class EkaChatbot {
     return this._escapeHtml(text)
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      // Auto-linkify URL
-      .replace(/(https?:\/\/[^\s<>"]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>')
+      // Auto-linkify URL — trailing punctuation (.,!?:) tidak ikut masuk link
+      .replace(/(https?:\/\/[^\s<>"]+?)([.,!?:;）)]*(?:\s|$))/g, '<a href="$1" target="_blank" rel="noopener">$1</a>$2')
       .replace(/\n/g, '<br>');
   }
 
