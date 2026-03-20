@@ -110,6 +110,19 @@
     .thumb-placeholder i { font-size: 32px; color: var(--accent-color); opacity: 0.4; }
     .thumb-placeholder span { font-family: var(--nav-font); font-size: 10px; font-weight: 600; color: var(--accent-color); opacity: 0.4; text-transform: uppercase; letter-spacing: 1px; }
 
+    /* Microlink auto-screenshot thumb */
+    .thumb-microlink {
+      width: 100%; aspect-ratio: 16/9; position: relative;
+      background: linear-gradient(135deg, #e8f0fb, #c5d8f5);
+      overflow: hidden;
+    }
+    .thumb-loading {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .thumb-loading i { font-size: 22px; color: var(--accent-color); opacity: 0.45; }
+    .thumb-ml-img { width: 100%; height: 100%; object-fit: cover; }
+
     /* Badge overlay */
     .card-badge {
       position: absolute; top: 12px; left: 12px;
@@ -288,6 +301,33 @@
 
     let allItems = [];
 
+    // ── HELPER: resolve thumbnail src ──
+    // Priority: thumbnail_url (manual) → Microlink screenshot (dari url_live) → placeholder
+    function getThumbSrc(item) {
+      if (item.thumbnail_url) return { type: 'img', src: item.thumbnail_url };
+      if (item.url_live)      return { type: 'microlink', url: item.url_live };
+      return { type: 'placeholder' };
+    }
+
+    function buildThumbHtml(item, cfg) {
+      const t = getThumbSrc(item);
+      if (t.type === 'img') {
+        return `<img src="${t.src}" alt="${item.title}" loading="lazy">`;
+      }
+      if (t.type === 'microlink') {
+        // Microlink screenshot embed — loading state dulu, lalu swap ke img
+        const encoded = encodeURIComponent(t.url);
+        return `
+          <div class="thumb-microlink" data-url="${encoded}">
+            <div class="thumb-loading">
+              <i class="fas fa-circle-notch fa-spin"></i>
+            </div>
+            <img class="thumb-ml-img" style="display:none" alt="${item.title}" loading="lazy">
+          </div>`;
+      }
+      return `<div class="thumb-placeholder"><i class="${cfg.icon}"></i><span>${cfg.label}</span></div>`;
+    }
+
     async function loadPortfolio() {
       const el = document.getElementById('portfolioContent');
       const { data, error } = await supabase
@@ -322,9 +362,7 @@
         const cfg = TYPE_CONFIG[item.type] || TYPE_CONFIG.other;
         const isFeatured = item.is_featured ? 'featured' : '';
 
-        const thumbHtml = item.thumbnail_url
-          ? `<img src="${item.thumbnail_url}" alt="${item.title}" loading="lazy">`
-          : `<div class="thumb-placeholder"><i class="${cfg.icon}"></i><span>${cfg.label}</span></div>`;
+        const thumbHtml = buildThumbHtml(item, cfg);
 
         const tagsArr = item.tags || [];
         const tagsHtml = tagsArr.slice(0,3).map(t => `<span class="card-tag">${t}</span>`).join('');
@@ -357,6 +395,23 @@
           if (item) openLightbox(item);
         });
       });
+
+      // ── Load Microlink screenshots ──
+      document.querySelectorAll('.thumb-microlink').forEach(wrap => {
+        const encoded = wrap.dataset.url;
+        const img = wrap.querySelector('.thumb-ml-img');
+        const loading = wrap.querySelector('.thumb-loading');
+        const mlSrc = `https://api.microlink.io/?url=${encoded}&screenshot=true&meta=false&embed=screenshot.url`;
+        img.src = mlSrc;
+        img.onload = () => {
+          loading.style.display = 'none';
+          img.style.display = 'block';
+        };
+        img.onerror = () => {
+          // Fallback ke placeholder kalau Microlink gagal
+          loading.innerHTML = '<i class="fas fa-globe" style="font-size:28px;color:var(--accent-color);opacity:.3"></i>';
+        };
+      });
     }
 
     // ── FILTER ──
@@ -376,9 +431,23 @@
       const tagsArr = item.tags || [];
       const tagsHtml = tagsArr.map(t => `<span class="lightbox-tag">${t}</span>`).join('');
 
-      const imgHtml = item.thumbnail_url
-        ? `<img class="lightbox-img" src="${item.thumbnail_url}" alt="${item.title}">`
-        : `<div class="lightbox-img-placeholder"><i class="${cfg.icon}"></i></div>`;
+      // Resolve gambar untuk lightbox — sama kayak card
+      let imgHtml;
+      if (item.thumbnail_url) {
+        imgHtml = `<img class="lightbox-img" src="${item.thumbnail_url}" alt="${item.title}">`;
+      } else if (item.url_live) {
+        const encoded = encodeURIComponent(item.url_live);
+        const mlSrc = `https://api.microlink.io/?url=${encoded}&screenshot=true&meta=false&embed=screenshot.url`;
+        imgHtml = `
+          <div style="position:relative;width:100%;background:linear-gradient(135deg,#e8f0fb,#c5d8f5);border-radius:20px 20px 0 0;min-height:200px;display:flex;align-items:center;justify-content:center" id="lbThumbWrap">
+            <i class="fas fa-circle-notch fa-spin" style="font-size:28px;color:var(--accent-color);opacity:.5" id="lbThumbSpin"></i>
+            <img class="lightbox-img" id="lbThumbImg" src="${mlSrc}" alt="${item.title}" style="display:none"
+              onload="document.getElementById('lbThumbSpin').style.display='none';this.style.display='block'"
+              onerror="document.getElementById('lbThumbWrap').style.minHeight='80px';document.getElementById('lbThumbSpin').style.display='none'">
+          </div>`;
+      } else {
+        imgHtml = `<div class="lightbox-img-placeholder"><i class="${cfg.icon}"></i></div>`;
+      }
 
       const actionLinks = [];
       if (item.url_live)    actionLinks.push(`<a href="${item.url_live}" target="_blank" class="lb-btn lb-btn-primary"><i class="fas fa-external-link-alt"></i> Lihat Live</a>`);
