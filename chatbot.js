@@ -1,22 +1,20 @@
 /**
  * chatbot.js — Floating AI Chatbot "Danar Alter"
- * v5.1 — DB-aligned upgrade
+ * v5.2 — Token efficiency + empty response guard
  *
- * CHANGES dari v5.0:
- * - Fix 400 error: validasi history sebelum kirim + auto-trim di _updateBar()
- * - detectTopic: tambah keyword office tools, excel, mysql, bootstrap sesuai skills DB
- * - SUGGESTIONS_INIT: disesuaikan dengan data real (kompetisi Juara 2, kerja di Kenco)
- * - DYNAMIC_SUGGESTIONS: tambah office & achievement category
+ * CHANGES dari v5.1:
+ * - MAX_HISTORY: 10 → 6 (hemat ~400 token/request, stabilkan free tier)
+ * - Guard empty response: fullText kosong → error message, tidak push ke history
+ * - _updateBar: threshold warn/danger disesuaikan ke MAX_HISTORY baru
  */
 
 // ─── CONFIG ──────────────────────────────────────────────────────────────
 const BACKEND_URL   = 'https://backend-chatbot-self.vercel.app/api/chat';
 const GREETING_URL  = 'https://backend-chatbot-self.vercel.app/api/greeting';
 const BOT_PHOTO_URL = './assets/bot_avatar.png';
-const MAX_HISTORY   = 10;
+const MAX_HISTORY   = 6; // was 10 — hemat token, cegah empty response dari Groq
 // ─────────────────────────────────────────────────────────────────────────
 
-// Disesuaikan dengan data aktual: 1 project (Kenco), kerja di manufaktur, Juara 2 NCT
 const SUGGESTIONS_INIT = [
     'Tech stack lo apa aja?',
     'Cerita dong soal project Kenco!',
@@ -196,24 +194,20 @@ function md(raw) {
     return s;
 }
 
-// detectTopic — disesuaikan dengan skills & data aktual di DB
 function detectTopic(t) {
     t = t.toLowerCase();
-    // Skills yang ada di DB: HTML5, Javascript, Bootstrap, CSS, PHP, MySQL, Canva
-    if (/skill|stack|tool|framework|html|css|javascript|php|mysql|bootstrap|bisa apa/.test(t))    return 'skills';
-    if (/project|portfolio|karya|bikin|develop|website|app|kenco/.test(t))                        return 'portfolio';
-    if (/kerja|intern|freelance|pengalaman|magang|manufaktur|produksi|maintenance|planning/.test(t)) return 'experience';
-    if (/kontak|hire|collab|email|wa|whatsapp|hubungi|rate/.test(t))                              return 'contact';
-    if (/kuliah|kampus|universitas|semester|jurusan|upb|pelita bangsa|kp/.test(t))                return 'education';
-    if (/sertifik|certif|dicoding|cisco|credly|kursus|networking/.test(t))                        return 'certification';
-    // Office tools — lo punya Excel, Word, PPT, Google Spreadsheet di DB
-    if (/excel|word|powerpoint|spreadsheet|office|google sheet/.test(t))                          return 'office';
-    // Achievement/kompetisi — Juara 2 NCT FAST UPB 2024
-    if (/juara|lomba|kompetisi|nct|fast|ngoding cepat|qcc|achievement/.test(t))                   return 'achievement';
+    if (/skill|stack|tool|framework|html|css|javascript|php|mysql|bootstrap|bisa apa/.test(t))       return 'skills';
+    if (/project|portfolio|karya|bikin|develop|website|app|kenco/.test(t))                           return 'portfolio';
+    if (/kerja|intern|freelance|pengalaman|magang|manufaktur|produksi|maintenance|planning/.test(t))  return 'experience';
+    if (/kontak|hire|collab|email|wa|whatsapp|hubungi|rate/.test(t))                                 return 'contact';
+    if (/kuliah|kampus|universitas|semester|jurusan|upb|pelita bangsa|kp/.test(t))                   return 'education';
+    if (/sertifik|certif|dicoding|cisco|credly|kursus|networking/.test(t))                           return 'certification';
+    if (/excel|word|powerpoint|spreadsheet|office|google sheet/.test(t))                             return 'office';
+    if (/juara|lomba|kompetisi|nct|fast|ngoding cepat|qcc|achievement/.test(t))                      return 'achievement';
     if (/laravel|codeigniter|react|vue|next|python|golang|roadmap|belajar coding|bahasa pemrograman/.test(t)) return 'tech';
-    if (/cv|resume|fresh.?grad|karir|gaji|hiring|rekrut|industri|wfh|remote/.test(t))             return 'career';
-    if (/desain|design|figma|ui|ux|canva|adobe|warna|tipografi|branding|logo/.test(t))             return 'design';
-    if (/bisnis|klien|marketing|jualan|digital|startup|umkm|duit|income/.test(t))                 return 'bisnis';
+    if (/cv|resume|fresh.?grad|karir|gaji|hiring|rekrut|industri|wfh|remote/.test(t))                return 'career';
+    if (/desain|design|figma|ui|ux|canva|adobe|warna|tipografi|branding|logo/.test(t))               return 'design';
+    if (/bisnis|klien|marketing|jualan|digital|startup|umkm|duit|income/.test(t))                    return 'bisnis';
     return 'general';
 }
 
@@ -301,13 +295,13 @@ class EkaChatbot {
     _greeting() {
         const { name, portfolioCount } = this.ctx;
         return _rand([
-            `Yo! Gw ${name} — versi AI 🤖\nTanya soal skills, project, pengalaman, atau cara kontak gw. Gas!`,
+            `Yo! Gw ${name} — versi AI 🤖\nTanya soal skills, project, pengalaman, atau cara kontak gw.`,
             `Hei! Gw AI-nya ${name}.\nMau tau soal skill, karya, atau pengalaman gw? Tanya aja langsung.`,
-            `Sup! Gw ${name} tapi versi digital 🤖\n${portfolioCount > 0 ? `Gw punya ${portfolioCount} project di portfolio. ` : ''}Mau mulai dari mana?`,
+            `Sup! Gw ${name} tapi versi digital 🤖\n${portfolioCount > 0 ? `Gw punya ${portfolioCount} project di portfolio. ` : ''}Gas tanya apa aja!`,
         ]);
     }
 
-    // FIX: auto-trim history kalau overflow, cegah 400 error
+    // auto-trim history kalau melebihi MAX_HISTORY
     _updateBar() {
         if (this.history.length > MAX_HISTORY) {
             this.history = this.history.slice(-MAX_HISTORY);
@@ -318,7 +312,7 @@ class EkaChatbot {
         const lbl   = document.getElementById('cb-tlbl');
         if (!fill || !lbl) return;
         fill.style.width = pct + '%';
-        fill.className   = 'cb-tfill' + (pct >= 90 ? ' danger' : pct >= 70 ? ' warn' : '');
+        fill.className   = 'cb-tfill' + (pct >= 100 ? ' danger' : pct >= 66 ? ' warn' : '');
         lbl.textContent  = `${count} / ${MAX_HISTORY} pesan`;
     }
 
@@ -351,11 +345,10 @@ class EkaChatbot {
         inp.style.height = 'auto';
         this._addUser(text);
         this.history.push({ role: 'user', parts: [{ text }] });
-        this._updateBar(); // auto-trim di sini
+        this._updateBar();
         await this._call(1);
     }
 
-    // ── STREAMING CALL ───────────────────────────────────────────────────
     async _call(attempt) {
         const MAX = 3;
         this.loading = true;
@@ -365,7 +358,6 @@ class EkaChatbot {
         this._addStreamBubble(bubbleId);
 
         try {
-            // FIX: filter history yang valid sebelum kirim — cegah 400 error
             const trimmed = this.history
                 .slice(-MAX_HISTORY)
                 .filter(m => m?.role && typeof m?.parts?.[0]?.text === 'string' && m.parts[0].text.trim());
@@ -440,6 +432,14 @@ class EkaChatbot {
                 }
             }
 
+            // GUARD: empty response — hapus bubble, jangan push ke history
+            if (!fullText.trim()) {
+                this._removeEl(bubbleId);
+                this.history.pop();
+                this._addBot(_rand(ERROR_BACKEND));
+                return;
+            }
+
             if (bubble) {
                 bubble.querySelector('.cb-bbl').innerHTML = md(fullText);
             }
@@ -460,7 +460,6 @@ class EkaChatbot {
         }
     }
 
-    // ── UI helpers ───────────────────────────────────────────────────────
     _av() {
         return this.avatarUrl
             ? `<img src="${this.avatarUrl}" alt="Danar">`
