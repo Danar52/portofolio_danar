@@ -1,39 +1,43 @@
 /**
  * chatbot.js — Floating AI Chatbot "Danar Alter"
- * v5.0 — Refactored: no redundant FE fetch, grounded to DB via /api/greeting
+ * v5.1 — DB-aligned upgrade
  *
- * CHANGES dari v4.0:
- * - _loadCtx() → call /api/greeting saja, tidak fetch 7 tabel Supabase dari FE
- * - Hapus import supabase (tidak dibutuhkan di chatbot)
- * - Greeting data dari backend (name + portfolioCount)
+ * CHANGES dari v5.0:
+ * - Fix 400 error: validasi history sebelum kirim + auto-trim di _updateBar()
+ * - detectTopic: tambah keyword office tools, excel, mysql, bootstrap sesuai skills DB
+ * - SUGGESTIONS_INIT: disesuaikan dengan data real (kompetisi Juara 2, kerja di Kenco)
+ * - DYNAMIC_SUGGESTIONS: tambah office & achievement category
  */
 
 // ─── CONFIG ──────────────────────────────────────────────────────────────
-const BACKEND_URL    = 'https://backend-chatbot-self.vercel.app/api/chat';
-const GREETING_URL   = 'https://backend-chatbot-self.vercel.app/api/greeting';
-const BOT_PHOTO_URL  = './assets/bot_avatar.png';
-const MAX_HISTORY    = 10;
+const BACKEND_URL   = 'https://backend-chatbot-self.vercel.app/api/chat';
+const GREETING_URL  = 'https://backend-chatbot-self.vercel.app/api/greeting';
+const BOT_PHOTO_URL = './assets/bot_avatar.png';
+const MAX_HISTORY   = 10;
 // ─────────────────────────────────────────────────────────────────────────
 
+// Disesuaikan dengan data aktual: 1 project (Kenco), kerja di manufaktur, Juara 2 NCT
 const SUGGESTIONS_INIT = [
     'Tech stack lo apa aja?',
-    'Ada project yang bisa gw lihat?',
-    'Lagi sibuk ngerjain apa sekarang?',
-    'Gimana cara hire / kontak lo?',
+    'Cerita dong soal project Kenco!',
+    'Lo pernah juara lomba coding?',
+    'Gimana cara kontak atau hire lo?',
 ];
 
 const DYNAMIC_SUGGESTIONS = {
-    skills:        ['Skill mana yang paling lo andelin?', 'Lo bisa UI/UX juga?', 'Gimana cara lo belajar skill itu?'],
-    portfolio:     ['Boleh liat project terbaiknya?', 'Tech stack project itu apa?', 'Ada project open source ga?'],
-    experience:    ['Gimana pengalaman kerja pertama lo?', 'Lo internship atau freelance?', 'Ada tips buat freshgrad?'],
-    contact:       ['Bisa langsung DM lo?', 'Berapa rate freelance lo?', 'Lo open buat collab?'],
-    education:     ['Jurusan TI susah ngga sih?', 'Organisasi apa yang lo ikutin?', 'KP lo di mana?'],
-    certification: ['Sertifikasi apa yang paling berguna?', 'Dicoding worth it ngga?', 'Rekomendasiin platform belajar dong'],
-    tech:          ['Laravel vs CodeIgniter pilih mana?', 'Roadmap belajar web dev dari mana?', 'Bahasa pemrograman apa yang worth dipelajarin 2025?'],
-    career:        ['Tips bikin CV yang bagus buat fresh grad?', 'Freelance atau kerja kantoran lebih bagus?', 'Skill apa yang paling dicari di industri sekarang?'],
-    design:        ['Tools desain apa yang lo rekomendasiin?', 'Gimana cara belajar UI/UX dari nol?', 'Portfolio desainer yang bagus itu kayak gimana?'],
+    skills:        ['Skill mana yang paling lo andelin?', 'Lo bisa desain juga?', 'Gimana cara lo belajar skill itu?'],
+    portfolio:     ['Tech stack project Kenco apa aja?', 'Bisa gw lihat websitenya?', 'Lo lagi ngerjain project baru?'],
+    experience:    ['Kerja di manufaktur sambil kuliah berat ga?', 'Lo handle berapa role di Kenco?', 'Ada tips kerja sambil kuliah?'],
+    contact:       ['Bisa langsung DM lo?', 'Lo open buat freelance atau collab?', 'Email lo apa?'],
+    education:     ['Jurusan TI di UPB gimana?', 'Lo aktif organisasi di kampus?', 'KP lo di mana rencananya?'],
+    certification: ['Sertif Dicoding lo yang mana aja?', 'Cisco Networking Basic susah ga?', 'Rekomendasiin platform belajar dong'],
+    tech:          ['HTML CSS JS cukup buat web dev sekarang?', 'PHP vs Node.js pilih mana?', 'Roadmap web dev buat pemula dari mana?'],
+    career:        ['Tips kerja di industri manufaktur?', 'Fresh grad IT bisa langsung kerja di mana?', 'CV yang bagus buat IT itu kayak gimana?'],
+    design:        ['Lo pakai Canva buat apa aja?', 'Gimana cara belajar UI/UX dari nol?', 'Portfolio desain yang bagus itu kayak gimana?'],
     bisnis:        ['Tips dapet klien pertama buat freelancer?', 'Cara mulai bisnis digital yang simpel?', 'Digital marketing buat pemula mulai dari mana?'],
-    general:       ['Cerita dong soal project terbaru', 'Skill apa yang lagi lo pelajarin?', 'Ada tips buat pemula di dunia IT?'],
+    office:        ['Excel lo pake buat apa di kerjaan?', 'Google Spreadsheet vs Excel mending mana?', 'Tips Excel buat non-IT?'],
+    achievement:   ['Kompetisi NCT itu ngoding apa aja?', 'Persiapan lo sebelum lomba gimana?', 'Lo ikut lomba lagi ga ke depannya?'],
+    general:       ['Lagi sibuk ngerjain apa sekarang?', 'Skill apa yang lagi lo pelajarin?', 'Ada tips buat mahasiswa TI semester awal?'],
 };
 
 const TOOLTIP_MSGS = [
@@ -158,7 +162,6 @@ const STYLES = `
 
 // ── MARKDOWN PARSER ───────────────────────────────────────────────────────
 function md(raw) {
-    // Protect URLs before HTML escaping
     const urls = [];
     let s = raw.replace(/(https?:\/\/[^\s<>"]+?)([.,!?:;）)]*(?=\s|$))/g, (_, url, trail) => {
         const i = urls.length;
@@ -166,13 +169,9 @@ function md(raw) {
         return `\x00U${i}\x00`;
     });
 
-    // Escape HTML
     s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-
-    // Restore URLs
     s = s.replace(/\x00U(\d+)\x00/g, (_, i) => urls[+i]);
 
-    // Markdown
     s = s
         .replace(/```[\w]*\n?([\s\S]*?)```/g, (_, c) => `<pre><code>${c.trim()}</code></pre>`)
         .replace(/`([^`]+)`/g, '<code>$1</code>')
@@ -180,7 +179,6 @@ function md(raw) {
         .replace(/(?<!\*)\*(?!\*)([^*\n]+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>')
         .replace(/^---$/gm, '<hr>');
 
-    // Lists
     s = s.replace(/((?:^[ \t]*[-•] .+\n?)+)/gm, blk => {
         const items = blk.trim().split('\n')
             .map(l => `<li>${l.replace(/^[ \t]*[-•] /, '').trim()}</li>`)
@@ -194,23 +192,28 @@ function md(raw) {
         return `<ol>${items}</ol>`;
     });
 
-    // Newlines
     s = s.replace(/\n/g, '<br>').replace(/(<\/ul>|<\/ol>|<\/pre>|<hr>)<br>/g, '$1');
     return s;
 }
 
+// detectTopic — disesuaikan dengan skills & data aktual di DB
 function detectTopic(t) {
     t = t.toLowerCase();
-    if (/skill|stack|tool|framework|html|css|php|laravel|bisa apa/.test(t))                return 'skills';
-    if (/project|portfolio|karya|bikin|develop|website|app/.test(t))                       return 'portfolio';
-    if (/kerja|intern|freelance|pengalaman|magang/.test(t))                                return 'experience';
-    if (/kontak|hire|collab|email|wa|whatsapp|hubungi|rate/.test(t))                       return 'contact';
-    if (/kuliah|kampus|universitas|semester|jurusan|kp/.test(t))                           return 'education';
-    if (/sertifik|certif|dicoding|google|aws|kursus/.test(t))                              return 'certification';
-    if (/laravel|codeigniter|react|vue|next|python|golang|roadmap|belajar coding|bahasa pemrograman|programming/.test(t)) return 'tech';
-    if (/cv|resume|fresh.?grad|karir|kerja|gaji|hiring|rekrut|industri|wfh|remote/.test(t)) return 'career';
-    if (/desain|design|figma|ui|ux|canva|adobe|warna|tipografi|branding|logo/.test(t))     return 'design';
-    if (/bisnis|klien|freelance|marketing|jualan|digital|startup|umkm|duit|income/.test(t)) return 'bisnis';
+    // Skills yang ada di DB: HTML5, Javascript, Bootstrap, CSS, PHP, MySQL, Canva
+    if (/skill|stack|tool|framework|html|css|javascript|php|mysql|bootstrap|bisa apa/.test(t))    return 'skills';
+    if (/project|portfolio|karya|bikin|develop|website|app|kenco/.test(t))                        return 'portfolio';
+    if (/kerja|intern|freelance|pengalaman|magang|manufaktur|produksi|maintenance|planning/.test(t)) return 'experience';
+    if (/kontak|hire|collab|email|wa|whatsapp|hubungi|rate/.test(t))                              return 'contact';
+    if (/kuliah|kampus|universitas|semester|jurusan|upb|pelita bangsa|kp/.test(t))                return 'education';
+    if (/sertifik|certif|dicoding|cisco|credly|kursus|networking/.test(t))                        return 'certification';
+    // Office tools — lo punya Excel, Word, PPT, Google Spreadsheet di DB
+    if (/excel|word|powerpoint|spreadsheet|office|google sheet/.test(t))                          return 'office';
+    // Achievement/kompetisi — Juara 2 NCT FAST UPB 2024
+    if (/juara|lomba|kompetisi|nct|fast|ngoding cepat|qcc|achievement/.test(t))                   return 'achievement';
+    if (/laravel|codeigniter|react|vue|next|python|golang|roadmap|belajar coding|bahasa pemrograman/.test(t)) return 'tech';
+    if (/cv|resume|fresh.?grad|karir|gaji|hiring|rekrut|industri|wfh|remote/.test(t))             return 'career';
+    if (/desain|design|figma|ui|ux|canva|adobe|warna|tipografi|branding|logo/.test(t))             return 'design';
+    if (/bisnis|klien|marketing|jualan|digital|startup|umkm|duit|income/.test(t))                 return 'bisnis';
     return 'general';
 }
 
@@ -281,7 +284,6 @@ class EkaChatbot {
         this._renderSugg(SUGGESTIONS_INIT);
     }
 
-    // Fetch hanya greeting data dari backend — tidak load Supabase langsung dari FE
     async _loadCtx() {
         try {
             const res  = await fetch(GREETING_URL);
@@ -305,8 +307,12 @@ class EkaChatbot {
         ]);
     }
 
+    // FIX: auto-trim history kalau overflow, cegah 400 error
     _updateBar() {
-        const count = Math.min(this.history.length, MAX_HISTORY);
+        if (this.history.length > MAX_HISTORY) {
+            this.history = this.history.slice(-MAX_HISTORY);
+        }
+        const count = this.history.length;
         const pct   = (count / MAX_HISTORY) * 100;
         const fill  = document.getElementById('cb-tfill');
         const lbl   = document.getElementById('cb-tlbl');
@@ -339,12 +345,13 @@ class EkaChatbot {
         const inp  = document.getElementById('cb-inp');
         const text = inp.value.trim();
         if (!text || this.loading) return;
+
         document.getElementById('cb-sugg').style.display = 'none';
         inp.value        = '';
         inp.style.height = 'auto';
         this._addUser(text);
         this.history.push({ role: 'user', parts: [{ text }] });
-        this._updateBar();
+        this._updateBar(); // auto-trim di sini
         await this._call(1);
     }
 
@@ -358,14 +365,24 @@ class EkaChatbot {
         this._addStreamBubble(bubbleId);
 
         try {
-            const trimmed = this.history.slice(-MAX_HISTORY);
+            // FIX: filter history yang valid sebelum kirim — cegah 400 error
+            const trimmed = this.history
+                .slice(-MAX_HISTORY)
+                .filter(m => m?.role && typeof m?.parts?.[0]?.text === 'string' && m.parts[0].text.trim());
+
+            if (trimmed.length === 0) {
+                this._removeEl(bubbleId);
+                this.loading = false;
+                document.getElementById('cb-snd').disabled = false;
+                return;
+            }
+
             const res = await fetch(BACKEND_URL, {
                 method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body:    JSON.stringify({ contents: trimmed, stream: true }),
             });
 
-            // Handle rate limit
             if (res.status === 429) {
                 this._removeEl(bubbleId);
                 const data       = await res.json().catch(() => ({}));
@@ -390,12 +407,11 @@ class EkaChatbot {
                 return;
             }
 
-            // Baca stream chunk by chunk
-            const reader   = res.body.getReader();
-            const decoder  = new TextDecoder();
-            let buffer     = '';
-            let fullText   = '';
-            const bubble   = document.getElementById(bubbleId);
+            const reader  = res.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer    = '';
+            let fullText  = '';
+            const bubble  = document.getElementById(bubbleId);
 
             while (true) {
                 const { done, value } = await reader.read();
@@ -424,7 +440,6 @@ class EkaChatbot {
                 }
             }
 
-            // Selesai streaming — hapus cursor
             if (bubble) {
                 bubble.querySelector('.cb-bbl').innerHTML = md(fullText);
             }
