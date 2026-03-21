@@ -12,384 +12,244 @@
 
   <style>
     :root {
-      --default-font: "Roboto", system-ui, sans-serif;
-      --heading-font: "Raleway", sans-serif;
-      --nav-font:     "Poppins", sans-serif;
-      --background-color: #ffffff;
-      --default-color: #272829;
-      --heading-color: #45505b;
-      --accent-color: #0563bb;
-      --surface-color: #ffffff;
-      --contrast-color: #ffffff;
-      --nav-color: #45505b;
-      --nav-hover-color: #0563bb;
-      --nav-active-bg: #0563bb;
-      --sidebar-width: 72px;
-      --sidebar-bg: #f8f9fa;
-      --sidebar-border: #e9ecef;
-      --nav-btn-size: 46px;
+      --default-font:"Roboto",system-ui,sans-serif;
+      --heading-font:"Raleway",sans-serif;
+      --nav-font:"Poppins",sans-serif;
+      --background-color:#ffffff; --default-color:#272829; --heading-color:#45505b;
+      --accent-color:#0563bb; --surface-color:#ffffff; --contrast-color:#ffffff;
+      --nav-color:#45505b; --nav-hover-color:#0563bb; --nav-active-bg:#0563bb;
+      --sidebar-width:72px; --sidebar-bg:#f8f9fa; --sidebar-border:#e9ecef; --nav-btn-size:46px;
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: var(--default-font); background-color: var(--background-color); color: var(--default-color); min-height: 100vh; display: flex; }
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-thumb { background: rgba(5,99,187,0.2); border-radius: 10px; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--default-font);background-color:var(--background-color);color:var(--default-color);min-height:100vh;display:flex}
+    ::-webkit-scrollbar{width:5px} ::-webkit-scrollbar-thumb{background:rgba(5,99,187,0.2);border-radius:10px}
 
     /* ── SIDEBAR ── */
-    #sidebar { position: fixed; top: 0; left: 0; width: var(--sidebar-width); height: 100vh; background: var(--sidebar-bg); border-right: 1px solid var(--sidebar-border); display: flex; flex-direction: column; align-items: center; padding: 28px 0; gap: 10px; z-index: 1000; }
-    .nav-btn { width: var(--nav-btn-size); height: var(--nav-btn-size); border-radius: 50%; background: transparent; color: var(--nav-color); font-size: 17px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.25s, color 0.25s, transform 0.2s; text-decoration: none; position: relative; }
-    .nav-btn:hover { background: rgba(5,99,187,0.1); color: var(--nav-hover-color); transform: scale(1.08); }
-    .nav-btn.active { background: var(--nav-active-bg); color: var(--contrast-color); box-shadow: 0 4px 14px rgba(5,99,187,0.35); }
-    .nav-btn::after { content: attr(data-tooltip); position: absolute; left: calc(100% + 14px); top: 50%; transform: translateY(-50%); background: var(--heading-color); color: #fff; padding: 5px 11px; border-radius: 6px; font-family: var(--nav-font); font-size: 12px; font-weight: 500; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s; }
-    .nav-btn::before { content: ''; position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%); border: 5px solid transparent; border-right-color: var(--heading-color); opacity: 0; pointer-events: none; transition: opacity 0.2s; }
-    .nav-btn:hover::after, .nav-btn:hover::before { opacity: 1; }
+    #sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;align-items:center;padding:28px 0;gap:10px;z-index:1000}
+    .nav-btn{width:var(--nav-btn-size);height:var(--nav-btn-size);border-radius:50%;background:transparent;color:var(--nav-color);font-size:17px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .25s,color .25s,transform .2s;text-decoration:none;position:relative}
+    .nav-btn:hover{background:rgba(5,99,187,0.1);color:var(--nav-hover-color);transform:scale(1.08)}
+    .nav-btn.active{background:var(--nav-active-bg);color:var(--contrast-color);box-shadow:0 4px 14px rgba(5,99,187,0.35)}
+    .nav-btn::after{content:attr(data-tooltip);position:absolute;left:calc(100% + 14px);top:50%;transform:translateY(-50%);background:var(--heading-color);color:#fff;padding:5px 11px;border-radius:6px;font-family:var(--nav-font);font-size:12px;font-weight:500;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s}
+    .nav-btn::before{content:'';position:absolute;left:calc(100% + 8px);top:50%;transform:translateY(-50%);border:5px solid transparent;border-right-color:var(--heading-color);opacity:0;pointer-events:none;transition:opacity .2s}
+    .nav-btn:hover::after,.nav-btn:hover::before{opacity:1}
 
     /* ── MAIN ── */
-    #main-content { margin-left: var(--sidebar-width); flex: 1; min-height: 100vh; padding: 60px 80px; }
+    #main-content{margin-left:var(--sidebar-width);flex:1;min-height:100vh;padding:60px 80px}
 
-    /* ── Page header ── */
-    .page-header { margin-bottom: 36px; opacity: 0; transform: translateY(20px); animation: fadeUp 0.6s ease 0.1s forwards; }
-    .page-title { font-family: var(--heading-font); font-size: clamp(32px,4vw,52px); font-weight: 700; color: var(--heading-color); margin-bottom: 6px; }
-    .page-title span { color: var(--accent-color); }
-    .page-subtitle { font-family: var(--nav-font); font-size: 14px; color: var(--default-color); opacity: 0.5; }
+    /* ── PAGE HEADER ── */
+    .page-header{margin-bottom:36px;opacity:0;transform:translateY(20px);animation:fadeUp .6s ease .1s forwards}
+    .page-title{font-family:var(--heading-font);font-size:clamp(32px,4vw,52px);font-weight:700;color:var(--heading-color);margin-bottom:6px}
+    .page-title span{color:var(--accent-color)}
+    .page-subtitle{font-family:var(--nav-font);font-size:14px;color:var(--default-color);opacity:.5}
 
-    /* ── Stats bar ── */
-    .exp-stats {
-      display: flex;
-      align-items: center;
-      gap: 28px;
-      padding: 18px 26px;
-      background: linear-gradient(135deg, rgba(5,99,187,0.04), rgba(5,99,187,0.02));
-      border: 1px solid rgba(5,99,187,0.1);
-      border-radius: 14px;
-      margin-bottom: 36px;
-      flex-wrap: wrap;
-      opacity: 0;
-      transform: translateY(14px);
-      animation: fadeUp 0.6s ease 0.2s forwards;
-    }
-    .stat-item { display: flex; flex-direction: column; gap: 2px; }
-    .stat-number { font-family: var(--heading-font); font-size: 22px; font-weight: 800; color: var(--accent-color); line-height: 1; }
-    .stat-label { font-family: var(--nav-font); font-size: 10px; font-weight: 600; color: var(--default-color); opacity: 0.45; text-transform: uppercase; letter-spacing: 0.8px; }
-    .stat-divider { width: 1px; height: 30px; background: rgba(5,99,187,0.15); align-self: center; }
+    /* ── STATS BAR ── */
+    .exp-stats{display:flex;align-items:center;gap:28px;padding:18px 26px;background:linear-gradient(135deg,rgba(5,99,187,.04),rgba(5,99,187,.02));border:1px solid rgba(5,99,187,.1);border-radius:14px;margin-bottom:36px;flex-wrap:wrap;opacity:0;transform:translateY(14px);animation:fadeUp .6s ease .2s forwards}
+    .stat-item{display:flex;flex-direction:column;gap:2px}
+    .stat-number{font-family:var(--heading-font);font-size:22px;font-weight:800;color:var(--accent-color);line-height:1}
+    .stat-label{font-family:var(--nav-font);font-size:10px;font-weight:600;color:var(--default-color);opacity:.45;text-transform:uppercase;letter-spacing:.8px}
+    .stat-divider{width:1px;height:30px;background:rgba(5,99,187,.15);align-self:center}
 
-    /* ── Grid 2 kolom ── */
-    .exp-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      align-items: start;
-    }
+    /* ── GRID 2 KOLOM DESKTOP ── */
+    .exp-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
 
-    /* ── Card ── */
-    .exp-card {
-      background: var(--surface-color);
-      border: 1px solid var(--sidebar-border);
-      border-radius: 16px;
-      padding: 24px 26px 22px;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: box-shadow 0.25s, transform 0.25s, border-color 0.25s;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .exp-card:hover {
-      box-shadow: 0 10px 36px rgba(5,99,187,0.1);
-      transform: translateY(-4px);
-      border-color: rgba(5,99,187,0.22);
-    }
+    /* ── CARD ── */
+    .exp-card{background:var(--surface-color);border:1px solid var(--sidebar-border);border-radius:16px;padding:24px 26px 22px;opacity:0;transform:translateY(20px);transition:box-shadow .25s,transform .25s,border-color .25s;display:flex;flex-direction:column;position:relative;overflow:hidden}
+    .exp-card:hover{box-shadow:0 10px 36px rgba(5,99,187,.1);transform:translateY(-4px);border-color:rgba(5,99,187,.22)}
 
     /* Accent line kiri */
-    .exp-card::before {
-      content: '';
-      position: absolute;
-      left: 0; top: 0; bottom: 0;
-      width: 3px;
-      background: var(--sidebar-border);
-      border-radius: 16px 0 0 16px;
-      transition: background 0.3s;
+    .exp-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--sidebar-border);border-radius:16px 0 0 16px;transition:background .3s}
+    .exp-card.aktif::before{background:linear-gradient(to bottom,var(--accent-color),rgba(5,99,187,.25))}
+    .exp-card:hover::before{background:linear-gradient(to bottom,var(--accent-color),rgba(5,99,187,.4))}
+
+    /* ── CARD HEADER ── */
+    .exp-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px}
+    .exp-title{font-family:var(--heading-font);font-size:15px;font-weight:700;color:var(--heading-color);line-height:1.35;flex:1}
+    .exp-badge{display:inline-flex;align-items:center;gap:5px;font-family:var(--nav-font);font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+    .exp-badge.aktif{background:rgba(5,99,187,.1);color:var(--accent-color)}
+    .exp-badge.selesai{background:rgba(69,80,91,.07);color:var(--heading-color)}
+    .badge-dot{width:5px;height:5px;border-radius:50%;background:var(--accent-color);animation:pulseDot 1.5s ease-in-out infinite}
+    @keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.7)}}
+
+    /* ── COMPANY ── */
+    .exp-company{display:flex;align-items:center;gap:6px;font-family:var(--nav-font);font-size:12px;font-weight:600;color:var(--accent-color);margin-bottom:8px}
+    .exp-company i{font-size:10px;opacity:.65}
+
+    /* ── PERIOD PILL ── */
+    .exp-period{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--default-color);opacity:.55;margin-bottom:16px;background:var(--sidebar-bg);padding:4px 11px;border-radius:20px;border:1px solid var(--sidebar-border);width:fit-content}
+    .exp-period i{font-size:10px;color:var(--accent-color);opacity:.7}
+
+    /* ── DIVIDER ── */
+    .exp-divider{height:1px;background:var(--sidebar-border);margin-bottom:14px}
+
+    /* ── DESKRIPSI ── */
+    .exp-desc{font-size:13px;line-height:1.72;color:var(--default-color);opacity:.74;margin-bottom:14px}
+    .exp-desc-list{list-style:none;padding:0;margin-bottom:14px;display:flex;flex-direction:column;gap:7px}
+    .exp-desc-list li{font-size:13px;line-height:1.6;color:var(--default-color);opacity:.74;padding-left:17px;position:relative}
+    .exp-desc-list li::before{content:'';position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--accent-color);opacity:.38}
+
+    /* ── TAGS ── */
+    .exp-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:auto;padding-top:14px;border-top:1px solid var(--sidebar-border)}
+    .exp-tag{font-family:var(--nav-font);font-size:10px;font-weight:500;background:var(--sidebar-bg);color:var(--heading-color);border:1px solid var(--sidebar-border);padding:3px 9px;border-radius:20px;transition:background .2s,color .2s}
+    .exp-tag:hover{background:rgba(5,99,187,.08);color:var(--accent-color)}
+
+    /* ── STATE ── */
+    .state-box{text-align:center;padding:60px 24px;color:var(--heading-color);opacity:.45}
+    .state-box i{font-size:36px;margin-bottom:12px;display:block}
+    .state-box p{font-family:var(--nav-font);font-size:13px}
+    .spin{animation:spinAnim .8s linear infinite}
+    @keyframes spinAnim{to{transform:rotate(360deg)}}
+    @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+    @keyframes cardIn{to{opacity:1;transform:translateY(0)}}
+
+    /* ══════════════════════════════════════════════════════════
+       HAMBURGER
+    ══════════════════════════════════════════════════════════ */
+    #hamburger{display:none;position:fixed;top:16px;left:16px;z-index:1100;width:42px;height:42px;border-radius:10px;background:var(--accent-color);border:none;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:10px;box-shadow:0 4px 16px rgba(5,99,187,.30);transition:background .2s,transform .2s}
+    #hamburger:hover{background:#0452a0;transform:scale(1.05)}
+    #hamburger span{display:block;width:20px;height:2px;background:#fff;border-radius:2px;transform-origin:center;transition:transform .28s cubic-bezier(.4,0,.2,1),opacity .2s ease,width .2s ease}
+    #hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+    #hamburger.open span:nth-child(2){opacity:0;width:0}
+    #hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+    /* ══════════════════════════════════════════════════════════
+       BACKDROP
+    ══════════════════════════════════════════════════════════ */
+    #nav-backdrop{display:none;position:fixed;inset:0;z-index:999;background:rgba(39,40,41,.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;transition:opacity .28s ease}
+    #nav-backdrop.visible{opacity:1}
+
+    /* ══════════════════════════════════════════════════════════
+       RESPONSIVE MOBILE
+    ══════════════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+
+      :root { --sidebar-width: 0px; }
+
+      #hamburger    { display: flex; }
+      #nav-backdrop { display: block; }
+
+      /* Sidebar slide */
+      #sidebar {
+        position: fixed; top: 0; left: 0;
+        width: 220px; height: 100vh;
+        flex-direction: column; align-items: flex-start;
+        padding: 80px 16px 32px; gap: 6px;
+        border-right: 1px solid var(--sidebar-border); border-top: none;
+        transform: translateX(-100%);
+        transition: transform .32s cubic-bezier(.4,0,.2,1), box-shadow .32s ease;
+        box-shadow: none; z-index: 1000;
+      }
+      #sidebar.open { transform: translateX(0); box-shadow: 6px 0 32px rgba(5,99,187,.14); }
+
+      #sidebar .nav-btn {
+        width: 100%; height: 46px; border-radius: 10px;
+        justify-content: flex-start; padding: 0 14px; gap: 12px; font-size: 15px;
+      }
+      #sidebar .nav-btn::after {
+        position: static; transform: none; background: transparent; color: inherit;
+        padding: 0; border-radius: 0; font-size: 13px; font-weight: 500;
+        opacity: 1; pointer-events: auto; content: attr(data-tooltip); white-space: nowrap;
+      }
+      #sidebar .nav-btn::before { display: none; }
+
+      /* Main */
+      #main-content {
+        margin-left: 0; margin-bottom: 0;
+        padding: 72px 20px 40px;
+      }
+
+      /* Header */
+      .page-header { margin-bottom: 20px; }
+      .page-title  { font-size: clamp(26px, 7vw, 34px); }
+
+      /* Stats — compact row, semua sejajar */
+      .exp-stats {
+        padding: 14px 18px;
+        gap: 16px;
+        margin-bottom: 24px;
+        border-radius: 12px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .exp-stats::-webkit-scrollbar { display: none; }
+      .stat-item    { flex-shrink: 0; }
+      .stat-number  { font-size: 20px; }
+      .stat-label   { font-size: 9px; }
+      .stat-divider { height: 24px; flex-shrink: 0; }
+
+      /* Grid — 1 kolom penuh */
+      .exp-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+
+      /* Card mobile — lebih compact, accent line tetap */
+      .exp-card {
+        padding: 18px 20px 16px;
+        border-radius: 14px;
+      }
+      .exp-card:hover { transform: translateY(-2px); }
+
+      /* Header card */
+      .exp-card-header { gap: 8px; margin-bottom: 6px; }
+      .exp-title       { font-size: 14px; }
+      .exp-badge       { font-size: 9px; padding: 2px 8px; }
+
+      /* Company & period */
+      .exp-company { font-size: 11px; margin-bottom: 6px; }
+      .exp-period  { font-size: 10px; padding: 3px 9px; margin-bottom: 12px; }
+
+      /* Divider */
+      .exp-divider { margin-bottom: 10px; }
+
+      /* Deskripsi — tampilkan terbatas, ada toggle baca lebih */
+      .exp-desc      { font-size: 12px; line-height: 1.65; margin-bottom: 10px; }
+      .exp-desc-list { gap: 5px; margin-bottom: 10px; }
+      .exp-desc-list li { font-size: 12px; padding-left: 14px; }
+      .exp-desc-list li::before { top: 6px; width: 5px; height: 5px; }
+
+      /* Collapse desc di mobile — show 4 baris, klik expand */
+      .exp-desc-list.collapsed { max-height: 96px; overflow: hidden; position: relative; }
+      .exp-desc-list.collapsed::after {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        height: 32px;
+        background: linear-gradient(to bottom, transparent, var(--surface-color));
+      }
+
+      /* Toggle button */
+      .exp-toggle {
+        font-family: var(--nav-font);
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--accent-color);
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .exp-toggle i { font-size: 10px; transition: transform .2s; }
+      .exp-toggle.expanded i { transform: rotate(180deg); }
+
+      /* Tags */
+      .exp-tags   { gap: 4px; padding-top: 10px; }
+      .exp-tag    { font-size: 9px; padding: 2px 8px; }
     }
 
-    .exp-card.aktif::before {
-      background: linear-gradient(to bottom, var(--accent-color), rgba(5,99,187,0.25));
+    /* Tablet: 2 kolom tetap */
+    @media (min-width: 540px) and (max-width: 768px) {
+      .exp-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
     }
-
-    .exp-card:hover::before {
-      background: linear-gradient(to bottom, var(--accent-color), rgba(5,99,187,0.4));
-    }
-
-    /* ── Card top row ── */
-    .exp-card-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 8px;
-    }
-
-    .exp-title { font-family: var(--heading-font); font-size: 15px; font-weight: 700; color: var(--heading-color); line-height: 1.35; flex: 1; }
-
-    .exp-badge { display: inline-flex; align-items: center; gap: 5px; font-family: var(--nav-font); font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
-    .exp-badge.aktif { background: rgba(5,99,187,0.1); color: var(--accent-color); }
-    .exp-badge.selesai { background: rgba(69,80,91,0.07); color: var(--heading-color); }
-
-    .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent-color); animation: pulseDot 1.5s ease-in-out infinite; }
-    @keyframes pulseDot { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.5; transform:scale(0.7); } }
-
-    /* ── Company ── */
-    .exp-company {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-family: var(--nav-font);
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--accent-color);
-      margin-bottom: 8px;
-    }
-    .exp-company i { font-size: 10px; opacity: 0.65; }
-
-    /* ── Period pill ── */
-    .exp-period {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      color: var(--default-color);
-      opacity: 0.55;
-      margin-bottom: 16px;
-      background: var(--sidebar-bg);
-      padding: 4px 11px;
-      border-radius: 20px;
-      border: 1px solid var(--sidebar-border);
-      width: fit-content;
-    }
-    .exp-period i { font-size: 10px; color: var(--accent-color); opacity: 0.7; }
-
-    /* ── Divider ── */
-    .exp-divider { height: 1px; background: var(--sidebar-border); margin-bottom: 14px; }
-
-    /* ── Deskripsi ── */
-    .exp-desc { font-size: 13px; line-height: 1.72; color: var(--default-color); opacity: 0.74; margin-bottom: 14px; }
-
-    .exp-desc-list {
-      list-style: none;
-      padding: 0;
-      margin-bottom: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-    }
-
-    .exp-desc-list li {
-      font-size: 13px;
-      line-height: 1.6;
-      color: var(--default-color);
-      opacity: 0.74;
-      padding-left: 17px;
-      position: relative;
-    }
-
-    .exp-desc-list li::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 7px;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--accent-color);
-      opacity: 0.38;
-    }
-
-    /* ── Tags ── */
-    .exp-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      margin-top: auto;
-      padding-top: 14px;
-      border-top: 1px solid var(--sidebar-border);
-    }
-
-    .exp-tag { font-family: var(--nav-font); font-size: 10px; font-weight: 500; background: var(--sidebar-bg); color: var(--heading-color); border: 1px solid var(--sidebar-border); padding: 3px 9px; border-radius: 20px; transition: background 0.2s, color 0.2s; }
-    .exp-tag:hover { background: rgba(5,99,187,0.08); color: var(--accent-color); }
-
-    /* ── State ── */
-    .state-box { text-align: center; padding: 60px 24px; color: var(--heading-color); opacity: 0.45; }
-    .state-box i { font-size: 36px; margin-bottom: 12px; display: block; }
-    .state-box p { font-family: var(--nav-font); font-size: 13px; }
-    .spin { animation: spinAnim 0.8s linear infinite; }
-
-    @keyframes spinAnim { to { transform: rotate(360deg); } }
-    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
-    @keyframes cardIn { to { opacity: 1; transform: translateY(0); } }
-
-    /* ── HAMBURGER BUTTON ─────────────────────────────────────── */
-#hamburger {
-  display: none; /* hidden di desktop */
-  position: fixed;
-  top: 16px;
-  left: 16px;
-  z-index: 1100;
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
-  background: var(--accent-color);
-  border: none;
-  cursor: pointer;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  padding: 10px;
-  box-shadow: 0 4px 16px rgba(5, 99, 187, 0.30);
-  transition: background 0.2s, transform 0.2s;
-}
-#hamburger:hover {
-  background: #0452a0;
-  transform: scale(1.05);
-}
-#hamburger span {
-  display: block;
-  width: 20px;
-  height: 2px;
-  background: #fff;
-  border-radius: 2px;
-  transform-origin: center;
-  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-              opacity   0.2s ease,
-              width     0.2s ease;
-}
- 
-/* Hamburger → X saat open */
-#hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-#hamburger.open span:nth-child(2) { opacity: 0; width: 0; }
-#hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
- 
- 
-/* ── BACKDROP OVERLAY ─────────────────────────────────────── */
-#nav-backdrop {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 999;
-  background: rgba(39, 40, 41, 0.45);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-  opacity: 0;
-  transition: opacity 0.28s ease;
-}
-#nav-backdrop.visible {
-  opacity: 1;
-}
- 
- 
-/* ── RESPONSIVE — MOBILE ──────────────────────────────────── */
-@media (max-width: 768px) {
-
-  /* Chibi — tetap tampilan lama */
-  .home-hero {
-    grid-template-columns: 1fr;
-    padding: 72px 24px 32px; /* ← ganti padding biar clearance hamburger */
-    justify-items: center;
-    text-align: center;
-  }
-  .hero-text   { align-items: center; }
-  .chibi-stage { width: 100%; height: 360px; overflow: hidden; }
-  .chibi-img   { height: 340px; max-height: 340px; min-height: 340px; }
- 
-  /* Hamburger button muncul */
-  #hamburger {
-    display: flex;
-  }
- 
-  /* Backdrop aktif saat sidebar open */
-  #nav-backdrop {
-    display: block;
-  }
- 
-  /* Reset sidebar width — tidak ada reserved space di kiri */
-  :root {
-    --sidebar-width: 0px;
-  }
- 
-  /* Sidebar: pindah ke luar viewport kiri, slide masuk saat open */
-  #sidebar {
-    /* Override semua layout desktop */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 220px;
-    height: 100vh;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 80px 16px 32px;
-    gap: 6px;
-    background: var(--sidebar-bg);
-    border-right: 1px solid var(--sidebar-border);
-    border-top: none;
- 
-    /* Tersembunyi di kiri, slide masuk saat .open */
-    transform: translateX(-100%);
-    transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
-                box-shadow 0.32s ease;
-    box-shadow: none;
-    z-index: 1000;
-  }
- 
-  #sidebar.open {
-    transform: translateX(0);
-    box-shadow: 6px 0 32px rgba(5, 99, 187, 0.14);
-  }
- 
-  /* Nav button di mobile: lebar penuh, rounded, dengan label teks */
-  #sidebar .nav-btn {
-    width: 100%;
-    height: 46px;
-    border-radius: 10px;
-    justify-content: flex-start;
-    padding: 0 14px;
-    gap: 12px;
-    font-size: 15px;
-  }
- 
-  /* Tampilkan label tooltip sebagai teks inline di mobile */
-  #sidebar .nav-btn::after {
-    /* Override tooltip positioning — jadikan inline text */
-    position: static;
-    transform: none;
-    background: transparent;
-    color: inherit;
-    padding: 0;
-    border-radius: 0;
-    font-size: 13px;
-    font-weight: 500;
-    opacity: 1;
-    pointer-events: auto;
-    content: attr(data-tooltip);
-    white-space: nowrap;
-  }
- 
-  /* Sembunyikan arrow tooltip */
-  #sidebar .nav-btn::before {
-    display: none;
-  }
- 
-  /* Main content tidak perlu margin bottom lagi */
-  #main-content {
-    margin-left: 0;
-    margin-bottom: 0;
-  }
- 
-  /* Padding hero di mobile */
-  .home-hero {
-    padding: 72px 24px 32px; /* top lebih tinggi untuk clearance hamburger */
-  }
-}
   </style>
 </head>
 <body>
@@ -401,18 +261,15 @@
     <a href="experience.html"    class="nav-btn active" data-tooltip="Experience"><i class="fas fa-briefcase"></i></a>
     <a href="event.html"         class="nav-btn" data-tooltip="Event / Organization"><i class="fas fa-calendar-days"></i></a>
     <a href="certification.html" class="nav-btn" data-tooltip="Certification"><i class="fas fa-award"></i></a>
-    <a href="portfolio.html" class="nav-btn" data-tooltip="Portfolio">
-  <i class="fas fa-briefcase-clock"></i>
-</a>
+    <a href="portfolio.html"     class="nav-btn" data-tooltip="Portfolio"><i class="fas fa-briefcase-clock"></i></a>
   </nav>
 
   <button id="hamburger" aria-label="Menu" aria-expanded="false">
-  <span></span><span></span><span></span>
-</button>
-<div id="nav-backdrop"></div>
+    <span></span><span></span><span></span>
+  </button>
+  <div id="nav-backdrop"></div>
 
   <main id="main-content">
-
     <div class="page-header">
       <h1 class="page-title">Experi<span>ence</span></h1>
       <p class="page-subtitle">Riwayat pekerjaan & pengalaman</p>
@@ -441,11 +298,12 @@
         <p>Memuat data...</p>
       </div>
     </div>
-
   </main>
 
   <script type="module">
     import { supabase } from './supabase.js';
+
+    const isMobile = () => window.innerWidth <= 768;
 
     function renderDesc(description) {
       if (!description) return '';
@@ -454,7 +312,18 @@
         .map(p => p.trim())
         .filter(p => p.length > 0);
       if (points.length <= 1) return `<p class="exp-desc">${description}</p>`;
-      return `<ul class="exp-desc-list">${points.map(p => `<li>${p}</li>`).join('')}</ul>`;
+
+      const listClass = isMobile() && points.length > 4 ? 'exp-desc-list collapsed' : 'exp-desc-list';
+      const list = `<ul class="${listClass}">${points.map(p => `<li>${p}</li>`).join('')}</ul>`;
+
+      // Tambah toggle button kalau di mobile dan lebih dari 4 poin
+      if (isMobile() && points.length > 4) {
+        return list + `<button class="exp-toggle" onclick="toggleDesc(this)">
+          <i class="fas fa-chevron-down"></i> Lihat selengkapnya
+        </button>`;
+      }
+
+      return list;
     }
 
     async function loadExperience() {
@@ -473,13 +342,12 @@
         return;
       }
 
-      // Tampilkan stats bar
+      // Stats
       const statsEl = document.getElementById('expStats');
       statsEl.style.display = 'flex';
       document.getElementById('statTotal').textContent = data.length;
       document.getElementById('statAktif').textContent = data.filter(e => e.is_active).length;
 
-      // Hitung tahun pengalaman dari entry paling awal
       const years = data
         .map(e => parseInt(e.period_start?.match(/\d{4}/)?.[0]))
         .filter(y => !isNaN(y));
@@ -488,7 +356,7 @@
         document.getElementById('statTahun').textContent = diff > 0 ? `${diff}+` : '< 1';
       }
 
-      // Render cards
+      // Cards
       let delay = 0.15;
       grid.innerHTML = data.map(e => {
         const tags  = (e.tags || []).map(t => `<span class="exp-tag">${t}</span>`).join('');
@@ -497,9 +365,8 @@
           : `<span class="exp-badge selesai"><i class="fas fa-check" style="font-size:9px"></i> Selesai</span>`;
 
         const d = delay; delay += 0.08;
-
         return `
-          <div class="exp-card ${e.is_active ? 'aktif' : ''}" style="animation: cardIn 0.5s ease ${d}s forwards;">
+          <div class="exp-card ${e.is_active ? 'aktif' : ''}" style="animation:cardIn .5s ease ${d}s forwards">
             <div class="exp-card-header">
               <span class="exp-title">${e.job_title}</span>
               ${badge}
@@ -522,40 +389,60 @@
 
     loadExperience();
   </script>
-  <script type="module" src="chatbot.js"></script>
+
   <script>
-(function() {
-  const hamburger = document.getElementById('hamburger');
-  const sidebar   = document.getElementById('sidebar');
-  const backdrop  = document.getElementById('nav-backdrop');
-  if (!hamburger || !sidebar || !backdrop) return;
-
-  function openMenu() {
-    sidebar.classList.add('open');
-    backdrop.classList.add('visible');
-    hamburger.classList.add('open');
-    hamburger.setAttribute('aria-expanded', 'true');
-    document.body.style.overflow = 'hidden';
+  // Toggle expand/collapse deskripsi di mobile
+  function toggleDesc(btn) {
+    const list = btn.previousElementSibling;
+    const isCollapsed = list.classList.contains('collapsed');
+    if (isCollapsed) {
+      list.classList.remove('collapsed');
+      btn.classList.add('expanded');
+      btn.innerHTML = '<i class="fas fa-chevron-down"></i> Tampilkan lebih sedikit';
+    } else {
+      list.classList.add('collapsed');
+      btn.classList.remove('expanded');
+      btn.innerHTML = '<i class="fas fa-chevron-down"></i> Lihat selengkapnya';
+    }
   }
+  </script>
 
-  function closeMenu() {
-    sidebar.classList.remove('open');
-    backdrop.classList.remove('visible');
-    hamburger.classList.remove('open');
-    hamburger.setAttribute('aria-expanded', 'false');
-    document.body.style.overflow = '';
-  }
+  <script type="module" src="chatbot.js"></script>
 
-  hamburger.addEventListener('click', () => {
-    sidebar.classList.contains('open') ? closeMenu() : openMenu();
-  });
+  <script>
+  (function() {
+    const hamburger = document.getElementById('hamburger');
+    const sidebar   = document.getElementById('sidebar');
+    const backdrop  = document.getElementById('nav-backdrop');
+    if (!hamburger || !sidebar || !backdrop) return;
 
-  backdrop.addEventListener('click', closeMenu);
+    function openMenu() {
+      sidebar.classList.add('open');
+      backdrop.classList.add('visible');
+      hamburger.classList.add('open');
+      hamburger.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
 
-  window.addEventListener('resize', () => {
-    if (window.innerWidth > 768) closeMenu();
-  });
-})();
-</script>
+    function closeMenu() {
+      sidebar.classList.remove('open');
+      backdrop.classList.remove('visible');
+      hamburger.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    }
+
+    hamburger.addEventListener('click', () => {
+      sidebar.classList.contains('open') ? closeMenu() : openMenu();
+    });
+
+    backdrop.addEventListener('click', closeMenu);
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768) closeMenu();
+    });
+  })();
+  </script>
+
 </body>
 </html>

@@ -12,335 +12,204 @@
 
   <style>
     :root {
-      --default-font:  "Roboto", system-ui, sans-serif;
-      --heading-font:  "Raleway", sans-serif;
-      --nav-font:      "Poppins", sans-serif;
-      --background-color: #ffffff;
-      --default-color:    #272829;
-      --heading-color:    #45505b;
-      --accent-color:     #0563bb;
-      --surface-color:    #ffffff;
-      --contrast-color:   #ffffff;
-      --nav-color:        #45505b;
-      --nav-hover-color:  #0563bb;
-      --nav-active-bg:    #0563bb;
-      --sidebar-width:    72px;
-      --sidebar-bg:       #f8f9fa;
-      --sidebar-border:   #e9ecef;
-      --nav-btn-size:     46px;
+      --default-font:"Roboto",system-ui,sans-serif;
+      --heading-font:"Raleway",sans-serif;
+      --nav-font:"Poppins",sans-serif;
+      --background-color:#ffffff; --default-color:#272829; --heading-color:#45505b;
+      --accent-color:#0563bb; --surface-color:#ffffff; --contrast-color:#ffffff;
+      --nav-color:#45505b; --nav-hover-color:#0563bb; --nav-active-bg:#0563bb;
+      --sidebar-width:72px; --sidebar-bg:#f8f9fa; --sidebar-border:#e9ecef; --nav-btn-size:46px;
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { font-family: var(--default-font); background-color: var(--background-color); color: var(--default-color); min-height: 100vh; display: flex; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:var(--default-font);background-color:var(--background-color);color:var(--default-color);min-height:100vh;display:flex}
+    ::-webkit-scrollbar{width:5px} ::-webkit-scrollbar-thumb{background:rgba(5,99,187,0.2);border-radius:10px}
+    ::-webkit-scrollbar-thumb:hover{background:var(--accent-color)}
 
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-thumb { background: rgba(5,99,187,0.2); border-radius: 10px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
+    /* ── SIDEBAR ── */
+    #sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--sidebar-bg);border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;align-items:center;padding:28px 0;gap:10px;z-index:1000}
+    .nav-btn{width:var(--nav-btn-size);height:var(--nav-btn-size);border-radius:50%;background:transparent;color:var(--nav-color);font-size:17px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .25s,color .25s,transform .2s;text-decoration:none;position:relative}
+    .nav-btn:hover{background:rgba(5,99,187,0.1);color:var(--nav-hover-color);transform:scale(1.08)}
+    .nav-btn.active{background:var(--nav-active-bg);color:var(--contrast-color);box-shadow:0 4px 14px rgba(5,99,187,0.35)}
+    .nav-btn::after{content:attr(data-tooltip);position:absolute;left:calc(100% + 14px);top:50%;transform:translateY(-50%);background:var(--heading-color);color:#fff;padding:5px 11px;border-radius:6px;font-family:var(--nav-font);font-size:12px;font-weight:500;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s}
+    .nav-btn::before{content:'';position:absolute;left:calc(100% + 8px);top:50%;transform:translateY(-50%);border:5px solid transparent;border-right-color:var(--heading-color);opacity:0;pointer-events:none;transition:opacity .2s}
+    .nav-btn:hover::after,.nav-btn:hover::before{opacity:1}
 
-    /* SIDEBAR */
-    #sidebar {
-      position: fixed; top: 0; left: 0;
-      width: var(--sidebar-width); height: 100vh;
-      background: var(--sidebar-bg);
-      border-right: 1px solid var(--sidebar-border);
-      display: flex; flex-direction: column;
-      align-items: center; padding: 28px 0; gap: 10px; z-index: 1000;
+    /* ── MAIN ── */
+    #main-content{margin-left:var(--sidebar-width);flex:1;min-height:100vh;padding:60px 80px}
+
+    .page-header{margin-bottom:48px;opacity:0;transform:translateY(20px);animation:fadeUp .6s ease .1s forwards}
+    .page-title{font-family:var(--heading-font);font-size:clamp(32px,4vw,52px);font-weight:700;color:var(--heading-color);margin-bottom:6px}
+    .page-title span{color:var(--accent-color)}
+    .page-subtitle{font-family:var(--nav-font);font-size:14px;color:var(--default-color);opacity:.5}
+
+    /* ── STATS RINGKASAN ── */
+    .skills-stats{display:flex;gap:0;margin-bottom:40px;border:1px solid var(--sidebar-border);border-radius:14px;overflow:hidden;opacity:0;transform:translateY(14px);animation:fadeUp .6s ease .18s forwards}
+    .skill-stat{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:16px 12px;background:rgba(5,99,187,.02);transition:background .2s}
+    .skill-stat:not(:last-child){border-right:1px solid var(--sidebar-border)}
+    .skill-stat:hover{background:rgba(5,99,187,.05)}
+    .skill-stat-num{font-family:var(--heading-font);font-size:24px;font-weight:800;color:var(--accent-color);line-height:1}
+    .skill-stat-lbl{font-family:var(--nav-font);font-size:10px;font-weight:600;color:var(--default-color);opacity:.45;text-transform:uppercase;letter-spacing:.8px;text-align:center}
+
+    /* ── SKILLS WRAPPER ── */
+    .skills-wrapper{display:flex;flex-direction:column;gap:40px}
+
+    /* ── CATEGORY SECTION ── */
+    .skill-section{opacity:0;transform:translateY(24px)}
+
+    .skill-section-header{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+    .skill-cat-icon{width:32px;height:32px;border-radius:8px;background:rgba(5,99,187,.08);color:var(--accent-color);font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .skill-section-title{font-family:var(--heading-font);font-size:13px;font-weight:700;color:var(--accent-color);text-transform:uppercase;letter-spacing:1.5px}
+    .skill-section-line{flex:1;height:1px;background:var(--sidebar-border)}
+    .skill-section-count{font-family:var(--nav-font);font-size:11px;color:var(--default-color);opacity:.35}
+
+    /* ── SKILLS GRID ── */
+    .skills-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px 28px}
+
+    /* ── SKILL ITEM — UPGRADE: card style dengan level indicator ── */
+    .skill-item{
+      background:var(--surface-color);
+      border:1px solid var(--sidebar-border);
+      border-radius:12px;
+      padding:14px 16px;
+      transition:box-shadow .22s,transform .22s,border-color .22s;
+      position:relative;
+      overflow:hidden;
+    }
+    .skill-item:hover{box-shadow:0 6px 20px rgba(5,99,187,.09);transform:translateY(-2px);border-color:rgba(5,99,187,.2)}
+
+    /* Colored left accent berdasarkan level */
+    .skill-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:12px 0 0 12px;background:var(--sidebar-border);transition:background .3s}
+    .skill-item.level-high::before{background:linear-gradient(to bottom,#0563bb,#4a9eff)}
+    .skill-item.level-mid::before{background:linear-gradient(to bottom,#059669,#34d399)}
+    .skill-item.level-low::before{background:linear-gradient(to bottom,#d97706,#fbbf24)}
+
+    .skill-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px}
+
+    .skill-name-wrap{display:flex;align-items:center;gap:8px}
+    .skill-icon{width:28px;height:28px;border-radius:7px;background:rgba(5,99,187,.07);color:var(--accent-color);font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .skill-name{font-family:var(--nav-font);font-size:13px;font-weight:600;color:var(--default-color)}
+
+    .skill-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+    .skill-pct{font-family:var(--heading-font);font-size:15px;font-weight:800;color:var(--accent-color);line-height:1}
+    .skill-level-badge{font-family:var(--nav-font);font-size:9px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:2px 7px;border-radius:20px}
+    .skill-level-badge.high{background:rgba(5,99,187,.1);color:var(--accent-color)}
+    .skill-level-badge.mid {background:rgba(5,150,105,.1);color:#059669}
+    .skill-level-badge.low {background:rgba(217,119,6,.1);color:#d97706}
+
+    .skill-bar-track{height:4px;background:var(--sidebar-bg);border-radius:999px;overflow:hidden}
+    .skill-bar-fill{height:100%;border-radius:999px;width:0%;transition:width 1.1s cubic-bezier(.4,0,.2,1)}
+    .skill-item.level-high .skill-bar-fill{background:linear-gradient(90deg,var(--accent-color),#4a9eff)}
+    .skill-item.level-mid  .skill-bar-fill{background:linear-gradient(90deg,#059669,#34d399)}
+    .skill-item.level-low  .skill-bar-fill{background:linear-gradient(90deg,#d97706,#fbbf24)}
+
+    /* ── STATE ── */
+    .state-box{text-align:center;padding:60px 24px;color:var(--heading-color);opacity:.45}
+    .state-box i{font-size:36px;margin-bottom:12px;display:block}
+    .state-box p{font-family:var(--nav-font);font-size:13px}
+    .spin{animation:spinAnim .8s linear infinite}
+    @keyframes spinAnim{to{transform:rotate(360deg)}}
+    @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+
+    /* ══════════════════════════════════════════════════════════
+       HAMBURGER
+    ══════════════════════════════════════════════════════════ */
+    #hamburger{display:none;position:fixed;top:16px;left:16px;z-index:1100;width:42px;height:42px;border-radius:10px;background:var(--accent-color);border:none;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:10px;box-shadow:0 4px 16px rgba(5,99,187,.30);transition:background .2s,transform .2s}
+    #hamburger:hover{background:#0452a0;transform:scale(1.05)}
+    #hamburger span{display:block;width:20px;height:2px;background:#fff;border-radius:2px;transform-origin:center;transition:transform .28s cubic-bezier(.4,0,.2,1),opacity .2s ease,width .2s ease}
+    #hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+    #hamburger.open span:nth-child(2){opacity:0;width:0}
+    #hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+    /* ══════════════════════════════════════════════════════════
+       BACKDROP
+    ══════════════════════════════════════════════════════════ */
+    #nav-backdrop{display:none;position:fixed;inset:0;z-index:999;background:rgba(39,40,41,.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;transition:opacity .28s ease}
+    #nav-backdrop.visible{opacity:1}
+
+    /* ══════════════════════════════════════════════════════════
+       RESPONSIVE MOBILE
+    ══════════════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+
+      :root { --sidebar-width: 0px; }
+
+      #hamburger    { display: flex; }
+      #nav-backdrop { display: block; }
+
+      /* Sidebar slide */
+      #sidebar {
+        position: fixed; top: 0; left: 0;
+        width: 220px; height: 100vh;
+        flex-direction: column; align-items: flex-start;
+        padding: 80px 16px 32px; gap: 6px;
+        border-right: 1px solid var(--sidebar-border); border-top: none;
+        transform: translateX(-100%);
+        transition: transform .32s cubic-bezier(.4,0,.2,1), box-shadow .32s ease;
+        box-shadow: none; z-index: 1000;
+      }
+      #sidebar.open { transform: translateX(0); box-shadow: 6px 0 32px rgba(5,99,187,.14); }
+
+      #sidebar .nav-btn {
+        width: 100%; height: 46px; border-radius: 10px;
+        justify-content: flex-start; padding: 0 14px; gap: 12px; font-size: 15px;
+      }
+      #sidebar .nav-btn::after {
+        position: static; transform: none; background: transparent; color: inherit;
+        padding: 0; border-radius: 0; font-size: 13px; font-weight: 500;
+        opacity: 1; pointer-events: auto; content: attr(data-tooltip); white-space: nowrap;
+      }
+      #sidebar .nav-btn::before { display: none; }
+
+      /* Main */
+      #main-content {
+        margin-left: 0; margin-bottom: 0;
+        padding: 72px 20px 40px;
+      }
+
+      /* Header */
+      .page-header { margin-bottom: 20px; }
+      .page-title  { font-size: clamp(26px, 7vw, 34px); }
+
+      /* Stats — compact */
+      .skills-stats { margin-bottom: 28px; border-radius: 12px; }
+      .skill-stat    { padding: 12px 8px; }
+      .skill-stat-num { font-size: 20px; }
+      .skill-stat-lbl { font-size: 9px; }
+
+      /* Section gap */
+      .skills-wrapper { gap: 28px; }
+
+      /* Section header */
+      .skill-section-header { margin-bottom: 14px; gap: 10px; }
+      .skill-cat-icon        { width: 28px; height: 28px; font-size: 11px; border-radius: 7px; }
+      .skill-section-title   { font-size: 11px; }
+
+      /* Skills grid — 1 kolom penuh di mobile kecil */
+      .skills-list {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      /* Skill item — compact */
+      .skill-item { padding: 12px 14px; border-radius: 11px; }
+      .skill-item:hover { transform: none; }
+
+      .skill-icon  { width: 26px; height: 26px; font-size: 11px; border-radius: 6px; }
+      .skill-name  { font-size: 12px; }
+      .skill-pct   { font-size: 14px; }
+      .skill-level-badge { font-size: 8px; padding: 1px 6px; }
+      .skill-top   { margin-bottom: 8px; }
     }
 
-    .nav-btn {
-      width: var(--nav-btn-size); height: var(--nav-btn-size);
-      border-radius: 50%; background: transparent;
-      color: var(--nav-color); font-size: 17px;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: background 0.25s, color 0.25s, transform 0.2s;
-      text-decoration: none; position: relative;
+    /* Tablet: 2 kolom */
+    @media (min-width: 480px) and (max-width: 768px) {
+      .skills-list {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
     }
-
-    .nav-btn:hover { background: rgba(5,99,187,0.1); color: var(--nav-hover-color); transform: scale(1.08); }
-    .nav-btn.active { background: var(--nav-active-bg); color: var(--contrast-color); box-shadow: 0 4px 14px rgba(5,99,187,0.35); }
-
-    .nav-btn::after {
-      content: attr(data-tooltip);
-      position: absolute; left: calc(100% + 14px); top: 50%; transform: translateY(-50%);
-      background: var(--heading-color); color: #fff;
-      padding: 5px 11px; border-radius: 6px;
-      font-family: var(--nav-font); font-size: 12px; font-weight: 500;
-      white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s;
-    }
-
-    .nav-btn::before {
-      content: ''; position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%);
-      border: 5px solid transparent; border-right-color: var(--heading-color);
-      opacity: 0; pointer-events: none; transition: opacity 0.2s;
-    }
-
-    .nav-btn:hover::after, .nav-btn:hover::before { opacity: 1; }
-
-    /* MAIN */
-    #main-content { margin-left: var(--sidebar-width); flex: 1; min-height: 100vh; padding: 60px 80px; }
-
-    .page-header { margin-bottom: 48px; opacity: 0; transform: translateY(20px); animation: fadeUp 0.6s ease 0.1s forwards; }
-    .page-title { font-family: var(--heading-font); font-size: clamp(32px,4vw,52px); font-weight: 700; color: var(--heading-color); margin-bottom: 6px; }
-    .page-title span { color: var(--accent-color); }
-    .page-subtitle { font-family: var(--nav-font); font-size: 14px; color: var(--default-color); opacity: 0.5; }
-
-    /* SKILLS LAYOUT */
-    .skills-wrapper { display: flex; flex-direction: column; gap: 40px; }
-
-    /* CATEGORY SECTION */
-    .skill-section {
-      opacity: 0;
-      transform: translateY(24px);
-    }
-
-    .skill-section-header {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 20px;
-    }
-
-    .skill-section-title {
-      font-family: var(--heading-font);
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--accent-color);
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-    }
-
-    .skill-section-line {
-      flex: 1;
-      height: 1px;
-      background: var(--sidebar-border);
-    }
-
-    .skill-section-count {
-      font-family: var(--nav-font);
-      font-size: 11px;
-      color: var(--default-color);
-      opacity: 0.35;
-    }
-
-    /* SKILLS GRID INSIDE CATEGORY */
-    .skills-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 14px 28px;
-    }
-
-    /* SKILL ITEM */
-    .skill-item { }
-
-    .skill-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 7px;
-    }
-
-    .skill-name {
-      font-family: var(--nav-font);
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--default-color);
-    }
-
-    .skill-pct {
-      font-family: var(--nav-font);
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--accent-color);
-      opacity: 0.7;
-    }
-
-    .skill-bar-track {
-      height: 4px;
-      background: var(--sidebar-bg);
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .skill-bar-fill {
-      height: 100%;
-      border-radius: 999px;
-      background: linear-gradient(90deg, var(--accent-color), #4a9eff);
-      width: 0%;
-      transition: width 1.1s cubic-bezier(0.4,0,0.2,1);
-    }
-
-    /* Loading & Error */
-    .state-box { text-align: center; padding: 60px 24px; color: var(--heading-color); opacity: 0.45; }
-    .state-box i { font-size: 36px; margin-bottom: 12px; display: block; }
-    .state-box p { font-family: var(--nav-font); font-size: 13px; }
-    .spin { animation: spinAnim 0.8s linear infinite; }
-    @keyframes spinAnim { to { transform: rotate(360deg); } }
-
-    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
-
-    /* ── HAMBURGER BUTTON ─────────────────────────────────────── */
-#hamburger {
-  display: none; /* hidden di desktop */
-  position: fixed;
-  top: 16px;
-  left: 16px;
-  z-index: 1100;
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
-  background: var(--accent-color);
-  border: none;
-  cursor: pointer;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  padding: 10px;
-  box-shadow: 0 4px 16px rgba(5, 99, 187, 0.30);
-  transition: background 0.2s, transform 0.2s;
-}
-#hamburger:hover {
-  background: #0452a0;
-  transform: scale(1.05);
-}
-#hamburger span {
-  display: block;
-  width: 20px;
-  height: 2px;
-  background: #fff;
-  border-radius: 2px;
-  transform-origin: center;
-  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-              opacity   0.2s ease,
-              width     0.2s ease;
-}
- 
-/* Hamburger → X saat open */
-#hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-#hamburger.open span:nth-child(2) { opacity: 0; width: 0; }
-#hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
- 
- 
-/* ── BACKDROP OVERLAY ─────────────────────────────────────── */
-#nav-backdrop {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 999;
-  background: rgba(39, 40, 41, 0.45);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-  opacity: 0;
-  transition: opacity 0.28s ease;
-}
-#nav-backdrop.visible {
-  opacity: 1;
-}
- 
- 
-/* ── RESPONSIVE — MOBILE ──────────────────────────────────── */
-@media (max-width: 768px) {
-
-  /* Chibi — tetap tampilan lama */
-  .home-hero {
-    grid-template-columns: 1fr;
-    padding: 72px 24px 32px; /* ← ganti padding biar clearance hamburger */
-    justify-items: center;
-    text-align: center;
-  }
-  .hero-text   { align-items: center; }
-  .chibi-stage { width: 100%; height: 360px; overflow: hidden; }
-  .chibi-img   { height: 340px; max-height: 340px; min-height: 340px; }
- 
-  /* Hamburger button muncul */
-  #hamburger {
-    display: flex;
-  }
- 
-  /* Backdrop aktif saat sidebar open */
-  #nav-backdrop {
-    display: block;
-  }
- 
-  /* Reset sidebar width — tidak ada reserved space di kiri */
-  :root {
-    --sidebar-width: 0px;
-  }
- 
-  /* Sidebar: pindah ke luar viewport kiri, slide masuk saat open */
-  #sidebar {
-    /* Override semua layout desktop */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 220px;
-    height: 100vh;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 80px 16px 32px;
-    gap: 6px;
-    background: var(--sidebar-bg);
-    border-right: 1px solid var(--sidebar-border);
-    border-top: none;
- 
-    /* Tersembunyi di kiri, slide masuk saat .open */
-    transform: translateX(-100%);
-    transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
-                box-shadow 0.32s ease;
-    box-shadow: none;
-    z-index: 1000;
-  }
- 
-  #sidebar.open {
-    transform: translateX(0);
-    box-shadow: 6px 0 32px rgba(5, 99, 187, 0.14);
-  }
- 
-  /* Nav button di mobile: lebar penuh, rounded, dengan label teks */
-  #sidebar .nav-btn {
-    width: 100%;
-    height: 46px;
-    border-radius: 10px;
-    justify-content: flex-start;
-    padding: 0 14px;
-    gap: 12px;
-    font-size: 15px;
-  }
- 
-  /* Tampilkan label tooltip sebagai teks inline di mobile */
-  #sidebar .nav-btn::after {
-    /* Override tooltip positioning — jadikan inline text */
-    position: static;
-    transform: none;
-    background: transparent;
-    color: inherit;
-    padding: 0;
-    border-radius: 0;
-    font-size: 13px;
-    font-weight: 500;
-    opacity: 1;
-    pointer-events: auto;
-    content: attr(data-tooltip);
-    white-space: nowrap;
-  }
- 
-  /* Sembunyikan arrow tooltip */
-  #sidebar .nav-btn::before {
-    display: none;
-  }
- 
-  /* Main content tidak perlu margin bottom lagi */
-  #main-content {
-    margin-left: 0;
-    margin-bottom: 0;
-  }
- 
-  /* Padding hero di mobile */
-  .home-hero {
-    padding: 72px 24px 32px; /* top lebih tinggi untuk clearance hamburger */
-  }
-}
   </style>
 </head>
 <body>
@@ -352,21 +221,36 @@
     <a href="experience.html"    class="nav-btn" data-tooltip="Experience"><i class="fas fa-briefcase"></i></a>
     <a href="event.html"         class="nav-btn" data-tooltip="Event / Organization"><i class="fas fa-calendar-days"></i></a>
     <a href="certification.html" class="nav-btn" data-tooltip="Certification"><i class="fas fa-award"></i></a>
-    <a href="portfolio.html" class="nav-btn" data-tooltip="Portfolio">
-  <i class="fas fa-briefcase-clock"></i>
-</a>
+    <a href="portfolio.html"     class="nav-btn" data-tooltip="Portfolio"><i class="fas fa-briefcase-clock"></i></a>
   </nav>
 
   <button id="hamburger" aria-label="Menu" aria-expanded="false">
-  <span></span><span></span><span></span>
-</button>
-<div id="nav-backdrop"></div>
+    <span></span><span></span><span></span>
+  </button>
+  <div id="nav-backdrop"></div>
 
   <main id="main-content">
     <div class="page-header">
       <h1 class="page-title">Ski<span>lls</span></h1>
       <p class="page-subtitle">Kemampuan teknis & non-teknis</p>
     </div>
+
+    <!-- Stats summary — diisi JS -->
+    <div class="skills-stats" id="skillsStats" style="display:none">
+      <div class="skill-stat">
+        <span class="skill-stat-num" id="statTotal">0</span>
+        <span class="skill-stat-lbl">Total Skill</span>
+      </div>
+      <div class="skill-stat">
+        <span class="skill-stat-num" id="statCategories">0</span>
+        <span class="skill-stat-lbl">Kategori</span>
+      </div>
+      <div class="skill-stat">
+        <span class="skill-stat-num" id="statAvg">0</span>
+        <span class="skill-stat-lbl">Rata-rata %</span>
+      </div>
+    </div>
+
     <div class="skills-wrapper" id="skillsWrapper">
       <div class="state-box"><i class="fas fa-circle-notch spin"></i><p>Memuat data...</p></div>
     </div>
@@ -375,8 +259,59 @@
   <script type="module">
     import { supabase } from './supabase.js';
 
+    // Map kategori ke icon FA
+    const CAT_ICONS = {
+      'Frontend':     'fas fa-laptop-code',
+      'Backend':      'fas fa-server',
+      'Design':       'fas fa-pen-ruler',
+      'Office Tools': 'fas fa-file-excel',
+      'Database':     'fas fa-database',
+      'Mobile':       'fas fa-mobile-screen',
+      'DevOps':       'fas fa-gears',
+      'Other':        'fas fa-star',
+    };
+
+    function getCatIcon(cat) {
+      for (const [key, icon] of Object.entries(CAT_ICONS)) {
+        if (cat.toLowerCase().includes(key.toLowerCase())) return icon;
+      }
+      return 'fas fa-code';
+    }
+
+    // Tentukan level berdasarkan persentase
+    function getLevel(pct) {
+      if (pct >= 80) return { cls: 'high', label: 'Mahir' };
+      if (pct >= 60) return { cls: 'mid',  label: 'Menengah' };
+      return           { cls: 'low',  label: 'Dasar' };
+    }
+
+    // Map nama skill ke icon FA
+    function getSkillIcon(name) {
+      const n = name.toLowerCase();
+      if (n.includes('html'))        return 'fab fa-html5';
+      if (n.includes('css'))         return 'fab fa-css3-alt';
+      if (n.includes('javascript') || n.includes('js')) return 'fab fa-js';
+      if (n.includes('bootstrap'))   return 'fab fa-bootstrap';
+      if (n.includes('php'))         return 'fab fa-php';
+      if (n.includes('mysql') || n.includes('sql')) return 'fas fa-database';
+      if (n.includes('canva'))       return 'fas fa-palette';
+      if (n.includes('figma'))       return 'fab fa-figma';
+      if (n.includes('excel') || n.includes('spreadsheet')) return 'fas fa-file-excel';
+      if (n.includes('word'))        return 'fas fa-file-word';
+      if (n.includes('powerpoint'))  return 'fas fa-file-powerpoint';
+      if (n.includes('react'))       return 'fab fa-react';
+      if (n.includes('vue'))         return 'fab fa-vuejs';
+      if (n.includes('node'))        return 'fab fa-node-js';
+      if (n.includes('python'))      return 'fab fa-python';
+      if (n.includes('git'))         return 'fab fa-git-alt';
+      if (n.includes('github'))      return 'fab fa-github';
+      if (n.includes('docker'))      return 'fab fa-docker';
+      return 'fas fa-code';
+    }
+
     async function loadSkills() {
       const wrapper = document.getElementById('skillsWrapper');
+      const statsEl = document.getElementById('skillsStats');
 
       const { data, error } = await supabase
         .from('skills')
@@ -389,36 +324,55 @@
         return;
       }
 
-      // Group by category
+      // Stats
       const groups = {};
       data.forEach(s => {
         if (!groups[s.category]) groups[s.category] = [];
         groups[s.category].push(s);
       });
 
-      let html = '';
+      const avg = Math.round(data.reduce((a, b) => a + (b.percentage || 0), 0) / data.length);
+      document.getElementById('statTotal').textContent      = data.length;
+      document.getElementById('statCategories').textContent = Object.keys(groups).length;
+      document.getElementById('statAvg').textContent        = avg + '%';
+      statsEl.style.display = 'flex';
+
+      // Render
+      let html  = '';
       let delay = 0.15;
 
       for (const [cat, items] of Object.entries(groups)) {
+        const icon = getCatIcon(cat);
         html += `
-          <div class="skill-section" style="animation: fadeUp 0.55s ease ${delay}s forwards;">
+          <div class="skill-section" style="animation:fadeUp .55s ease ${delay}s forwards">
             <div class="skill-section-header">
+              <div class="skill-cat-icon"><i class="${icon}"></i></div>
               <span class="skill-section-title">${cat}</span>
               <div class="skill-section-line"></div>
-              <span class="skill-section-count">${items.length} skills</span>
+              <span class="skill-section-count">${items.length} skill</span>
             </div>
             <div class="skills-list">
-              ${items.map(s => `
-                <div class="skill-item">
-                  <div class="skill-meta">
-                    <span class="skill-name">${s.skill_name}</span>
-                    <span class="skill-pct">${s.percentage}%</span>
-                  </div>
-                  <div class="skill-bar-track">
-                    <div class="skill-bar-fill" data-pct="${s.percentage}"></div>
-                  </div>
-                </div>
-              `).join('')}
+              ${items.map(s => {
+                const pct     = s.percentage || 0;
+                const lv      = getLevel(pct);
+                const skillIc = s.skill_icon || getSkillIcon(s.skill_name);
+                return `
+                  <div class="skill-item level-${lv.cls}">
+                    <div class="skill-top">
+                      <div class="skill-name-wrap">
+                        <div class="skill-icon"><i class="${skillIc}"></i></div>
+                        <span class="skill-name">${s.skill_name}</span>
+                      </div>
+                      <div class="skill-right">
+                        <span class="skill-pct">${pct}%</span>
+                        <span class="skill-level-badge ${lv.cls}">${lv.label}</span>
+                      </div>
+                    </div>
+                    <div class="skill-bar-track">
+                      <div class="skill-bar-fill" data-pct="${pct}"></div>
+                    </div>
+                  </div>`;
+              }).join('')}
             </div>
           </div>`;
         delay += 0.1;
@@ -426,7 +380,7 @@
 
       wrapper.innerHTML = html;
 
-      // Animate bars setelah render
+      // Animate bars
       setTimeout(() => {
         document.querySelectorAll('.skill-bar-fill').forEach(bar => {
           bar.style.width = bar.dataset.pct + '%';
@@ -436,40 +390,43 @@
 
     loadSkills();
   </script>
+
   <script type="module" src="chatbot.js"></script>
+
   <script>
-(function() {
-  const hamburger = document.getElementById('hamburger');
-  const sidebar   = document.getElementById('sidebar');
-  const backdrop  = document.getElementById('nav-backdrop');
-  if (!hamburger || !sidebar || !backdrop) return;
+  (function() {
+    const hamburger = document.getElementById('hamburger');
+    const sidebar   = document.getElementById('sidebar');
+    const backdrop  = document.getElementById('nav-backdrop');
+    if (!hamburger || !sidebar || !backdrop) return;
 
-  function openMenu() {
-    sidebar.classList.add('open');
-    backdrop.classList.add('visible');
-    hamburger.classList.add('open');
-    hamburger.setAttribute('aria-expanded', 'true');
-    document.body.style.overflow = 'hidden';
-  }
+    function openMenu() {
+      sidebar.classList.add('open');
+      backdrop.classList.add('visible');
+      hamburger.classList.add('open');
+      hamburger.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
 
-  function closeMenu() {
-    sidebar.classList.remove('open');
-    backdrop.classList.remove('visible');
-    hamburger.classList.remove('open');
-    hamburger.setAttribute('aria-expanded', 'false');
-    document.body.style.overflow = '';
-  }
+    function closeMenu() {
+      sidebar.classList.remove('open');
+      backdrop.classList.remove('visible');
+      hamburger.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    }
 
-  hamburger.addEventListener('click', () => {
-    sidebar.classList.contains('open') ? closeMenu() : openMenu();
-  });
+    hamburger.addEventListener('click', () => {
+      sidebar.classList.contains('open') ? closeMenu() : openMenu();
+    });
 
-  backdrop.addEventListener('click', closeMenu);
+    backdrop.addEventListener('click', closeMenu);
 
-  window.addEventListener('resize', () => {
-    if (window.innerWidth > 768) closeMenu();
-  });
-})();
-</script>
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768) closeMenu();
+    });
+  })();
+  </script>
+
 </body>
 </html>
