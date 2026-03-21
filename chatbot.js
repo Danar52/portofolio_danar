@@ -321,18 +321,30 @@ class EkaChatbot {
     }
 
     _updateBar() {
-        if (this.history.length > MAX_HISTORY) {
-            this.history = this.history.slice(-MAX_HISTORY);
+    // Smart trim: buang dari depan sepasang [user, bot]
+    // sehingga history selalu valid dan selalu mulai dari user
+    while (this.history.length > MAX_HISTORY) {
+        // Buang 2 sekaligus (1 user + 1 bot) dari depan
+        this.history.shift(); // buang user lama
+        if (this.history.length > 0 && this.history[0].role === 'model') {
+            this.history.shift(); // buang bot pasangannya
         }
-        const count = this.history.length;
-        const pct   = (count / MAX_HISTORY) * 100;
-        const fill  = document.getElementById('cb-tfill');
-        const lbl   = document.getElementById('cb-tlbl');
-        if (!fill || !lbl) return;
-        fill.style.width = pct + '%';
-        fill.className   = 'cb-tfill' + (pct >= 100 ? ' danger' : pct >= 66 ? ' warn' : '');
-        lbl.textContent  = `${count} / ${MAX_HISTORY} pesan`;
     }
+
+    // Safety net: kalau setelah trim masih dimulai dari bot, strip
+    while (this.history.length > 0 && this.history[0].role !== 'user') {
+        this.history.shift();
+    }
+
+    const count = this.history.length;
+    const pct   = (count / MAX_HISTORY) * 100;
+    const fill  = document.getElementById('cb-tfill');
+    const lbl   = document.getElementById('cb-tlbl');
+    if (!fill || !lbl) return;
+    fill.style.width = pct + '%';
+    fill.className   = 'cb-tfill' + (pct >= 100 ? ' danger' : pct >= 66 ? ' warn' : '');
+    lbl.textContent  = `${count} / ${MAX_HISTORY} pesan`;
+}
 
     _renderSugg(list) {
         const w = document.getElementById('cb-sugg');
@@ -384,8 +396,7 @@ class EkaChatbot {
 
         try {
             const trimmed = this.history
-                .slice(-MAX_HISTORY)
-                .filter(m => m?.role && typeof m?.parts?.[0]?.text === 'string' && m.parts[0].text.trim());
+    .filter(m => m?.role && typeof m?.parts?.[0]?.text === 'string' && m.parts[0].text.trim());
 
             if (trimmed.length === 0) {
                 this._removeEl(bubbleId);
