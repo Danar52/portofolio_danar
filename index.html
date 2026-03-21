@@ -83,7 +83,6 @@
       gap: 0;
       position: relative;
     }
-
     .home-hero::before {
       content: '';
       position: fixed; top: -150px; right: -150px;
@@ -94,37 +93,29 @@
 
     /* ── KIRI: teks ── */
     .hero-text { display: flex; flex-direction: column; }
-
     .home-name {
       font-family: var(--heading-font);
       font-size: clamp(42px, 5.5vw, 76px);
-      font-weight: 700;
-      color: var(--heading-color);
-      line-height: 1.08;
-      letter-spacing: -1.5px;
+      font-weight: 700; color: var(--heading-color);
+      line-height: 1.08; letter-spacing: -1.5px;
       opacity: 0; transform: translateY(32px);
       animation: fadeUp 0.75s ease 0.15s forwards;
     }
-
     .home-tagline {
       font-family: var(--default-font);
       font-size: clamp(16px, 2vw, 22px);
-      font-weight: 300;
-      color: var(--default-color);
+      font-weight: 300; color: var(--default-color);
       margin-top: 18px;
       opacity: 0; transform: translateY(22px);
       animation: fadeUp 0.75s ease 0.35s forwards;
     }
-
     .typewriter-text {
-      color: var(--accent-color);
-      font-weight: 500;
+      color: var(--accent-color); font-weight: 500;
       border-right: 2.5px solid var(--accent-color);
       padding-right: 3px;
       animation: blink 0.75s step-end infinite;
     }
     @keyframes blink { 50% { border-color: transparent; } }
-
     .home-divider {
       width: 56px; height: 3px;
       background: var(--accent-color);
@@ -132,7 +123,6 @@
       opacity: 0;
       animation: fadeUp 0.75s ease 0.52s forwards;
     }
-
     .social-links {
       display: flex; gap: 20px; align-items: center;
       opacity: 0; transform: translateY(18px);
@@ -150,105 +140,54 @@
       position: relative;
       width: clamp(280px, 38vw, 520px);
       height: 100vh;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      /* Sembunyikan overflow agar chibi tidak keliatan saat di luar stage */
-      overflow: hidden;
-      pointer-events: none;
+      display: flex; align-items: flex-end; justify-content: center;
+      overflow: hidden; pointer-events: none;
     }
-
-    /*
-      chibi-wrap: container posisi absolut di bawah stage.
-      Dua gambar di-stack di sini untuk crossfade + slide.
-    */
     .chibi-wrap {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
+      position: absolute; bottom: 0; left: 0;
+      width: 100%; height: 100%;
+      display: flex; align-items: flex-end; justify-content: center;
     }
-
-    /*
-      Setiap chibi-img: posisi absolut, bottom-aligned.
-      State diatur lewat class JS: .state-idle, .state-enter, .state-exit
-    */
     .chibi-img {
-      position: absolute;
-      bottom: 0;
-      height: 92vh;
-      max-height: 900px;
-      min-height: 400px;
-      width: auto;
-      object-fit: contain;
-      display: block;
+      position: absolute; bottom: 0;
+      height: 92vh; max-height: 900px; min-height: 400px;
+      width: auto; object-fit: contain; display: block;
       user-select: none;
       filter: drop-shadow(0 16px 40px rgba(5,99,187,0.12));
-
-      /*
-        Posisi awal: tersembunyi di kanan (translateX 110%)
-        opacity & transform diatur via state class
-      */
-      opacity: 0;
-      transform: translateX(110%);
-      /* Transisi default — override di setiap state */
-      transition:
-        opacity 0.55s cubic-bezier(0.4, 0, 0.2, 1),
-        transform 0.65s cubic-bezier(0.34, 1.2, 0.64, 1);
+      opacity: 0; transform: translateX(110%);
+      transition: opacity 0.55s cubic-bezier(0.4,0,0.2,1), transform 0.65s cubic-bezier(0.34,1.2,0.64,1);
     }
-
-    /* STATE: idle — chibi di posisi normal, idle breathing */
     .chibi-img.state-idle {
-      opacity: 1;
-      transform: translateX(0);
+      opacity: 1; transform: translateX(0);
       filter: drop-shadow(0 16px 40px rgba(5,99,187,0.12)) blur(0px);
-      animation: chibiBreathe 3.6s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+      animation: chibiBreathe 3.6s cubic-bezier(0.45,0.05,0.55,0.95) infinite;
     }
-
-    /*
-      STATE: enter — masuk dari kanan ke tengah.
-      JS set ini dulu (translateX 110%, opacity 0 — via reset),
-      lalu di next frame set ke state-idle agar CSS transition aktif.
-      Transisi override: spring masuk lebih responsif.
-    */
     .chibi-img.state-enter {
-      opacity: 0;
-      transform: translateX(110%);
-      transition:
-        opacity 0.0s,
-        transform 0.0s;
+      opacity: 0; transform: translateX(110%);
+      transition: opacity 0s, transform 0s;
     }
-
-    /*
-      STATE: entering (setelah state-enter di-apply, frame berikutnya)
-      Ini yang bikin chibi meluncur masuk.
-    */
     .chibi-img.state-entering {
-      opacity: 1;
-      transform: translateX(0);
+      opacity: 1; transform: translateX(0);
       filter: drop-shadow(0 16px 40px rgba(5,99,187,0.12)) blur(0px);
-      transition:
-        opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-        transform 0.7s cubic-bezier(0.34, 1.15, 0.64, 1),
-        filter 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: opacity 0.5s cubic-bezier(0.22,1,0.36,1), transform 0.7s cubic-bezier(0.34,1.15,0.64,1), filter 0.5s cubic-bezier(0.22,1,0.36,1);
     }
-
-    /* STATE: exit — chibi dissolve: blur + fade + sedikit scale down */
     .chibi-img.state-exit {
-      opacity: 0;
-      transform: translateX(0) scale(0.88);
+      opacity: 0; transform: translateX(0) scale(0.88);
       filter: drop-shadow(0 16px 40px rgba(5,99,187,0.12)) blur(18px);
-      transition:
-        opacity 0.48s cubic-bezier(0.4, 0, 1, 1),
-        transform 0.48s cubic-bezier(0.4, 0, 1, 1),
-        filter 0.48s cubic-bezier(0.4, 0, 1, 1);
+      transition: opacity 0.48s cubic-bezier(0.4,0,1,1), transform 0.48s cubic-bezier(0.4,0,1,1), filter 0.48s cubic-bezier(0.4,0,1,1);
+    }
+    .chibi-img.state-landing {
+      opacity: 1;
+      animation: chibiLand 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+      transition: none;
+    }
+    .chibi-shadow {
+      position: absolute; bottom: 4px; width: 50%; height: 20px;
+      background: radial-gradient(ellipse, rgba(5,99,187,0.09) 0%, transparent 70%);
+      border-radius: 50%; pointer-events: none;
+      transition: transform 0.5s cubic-bezier(0.34,1.4,0.64,1), opacity 0.4s ease;
     }
 
-    /* ── Idle bounce — chibi napas ── */
     @keyframes chibiBreathe {
       0%   { transform: translateX(0) translateY(0px)   scaleY(1);    }
       30%  { transform: translateX(0) translateY(-12px) scaleY(1.01); }
@@ -256,200 +195,94 @@
       75%  { transform: translateX(0) translateY(-6px)  scaleY(1.01); }
       100% { transform: translateX(0) translateY(0px)   scaleY(1);    }
     }
-
-    /* ── Squash saat mendarat ── */
     @keyframes chibiLand {
       0%   { transform: translateX(0) translateY(0)   scaleX(1)    scaleY(1);    }
       15%  { transform: translateX(0) translateY(3px)  scaleX(1.06) scaleY(0.93); }
       40%  { transform: translateX(0) translateY(0)   scaleX(0.98) scaleY(1.02); }
       100% { transform: translateX(0) translateY(0)   scaleX(1)    scaleY(1);    }
     }
-
-    /* State: landing — squash setelah masuk */
-    .chibi-img.state-landing {
-      opacity: 1;
-      animation: chibiLand 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-      transition: none;
-    }
-
-    /* ── Bayangan kaki ── */
-    .chibi-shadow {
-      position: absolute;
-      bottom: 4px;
-      width: 50%;
-      height: 20px;
-      background: radial-gradient(ellipse, rgba(5,99,187,0.09) 0%, transparent 70%);
-      border-radius: 50%;
-      pointer-events: none;
-      transition: transform 0.5s cubic-bezier(0.34, 1.4, 0.64, 1),
-                  opacity 0.4s ease;
-    }
-
-    /* ── ANIMATIONS ── */
     @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
-    /* ── HAMBURGER BUTTON ─────────────────────────────────────── */
-#hamburger {
-  display: none; /* hidden di desktop */
-  position: fixed;
-  top: 16px;
-  left: 16px;
-  z-index: 1100;
-  width: 42px;
-  height: 42px;
-  border-radius: 10px;
-  background: var(--accent-color);
-  border: none;
-  cursor: pointer;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  padding: 10px;
-  box-shadow: 0 4px 16px rgba(5, 99, 187, 0.30);
-  transition: background 0.2s, transform 0.2s;
-}
-#hamburger:hover {
-  background: #0452a0;
-  transform: scale(1.05);
-}
-#hamburger span {
-  display: block;
-  width: 20px;
-  height: 2px;
-  background: #fff;
-  border-radius: 2px;
-  transform-origin: center;
-  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
-              opacity   0.2s ease,
-              width     0.2s ease;
-}
- 
-/* Hamburger → X saat open */
-#hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-#hamburger.open span:nth-child(2) { opacity: 0; width: 0; }
-#hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
- 
- 
-/* ── BACKDROP OVERLAY ─────────────────────────────────────── */
-#nav-backdrop {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 999;
-  background: rgba(39, 40, 41, 0.45);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-  opacity: 0;
-  transition: opacity 0.28s ease;
-}
-#nav-backdrop.visible {
-  opacity: 1;
-}
- 
- 
-/* ── RESPONSIVE — MOBILE ──────────────────────────────────── */
-@media (max-width: 768px) {
+    /* ══════════════════════════════════════════════════════════
+       HAMBURGER
+    ══════════════════════════════════════════════════════════ */
+    #hamburger {
+      display: none;
+      position: fixed; top: 16px; left: 16px; z-index: 1100;
+      width: 42px; height: 42px; border-radius: 10px;
+      background: var(--accent-color); border: none; cursor: pointer;
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 5px; padding: 10px;
+      box-shadow: 0 4px 16px rgba(5,99,187,.30);
+      transition: background .2s, transform .2s;
+    }
+    #hamburger:hover { background: #0452a0; transform: scale(1.05); }
+    #hamburger span {
+      display: block; width: 20px; height: 2px; background: #fff;
+      border-radius: 2px; transform-origin: center;
+      transition: transform .28s cubic-bezier(.4,0,.2,1), opacity .2s ease, width .2s ease;
+    }
+    #hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    #hamburger.open span:nth-child(2) { opacity: 0; width: 0; }
+    #hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-  /* Chibi — tetap tampilan lama */
-  .home-hero {
-    grid-template-columns: 1fr;
-    padding: 72px 24px 32px; /* ← ganti padding biar clearance hamburger */
-    justify-items: center;
-    text-align: center;
-  }
-  .hero-text   { align-items: center; }
-  .chibi-stage { width: 100%; height: 360px; overflow: hidden; }
-  .chibi-img   { height: 340px; max-height: 340px; min-height: 340px; }
- 
-  /* Hamburger button muncul */
-  #hamburger {
-    display: flex;
-  }
- 
-  /* Backdrop aktif saat sidebar open */
-  #nav-backdrop {
-    display: block;
-  }
- 
-  /* Reset sidebar width — tidak ada reserved space di kiri */
-  :root {
-    --sidebar-width: 0px;
-  }
- 
-  /* Sidebar: pindah ke luar viewport kiri, slide masuk saat open */
-  #sidebar {
-    /* Override semua layout desktop */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 220px;
-    height: 100vh;
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 80px 16px 32px;
-    gap: 6px;
-    background: var(--sidebar-bg);
-    border-right: 1px solid var(--sidebar-border);
-    border-top: none;
- 
-    /* Tersembunyi di kiri, slide masuk saat .open */
-    transform: translateX(-100%);
-    transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
-                box-shadow 0.32s ease;
-    box-shadow: none;
-    z-index: 1000;
-  }
- 
-  #sidebar.open {
-    transform: translateX(0);
-    box-shadow: 6px 0 32px rgba(5, 99, 187, 0.14);
-  }
- 
-  /* Nav button di mobile: lebar penuh, rounded, dengan label teks */
-  #sidebar .nav-btn {
-    width: 100%;
-    height: 46px;
-    border-radius: 10px;
-    justify-content: flex-start;
-    padding: 0 14px;
-    gap: 12px;
-    font-size: 15px;
-  }
- 
-  /* Tampilkan label tooltip sebagai teks inline di mobile */
-  #sidebar .nav-btn::after {
-    /* Override tooltip positioning — jadikan inline text */
-    position: static;
-    transform: none;
-    background: transparent;
-    color: inherit;
-    padding: 0;
-    border-radius: 0;
-    font-size: 13px;
-    font-weight: 500;
-    opacity: 1;
-    pointer-events: auto;
-    content: attr(data-tooltip);
-    white-space: nowrap;
-  }
- 
-  /* Sembunyikan arrow tooltip */
-  #sidebar .nav-btn::before {
-    display: none;
-  }
- 
-  /* Main content tidak perlu margin bottom lagi */
-  #main-content {
-    margin-left: 0;
-    margin-bottom: 0;
-  }
- 
-  /* Padding hero di mobile */
-  .home-hero {
-    padding: 72px 24px 32px; /* top lebih tinggi untuk clearance hamburger */
-  }
-}
+    /* ══════════════════════════════════════════════════════════
+       BACKDROP
+    ══════════════════════════════════════════════════════════ */
+    #nav-backdrop {
+      display: none; position: fixed; inset: 0; z-index: 999;
+      background: rgba(39,40,41,.45);
+      backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+      opacity: 0; transition: opacity .28s ease;
+    }
+    #nav-backdrop.visible { opacity: 1; }
+
+    /* ══════════════════════════════════════════════════════════
+       RESPONSIVE MOBILE — layout asli tetap, cuma sidebar diganti
+    ══════════════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      :root { --sidebar-width: 0px; }
+
+      #hamburger    { display: flex; }
+      #nav-backdrop { display: block; }
+
+      /* Sidebar slide dari kiri */
+      #sidebar {
+        position: fixed; top: 0; left: 0;
+        width: 220px; height: 100vh;
+        flex-direction: column; align-items: flex-start;
+        padding: 80px 16px 32px; gap: 6px;
+        border-right: 1px solid var(--sidebar-border); border-top: none;
+        transform: translateX(-100%);
+        transition: transform .32s cubic-bezier(.4,0,.2,1), box-shadow .32s ease;
+        box-shadow: none; z-index: 1000;
+      }
+      #sidebar.open { transform: translateX(0); box-shadow: 6px 0 32px rgba(5,99,187,.14); }
+
+      #sidebar .nav-btn {
+        width: 100%; height: 46px; border-radius: 10px;
+        justify-content: flex-start; padding: 0 14px; gap: 12px; font-size: 15px;
+      }
+      #sidebar .nav-btn::after {
+        position: static; transform: none; background: transparent; color: inherit;
+        padding: 0; border-radius: 0; font-size: 13px; font-weight: 500;
+        opacity: 1; pointer-events: auto; content: attr(data-tooltip); white-space: nowrap;
+      }
+      #sidebar .nav-btn::before { display: none; }
+
+      #main-content { margin-left: 0; margin-bottom: 0; }
+
+      /* Hero layout asli — hanya adjust padding untuk clearance hamburger */
+      .home-hero {
+        grid-template-columns: 1fr;
+        padding: 72px 24px 32px;
+        justify-items: center;
+        text-align: center;
+      }
+      .hero-text   { align-items: center; }
+      .chibi-stage { width: 100%; height: 360px; overflow: hidden; }
+      .chibi-img   { height: 340px; max-height: 340px; min-height: 340px; }
+    }
   </style>
 </head>
 <body>
@@ -465,9 +298,9 @@
   </nav>
 
   <button id="hamburger" aria-label="Menu" aria-expanded="false">
-  <span></span><span></span><span></span>
-</button>
-<div id="nav-backdrop"></div>
+    <span></span><span></span><span></span>
+  </button>
+  <div id="nav-backdrop"></div>
 
   <main id="main-content">
     <div class="home-hero">
@@ -489,13 +322,11 @@
         </div>
       </div>
 
-      <!-- KANAN: chibi stage — 2 gambar untuk slide + crossfade -->
+      <!-- KANAN: chibi -->
       <div class="chibi-stage">
         <div class="chibi-shadow" id="chibiShadow"></div>
         <div class="chibi-wrap" id="chibiWrap">
-          <!-- imgA: aktif pertama, pose 0 -->
           <img class="chibi-img" id="chibiImgA" src="./assets/chibi_1.png" alt="Chibi Danar"/>
-          <!-- imgB: buffer, pose berikutnya -->
           <img class="chibi-img" id="chibiImgB" src="./assets/chibi_2.png" alt="Chibi Danar"/>
         </div>
       </div>
@@ -504,7 +335,7 @@
   </main>
 
   <script>
-    // ── Typewriter ────────────────────────────────────────────
+    // ── Typewriter ──
     const words = ['One', 'Developer', 'Engineer', 'Technologist'];
     const el    = document.getElementById('typewriter');
     let wIdx = 0, cIdx = 0, deleting = false;
@@ -521,138 +352,67 @@
     }
     setTimeout(type, 900);
 
-    // ── Chibi Slide In/Out Animation ─────────────────────────
-    const CHIBI_POSES = [
-      './assets/chibi_1.png',
-      './assets/chibi_2.png',
-      './assets/chibi_3.png',
-      // './assets/chibi_4.png',
-    ];
-
-    // Timing (ms)
-    const IDLE_DURATION  = 4000;  // lama chibi idle sebelum ganti
-    const EXIT_DUR       = 480;   // durasi dissolve blur+fade
-    const ENTER_DUR      = 700;   // durasi slide masuk dari kanan
-    const LAND_DUR       = 500;   // durasi squash saat mendarat
-    const FRAME          = 16;    // 1 frame requestAnimationFrame approx
+    // ── Chibi Animation ──
+    const CHIBI_POSES   = ['./assets/chibi_1.png','./assets/chibi_2.png','./assets/chibi_3.png'];
+    const IDLE_DURATION = 4000;
+    const EXIT_DUR      = 480;
+    const ENTER_DUR     = 700;
+    const LAND_DUR      = 500;
 
     const imgA   = document.getElementById('chibiImgA');
     const imgB   = document.getElementById('chibiImgB');
     const shadow = document.getElementById('chibiShadow');
 
-    let poseIdx     = 0;
-    let activeImg   = imgA;
-    let inactiveImg = imgB;
-    let isTransitioning = false;
+    let poseIdx = 0, activeImg = imgA, inactiveImg = imgB, isTransitioning = false;
 
-    // Preload semua poses biar seamless
-    function preloadAll() {
-      CHIBI_POSES.forEach((src, i) => {
-        if (i === 0) return;
-        const img = new Image();
-        img.src = src;
-      });
-    }
-    preloadAll();
+    CHIBI_POSES.forEach((src, i) => { if (i > 0) { const img = new Image(); img.src = src; } });
 
-    /*
-      Helper: set tepat satu state class, hapus yang lain.
-      State yang ada: state-enter, state-entering, state-idle,
-                      state-exit, state-landing
-    */
     const ALL_STATES = ['state-enter','state-entering','state-idle','state-exit','state-landing'];
     function setState(imgEl, state) {
       imgEl.classList.remove(...ALL_STATES);
       if (state) imgEl.classList.add(state);
     }
 
-    /*
-      Tampilkan chibi aktif pertama kali:
-      - Reset ke state-enter (posisi offscreen kanan, tanpa transisi)
-      - Frame berikutnya masuk ke state-entering (transisi slide masuk)
-      - Setelah transisi selesai: state-landing → state-idle
-    */
     function initFirstPose() {
       setState(activeImg, 'state-enter');
-
-      // Double rAF agar browser sempat paint state-enter dulu
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           setState(activeImg, 'state-entering');
-
-          // Shadow fade in
           shadow.style.opacity = '1';
-
           setTimeout(() => {
             setState(activeImg, 'state-landing');
-
-            // Shadow squash
             shadow.style.transform = 'scaleX(1.15)';
             setTimeout(() => { shadow.style.transform = ''; }, LAND_DUR);
-
-            setTimeout(() => {
-              setState(activeImg, 'state-idle');
-              scheduleNext();
-            }, LAND_DUR);
+            setTimeout(() => { setState(activeImg, 'state-idle'); scheduleNext(); }, LAND_DUR);
           }, ENTER_DUR);
         });
       });
     }
 
-    /*
-      Fungsi utama transisi pose:
-      1. activeImg  → slide EXIT ke kiri
-      2. Sambil itu, siapkan inactiveImg di offscreen kanan
-      3. Setelah exit selesai: slide ENTER inactiveImg dari kanan
-      4. Landing squash → idle breathing
-      5. Swap referensi, jadwalkan berikutnya
-    */
     function doTransition() {
       if (isTransitioning) return;
       isTransitioning = true;
-
       const nextIdx = (poseIdx + 1) % CHIBI_POSES.length;
-
-      // ── Siapkan gambar berikutnya di buffer (offscreen, tanpa transisi) ──
       inactiveImg.src = CHIBI_POSES[nextIdx];
-      setState(inactiveImg, 'state-enter'); // posisi awal: kanan offscreen
-
-      // ── EXIT: activeImg meluncur ke kiri ──
+      setState(inactiveImg, 'state-enter');
       setState(activeImg, 'state-exit');
-
-      // Shadow menghilang saat exit
       shadow.style.opacity = '0.3';
       shadow.style.transform = 'scaleX(0.85)';
-
-      // Setelah exit selesai → ENTER inactiveImg
       setTimeout(() => {
-        // Pastikan gambar buffer sudah siap, lalu masukkan
-        // Double rAF agar transition aktif (bukan langsung)
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
             setState(inactiveImg, 'state-entering');
-
-            // Shadow masuk lagi
             shadow.style.opacity = '1';
-
             setTimeout(() => {
-              // ── Landing squash ──
               setState(inactiveImg, 'state-landing');
               shadow.style.transform = 'scaleX(1.15)';
               setTimeout(() => { shadow.style.transform = ''; }, LAND_DUR);
-
-              // ── Idle breathing ──
               setTimeout(() => {
                 setState(inactiveImg, 'state-idle');
-
-                // Cleanup: reset activeImg yang sudah exit (sembunyikan total)
-                setState(activeImg, ''); // hapus semua state → opacity 0 via base style
-
-                // Swap referensi
+                setState(activeImg, '');
                 [activeImg, inactiveImg] = [inactiveImg, activeImg];
                 poseIdx = nextIdx;
                 isTransitioning = false;
-
                 scheduleNext();
               }, LAND_DUR);
             }, ENTER_DUR);
@@ -661,48 +421,46 @@
       }, EXIT_DUR);
     }
 
-    function scheduleNext() {
-      setTimeout(doTransition, IDLE_DURATION);
-    }
-
-    // Mulai!
+    function scheduleNext() { setTimeout(doTransition, IDLE_DURATION); }
     initFirstPose();
   </script>
 
   <script type="module" src="chatbot.js"></script>
+
   <script>
-(function() {
-  const hamburger = document.getElementById('hamburger');
-  const sidebar   = document.getElementById('sidebar');
-  const backdrop  = document.getElementById('nav-backdrop');
-  if (!hamburger || !sidebar || !backdrop) return;
+  (function() {
+    const hamburger = document.getElementById('hamburger');
+    const sidebar   = document.getElementById('sidebar');
+    const backdrop  = document.getElementById('nav-backdrop');
+    if (!hamburger || !sidebar || !backdrop) return;
 
-  function openMenu() {
-    sidebar.classList.add('open');
-    backdrop.classList.add('visible');
-    hamburger.classList.add('open');
-    hamburger.setAttribute('aria-expanded', 'true');
-    document.body.style.overflow = 'hidden';
-  }
+    function openMenu() {
+      sidebar.classList.add('open');
+      backdrop.classList.add('visible');
+      hamburger.classList.add('open');
+      hamburger.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
 
-  function closeMenu() {
-    sidebar.classList.remove('open');
-    backdrop.classList.remove('visible');
-    hamburger.classList.remove('open');
-    hamburger.setAttribute('aria-expanded', 'false');
-    document.body.style.overflow = '';
-  }
+    function closeMenu() {
+      sidebar.classList.remove('open');
+      backdrop.classList.remove('visible');
+      hamburger.classList.remove('open');
+      hamburger.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    }
 
-  hamburger.addEventListener('click', () => {
-    sidebar.classList.contains('open') ? closeMenu() : openMenu();
-  });
+    hamburger.addEventListener('click', () => {
+      sidebar.classList.contains('open') ? closeMenu() : openMenu();
+    });
 
-  backdrop.addEventListener('click', closeMenu);
+    backdrop.addEventListener('click', closeMenu);
 
-  window.addEventListener('resize', () => {
-    if (window.innerWidth > 768) closeMenu();
-  });
-})();
-</script>
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 768) closeMenu();
+    });
+  })();
+  </script>
+
 </body>
 </html>
