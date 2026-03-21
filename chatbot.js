@@ -1,18 +1,18 @@
 /**
  * chatbot.js — Floating AI Chatbot "Danar Alter"
- * v5.2 — Token efficiency + empty response guard
+ * v5.3 — Security & stability patch
  *
- * CHANGES dari v5.1:
- * - MAX_HISTORY: 10 → 6 (hemat ~400 token/request, stabilkan free tier)
- * - Guard empty response: fullText kosong → error message, tidak push ke history
- * - _updateBar: threshold warn/danger disesuaikan ke MAX_HISTORY baru
+ * CHANGES dari v5.2:
+ * - FIX #2: input length limit 300 char — cegah token drain
+ * - FIX #5 (FE side): greeting endpoint memanfaatkan cache backend
  */
 
 // ─── CONFIG ──────────────────────────────────────────────────────────────
-const BACKEND_URL   = 'https://backend-chatbot-self.vercel.app/api/chat';
-const GREETING_URL  = 'https://backend-chatbot-self.vercel.app/api/greeting';
-const BOT_PHOTO_URL = './assets/bot_avatar.png';
-const MAX_HISTORY   = 6; // was 10 — hemat token, cegah empty response dari Groq
+const BACKEND_URL    = 'https://backend-chatbot-self.vercel.app/api/chat';
+const GREETING_URL   = 'https://backend-chatbot-self.vercel.app/api/greeting';
+const BOT_PHOTO_URL  = './assets/bot_avatar.png';
+const MAX_HISTORY    = 6;
+const MAX_INPUT_CHAR = 300; // FIX #2: batas panjang pesan user
 // ─────────────────────────────────────────────────────────────────────────
 
 const SUGGESTIONS_INIT = [
@@ -130,6 +130,10 @@ const STYLES = `
   .cb-bbl ol li{list-style:decimal}
   .cb-bbl li{font-size:13px;line-height:1.55}
   .cb-bbl hr{border:none;border-top:1px solid var(--cb-border);margin:8px 0}
+  /* char counter */
+  #cb-counter{font-family:var(--cb-font);font-size:10px;color:var(--cb-muted);text-align:right;padding:0 14px 6px;flex-shrink:0;transition:color .2s}
+  #cb-counter.warn{color:#e59405}
+  #cb-counter.danger{color:#e53e3e}
   .cb-typing .cb-bbl{padding:12px 16px}
   .cb-dots{display:flex;gap:4px;align-items:center;height:14px}
   .cb-dots span{width:6px;height:6px;border-radius:50%;background:var(--cb-muted);animation:cb-dot 1.2s ease-in-out infinite}
@@ -138,7 +142,7 @@ const STYLES = `
   .cb-sugg{padding:0 14px 10px;display:flex;flex-wrap:wrap;gap:6px;flex-shrink:0}
   .cb-sbtn{padding:5px 11px;border-radius:20px;border:1px solid var(--cb-accent);background:rgba(5,99,187,.05);color:var(--cb-accent);font-family:var(--cb-font);font-size:11px;font-weight:500;cursor:pointer;transition:all .2s;white-space:nowrap;animation:cb-in .3s ease forwards}
   .cb-sbtn:hover{background:var(--cb-accent);color:#fff;transform:translateY(-1px);box-shadow:0 3px 8px rgba(5,99,187,.25)}
-  .cb-iarea{padding:10px 14px 14px;border-top:1px solid var(--cb-border);display:flex;gap:8px;align-items:flex-end;flex-shrink:0;background:var(--cb-bg)}
+  .cb-iarea{padding:10px 14px 6px;border-top:1px solid var(--cb-border);display:flex;gap:8px;align-items:flex-end;flex-shrink:0;background:var(--cb-bg)}
   #cb-inp{flex:1;border:1.5px solid var(--cb-border);border-radius:12px;padding:9px 13px;font-family:var(--cb-body);font-size:13px;color:var(--cb-text);background:var(--cb-surface);resize:none;outline:none;max-height:100px;min-height:38px;line-height:1.5;transition:border-color .2s,box-shadow .2s}
   #cb-inp:focus{border-color:var(--cb-accent);box-shadow:0 0 0 3px rgba(5,99,187,.1)}
   #cb-inp::placeholder{color:var(--cb-muted)}
@@ -261,9 +265,10 @@ class EkaChatbot {
             <div class="cb-msgs" id="cb-msgs"></div>
             <div class="cb-sugg" id="cb-sugg"></div>
             <div class="cb-iarea">
-              <textarea id="cb-inp" placeholder="Tanya apa aja tentang Danar..." rows="1"></textarea>
+              <textarea id="cb-inp" placeholder="Tanya apa aja tentang Danar..." rows="1" maxlength="${MAX_INPUT_CHAR}"></textarea>
               <button id="cb-snd" aria-label="Kirim"><i class="fas fa-paper-plane"></i></button>
             </div>
+            <div id="cb-counter" style="display:none">0 / ${MAX_INPUT_CHAR}</div>
           </div>`;
         document.body.appendChild(w);
     }
@@ -274,8 +279,22 @@ class EkaChatbot {
         document.getElementById('cb-clr').onclick    = () => this._reset();
         const inp = document.getElementById('cb-inp');
         inp.onkeydown = e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this._send(); } };
-        inp.oninput   = () => { inp.style.height = 'auto'; inp.style.height = Math.min(inp.scrollHeight, 100) + 'px'; };
+        inp.oninput   = () => {
+            inp.style.height = 'auto';
+            inp.style.height = Math.min(inp.scrollHeight, 100) + 'px';
+            this._updateCounter(inp.value.length);
+        };
+        inp.onfocus = () => this._updateCounter(inp.value.length);
         this._renderSugg(SUGGESTIONS_INIT);
+    }
+
+    // FIX #2: char counter — tampil saat mulai ketik, merah saat hampir habis
+    _updateCounter(len) {
+        const el = document.getElementById('cb-counter');
+        if (!el) return;
+        el.style.display = len > 0 ? 'block' : 'none';
+        el.textContent   = `${len} / ${MAX_INPUT_CHAR}`;
+        el.className     = len >= MAX_INPUT_CHAR ? 'danger' : len >= MAX_INPUT_CHAR * 0.8 ? 'warn' : '';
     }
 
     async _loadCtx() {
@@ -301,7 +320,6 @@ class EkaChatbot {
         ]);
     }
 
-    // auto-trim history kalau melebihi MAX_HISTORY
     _updateBar() {
         if (this.history.length > MAX_HISTORY) {
             this.history = this.history.slice(-MAX_HISTORY);
@@ -340,9 +358,16 @@ class EkaChatbot {
         const text = inp.value.trim();
         if (!text || this.loading) return;
 
+        // FIX #2: tolak input yang terlalu panjang — cegah token drain
+        if (text.length > MAX_INPUT_CHAR) {
+            this._addBot(`Pesannya kepanjangan — maksimal ${MAX_INPUT_CHAR} karakter ya 😄`);
+            return;
+        }
+
         document.getElementById('cb-sugg').style.display = 'none';
         inp.value        = '';
         inp.style.height = 'auto';
+        this._updateCounter(0);
         this._addUser(text);
         this.history.push({ role: 'user', parts: [{ text }] });
         this._updateBar();
@@ -432,7 +457,7 @@ class EkaChatbot {
                 }
             }
 
-            // GUARD: empty response — hapus bubble, jangan push ke history
+            // Guard empty response
             if (!fullText.trim()) {
                 this._removeEl(bubbleId);
                 this.history.pop();
