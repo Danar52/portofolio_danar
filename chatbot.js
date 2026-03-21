@@ -25,7 +25,11 @@ const DYNAMIC_SUGGESTIONS = {
   contact:       ['Bisa langsung DM lo?', 'Berapa rate freelance lo?', 'Lo open buat collab?'],
   education:     ['Jurusan TI susah ngga sih?', 'Organisasi apa yang lo ikutin?', 'KP lo di mana?'],
   certification: ['Sertifikasi apa yang paling berguna?', 'Dicoding worth it ngga?', 'Rekomendasiin platform belajar dong'],
-  general:       ['Cerita dong soal project terbaru', 'Skill apa yang lagi lo pelajarin?', 'Ada tips buat pemula?'],
+  tech:          ['Laravel vs CodeIgniter pilih mana?', 'Roadmap belajar web dev dari mana?', 'Bahasa pemrograman apa yang worth dipelajarin 2025?'],
+  career:        ['Tips bikin CV yang bagus buat fresh grad?', 'Freelance atau kerja kantoran lebih bagus?', 'Skill apa yang paling dicari di industri sekarang?'],
+  design:        ['Tools desain apa yang lo rekomendasiin?', 'Gimana cara belajar UI/UX dari nol?', 'Portfolio desainer yang bagus itu kayak gimana?'],
+  bisnis:        ['Tips dapet klien pertama buat freelancer?', 'Cara mulai bisnis digital yang simpel?', 'Digital marketing buat pemula mulai dari mana?'],
+  general:       ['Cerita dong soal project terbaru', 'Skill apa yang lagi lo pelajarin?', 'Ada tips buat pemula di dunia IT?'],
 };
 
 const TOOLTIP_MSGS = [
@@ -196,12 +200,16 @@ function md(raw) {
 
 function detectTopic(t) {
   t = t.toLowerCase();
-  if (/skill|stack|tool|framework|html|css|php|laravel|figma|bisa apa/.test(t)) return 'skills';
-  if (/project|portfolio|karya|bikin|develop|website|app/.test(t))             return 'portfolio';
-  if (/kerja|intern|freelance|pengalaman|magang/.test(t))                       return 'experience';
-  if (/kontak|hire|collab|email|wa|whatsapp|hubungi|rate/.test(t))              return 'contact';
-  if (/kuliah|kampus|universitas|semester|jurusan|kp/.test(t))                  return 'education';
-  if (/sertifik|certif|dicoding|google|aws|kursus/.test(t))                     return 'certification';
+  if (/skill|stack|tool|framework|html|css|php|laravel|bisa apa/.test(t))              return 'skills';
+  if (/project|portfolio|karya|bikin|develop|website|app/.test(t))                     return 'portfolio';
+  if (/kerja|intern|freelance|pengalaman|magang/.test(t))                              return 'experience';
+  if (/kontak|hire|collab|email|wa|whatsapp|hubungi|rate/.test(t))                     return 'contact';
+  if (/kuliah|kampus|universitas|semester|jurusan|kp/.test(t))                         return 'education';
+  if (/sertifik|certif|dicoding|google|aws|kursus/.test(t))                            return 'certification';
+  if (/laravel|codeigniter|react|vue|next|python|golang|roadmap|belajar coding|bahasa pemrograman|programming/.test(t)) return 'tech';
+  if (/cv|resume|fresh.?grad|karir|kerja|gaji|hiring|rekrut|industri|wfh|remote/.test(t)) return 'career';
+  if (/desain|design|figma|ui|ux|canva|adobe|warna|tipografi|branding|logo/.test(t))   return 'design';
+  if (/bisnis|klien|freelance|marketing|jualan|digital|startup|umkm|duit|income/.test(t)) return 'bisnis';
   return 'general';
 }
 
