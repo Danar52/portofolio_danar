@@ -143,8 +143,22 @@
     /* ══════════════════════════════════════════════════════════
        BACKDROP
     ══════════════════════════════════════════════════════════ */
-    #nav-backdrop{display:none;position:fixed;inset:0;z-index:999;background:rgba(39,40,41,.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;transition:opacity .28s ease}
-    #nav-backdrop.visible{opacity:1}
+    #nav-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: rgba(39,40,41,.45);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  opacity: 0;
+  transition: opacity .28s ease;
+  pointer-events: none; /* ← TAMBAH INI */
+}
+#nav-backdrop.visible {
+  opacity: 1;
+  pointer-events: auto; /* ← TAMBAH INI */
+}
 
     /* ══════════════════════════════════════════════════════════
        RESPONSIVE MOBILE
