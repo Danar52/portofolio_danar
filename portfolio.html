@@ -230,21 +230,168 @@
     @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
     @keyframes spinAnim { to { transform: rotate(360deg); } }
 
-    /* ── RESPONSIVE ── */
-    @media (max-width: 1200px) { .portfolio-grid { columns: 2; } }
-    @media (max-width: 768px) {
-      :root { --sidebar-width: 0px; }
-      #sidebar { width: 100%; height: 62px; flex-direction: row; justify-content: center; top: auto; bottom: 0; border-right: none; border-top: 1px solid var(--sidebar-border); padding: 0 16px; gap: 8px; }
-      .nav-btn::after, .nav-btn::before { display: none; }
-      #main-content { margin-left: 0; margin-bottom: 62px; padding: 40px 28px; }
-      .portfolio-grid { columns: 1; }
-      .lightbox-body { padding: 20px 20px 24px; }
-      .lightbox-title { font-size: 20px; }
-    }
-    @media (max-width: 560px) {
-      #main-content { padding: 32px 20px; }
-      .portfolio-grid { columns: 1; }
-    }
+    /* ── HAMBURGER BUTTON ─────────────────────────────────────── */
+#hamburger {
+  display: none; /* hidden di desktop */
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 1100;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  background: var(--accent-color);
+  border: none;
+  cursor: pointer;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 10px;
+  box-shadow: 0 4px 16px rgba(5, 99, 187, 0.30);
+  transition: background 0.2s, transform 0.2s;
+}
+#hamburger:hover {
+  background: #0452a0;
+  transform: scale(1.05);
+}
+#hamburger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: #fff;
+  border-radius: 2px;
+  transform-origin: center;
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity   0.2s ease,
+              width     0.2s ease;
+}
+ 
+/* Hamburger → X saat open */
+#hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+#hamburger.open span:nth-child(2) { opacity: 0; width: 0; }
+#hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+ 
+ 
+/* ── BACKDROP OVERLAY ─────────────────────────────────────── */
+#nav-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background: rgba(39, 40, 41, 0.45);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  opacity: 0;
+  transition: opacity 0.28s ease;
+}
+#nav-backdrop.visible {
+  opacity: 1;
+}
+ 
+ 
+/* ── RESPONSIVE — MOBILE ──────────────────────────────────── */
+@media (max-width: 768px) {
+
+  /* Chibi — tetap tampilan lama */
+  .home-hero {
+    grid-template-columns: 1fr;
+    padding: 72px 24px 32px; /* ← ganti padding biar clearance hamburger */
+    justify-items: center;
+    text-align: center;
+  }
+  .hero-text   { align-items: center; }
+  .chibi-stage { width: 100%; height: 360px; overflow: hidden; }
+  .chibi-img   { height: 340px; max-height: 340px; min-height: 340px; }
+ 
+  /* Hamburger button muncul */
+  #hamburger {
+    display: flex;
+  }
+ 
+  /* Backdrop aktif saat sidebar open */
+  #nav-backdrop {
+    display: block;
+  }
+ 
+  /* Reset sidebar width — tidak ada reserved space di kiri */
+  :root {
+    --sidebar-width: 0px;
+  }
+ 
+  /* Sidebar: pindah ke luar viewport kiri, slide masuk saat open */
+  #sidebar {
+    /* Override semua layout desktop */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 220px;
+    height: 100vh;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 80px 16px 32px;
+    gap: 6px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--sidebar-border);
+    border-top: none;
+ 
+    /* Tersembunyi di kiri, slide masuk saat .open */
+    transform: translateX(-100%);
+    transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.32s ease;
+    box-shadow: none;
+    z-index: 1000;
+  }
+ 
+  #sidebar.open {
+    transform: translateX(0);
+    box-shadow: 6px 0 32px rgba(5, 99, 187, 0.14);
+  }
+ 
+  /* Nav button di mobile: lebar penuh, rounded, dengan label teks */
+  #sidebar .nav-btn {
+    width: 100%;
+    height: 46px;
+    border-radius: 10px;
+    justify-content: flex-start;
+    padding: 0 14px;
+    gap: 12px;
+    font-size: 15px;
+  }
+ 
+  /* Tampilkan label tooltip sebagai teks inline di mobile */
+  #sidebar .nav-btn::after {
+    /* Override tooltip positioning — jadikan inline text */
+    position: static;
+    transform: none;
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    border-radius: 0;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 1;
+    pointer-events: auto;
+    content: attr(data-tooltip);
+    white-space: nowrap;
+  }
+ 
+  /* Sembunyikan arrow tooltip */
+  #sidebar .nav-btn::before {
+    display: none;
+  }
+ 
+  /* Main content tidak perlu margin bottom lagi */
+  #main-content {
+    margin-left: 0;
+    margin-bottom: 0;
+  }
+ 
+  /* Padding hero di mobile */
+  .home-hero {
+    padding: 72px 24px 32px; /* top lebih tinggi untuk clearance hamburger */
+  }
+}
   </style>
 </head>
 <body>
@@ -258,6 +405,11 @@
     <a href="certification.html" class="nav-btn" data-tooltip="Certification"><i class="fas fa-award"></i></a>
     <a href="portfolio.html"     class="nav-btn active" data-tooltip="Portfolio"><i class="fas fa-briefcase-clock"></i></a>
   </nav>
+
+  <button id="hamburger" aria-label="Menu" aria-expanded="false">
+  <span></span><span></span><span></span>
+</button>
+<div id="nav-backdrop"></div>
 
   <main id="main-content">
     <div class="page-header">
@@ -487,5 +639,39 @@
     loadPortfolio();
   </script>
   <script type="module" src="chatbot.js"></script>
+  <script>
+(function() {
+  const hamburger = document.getElementById('hamburger');
+  const sidebar   = document.getElementById('sidebar');
+  const backdrop  = document.getElementById('nav-backdrop');
+  if (!hamburger || !sidebar || !backdrop) return;
+
+  function openMenu() {
+    sidebar.classList.add('open');
+    backdrop.classList.add('visible');
+    hamburger.classList.add('open');
+    hamburger.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMenu() {
+    sidebar.classList.remove('open');
+    backdrop.classList.remove('visible');
+    hamburger.classList.remove('open');
+    hamburger.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+
+  hamburger.addEventListener('click', () => {
+    sidebar.classList.contains('open') ? closeMenu() : openMenu();
+  });
+
+  backdrop.addEventListener('click', closeMenu);
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) closeMenu();
+  });
+})();
+</script>
 </body>
 </html>
