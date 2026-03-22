@@ -150,12 +150,12 @@ const STYLES = `
   #cb-snd{width:38px;height:38px;border-radius:10px;background:var(--cb-accent);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:background .2s,transform .15s;flex-shrink:0}
   #cb-snd:hover{background:var(--cb-accent-dark);transform:scale(1.05)}
   #cb-snd:disabled{background:var(--cb-border);cursor:not-allowed;transform:none}
-  /* FIX #6: retry button */
-  .cb-retry-wrap{display:flex;justify-content:flex-end;margin-top:-4px;margin-right:34px;margin-bottom:2px}
-  .cb-retry{display:none;align-items:center;gap:5px;padding:5px 11px;border-radius:20px;border:1px solid #e53e3e;background:rgba(229,62,62,.07);color:#e53e3e;font-family:var(--cb-font);font-size:11px;font-weight:500;cursor:pointer;transition:all .2s;animation:cb-in .25s ease forwards}
-  .cb-retry:hover{background:#e53e3e;color:#fff;transform:translateY(-1px);box-shadow:0 3px 8px rgba(229,62,62,.28)}
-  .cb-retry i{font-size:10px}
-  .cb-retry.show{display:flex}
+  /* FIX #6: retry button — ganti dari sebelumnya */
+.cb-retry-wrap{display:flex;justify-content:flex-end;margin-top:-4px;margin-right:34px;margin-bottom:2px}
+.cb-retry{display:none;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;border:1.5px solid #e53e3e;background:rgba(229,62,62,.07);color:#e53e3e;cursor:pointer;transition:all .2s;animation:cb-in .25s ease forwards}
+.cb-retry:hover{background:#e53e3e;color:#fff;transform:rotate(180deg);box-shadow:0 3px 8px rgba(229,62,62,.35)}
+.cb-retry i{font-size:12px}
+.cb-retry.show{display:flex}
   @keyframes cb-popIn{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
   @keyframes cb-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
   @keyframes cb-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.3)}}
@@ -376,9 +376,10 @@ class EkaChatbot {
 
     // Tampilkan retry button di bawah bubble user terakhir
     _showRetry() {
-        const btn = document.getElementById('cb-retry-btn');
-        if (btn) btn.classList.add('show');
-    }
+    const wraps = document.querySelectorAll('.cb-retry-wrap');
+    const last  = wraps[wraps.length - 1]; // selalu ambil yang paling bawah
+    if (last) last.querySelector('[data-retry]')?.classList.add('show');
+}
 
     // Sembunyikan retry button (dipanggil saat user kirim pesan baru)
     _hideRetry() {
@@ -387,13 +388,14 @@ class EkaChatbot {
 
     // Eksekusi retry — re-push lastUserText ke history lalu call ulang
     _retry() {
-        if (this.loading || !this.lastUserText) return;
-        this._hideRetry();
-        // history sudah di-pop saat error, push kembali
-        this.history.push({ role: 'user', parts: [{ text: this.lastUserText }] });
-        this._updateBar();
-        this._call(1);
-    }
+    if (this.loading || !this.lastUserText) return;
+    const wraps = document.querySelectorAll('.cb-retry-wrap');
+    const last  = wraps[wraps.length - 1];
+    last?.querySelector('[data-retry]')?.classList.remove('show');
+    this.history.push({ role: 'user', parts: [{ text: this.lastUserText }] });
+    this._updateBar();
+    this._call(1);
+}
 
     // ─────────────────────────────────────────────────────────────────────
 
@@ -571,12 +573,12 @@ class EkaChatbot {
         const retryWrap = document.createElement('div');
         retryWrap.className = 'cb-retry-wrap';
         retryWrap.innerHTML = `
-          <button class="cb-retry" id="cb-retry-btn" title="Kirim ulang pesan">
-            <i class="fas fa-rotate-right"></i> Kirim ulang
-          </button>`;
+  <button class="cb-retry" data-retry title="Kirim ulang pesan">
+    <i class="fas fa-rotate-right"></i>
+  </button>`;
         msgs.appendChild(retryWrap);
 
-        retryWrap.querySelector('#cb-retry-btn').onclick = () => this._retry();
+        retryWrap.querySelector('[data-retry]').onclick = () => this._retry();
 
         this._scroll();
     }
