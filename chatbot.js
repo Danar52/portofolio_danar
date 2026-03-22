@@ -1,10 +1,11 @@
 /**
  * chatbot.js — Floating AI Chatbot "Danar Alter"
- * v5.3 — Security & stability patch
+ * v5.4 — Retry button patch
  *
- * CHANGES dari v5.2:
- * - FIX #2: input length limit 300 char — cegah token drain
- * - FIX #5 (FE side): greeting endpoint memanfaatkan cache backend
+ * CHANGES dari v5.3:
+ * - FIX #6: retry button muncul di bawah bubble user saat bot error
+ *   → klik langsung resend tanpa ketik ulang
+ * - lastUserText property untuk simpan pesan terakhir user
  */
 
 // ─── CONFIG ──────────────────────────────────────────────────────────────
@@ -149,6 +150,12 @@ const STYLES = `
   #cb-snd{width:38px;height:38px;border-radius:10px;background:var(--cb-accent);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:background .2s,transform .15s;flex-shrink:0}
   #cb-snd:hover{background:var(--cb-accent-dark);transform:scale(1.05)}
   #cb-snd:disabled{background:var(--cb-border);cursor:not-allowed;transform:none}
+  /* FIX #6: retry button */
+  .cb-retry-wrap{display:flex;justify-content:flex-end;margin-top:-4px;margin-right:34px;margin-bottom:2px}
+  .cb-retry{display:none;align-items:center;gap:5px;padding:5px 11px;border-radius:20px;border:1px solid #e53e3e;background:rgba(229,62,62,.07);color:#e53e3e;font-family:var(--cb-font);font-size:11px;font-weight:500;cursor:pointer;transition:all .2s;animation:cb-in .25s ease forwards}
+  .cb-retry:hover{background:#e53e3e;color:#fff;transform:translateY(-1px);box-shadow:0 3px 8px rgba(229,62,62,.28)}
+  .cb-retry i{font-size:10px}
+  .cb-retry.show{display:flex}
   @keyframes cb-popIn{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
   @keyframes cb-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
   @keyframes cb-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.3)}}
@@ -218,11 +225,12 @@ function detectTopic(t) {
 // ── MAIN CLASS ────────────────────────────────────────────────────────────
 class EkaChatbot {
     constructor() {
-        this.open      = false;
-        this.loading   = false;
-        this.history   = [];
-        this.avatarUrl = BOT_PHOTO_URL;
-        this.ctx       = { name: 'Danar', portfolioCount: 0 };
+        this.open         = false;
+        this.loading      = false;
+        this.history      = [];
+        this.avatarUrl    = BOT_PHOTO_URL;
+        this.ctx          = { name: 'Danar', portfolioCount: 0 };
+        this.lastUserText = ''; // FIX #6: simpan pesan terakhir user untuk retry
 
         this._css();
         this._html();
@@ -321,30 +329,29 @@ class EkaChatbot {
     }
 
     _updateBar() {
-    // Smart trim: buang dari depan sepasang [user, bot]
-    // sehingga history selalu valid dan selalu mulai dari user
-    while (this.history.length > MAX_HISTORY) {
-        // Buang 2 sekaligus (1 user + 1 bot) dari depan
-        this.history.shift(); // buang user lama
-        if (this.history.length > 0 && this.history[0].role === 'model') {
-            this.history.shift(); // buang bot pasangannya
+        // Smart trim: buang dari depan sepasang [user, bot]
+        // sehingga history selalu valid dan selalu mulai dari user
+        while (this.history.length > MAX_HISTORY) {
+            this.history.shift(); // buang user lama
+            if (this.history.length > 0 && this.history[0].role === 'model') {
+                this.history.shift(); // buang bot pasangannya
+            }
         }
-    }
 
-    // Safety net: kalau setelah trim masih dimulai dari bot, strip
-    while (this.history.length > 0 && this.history[0].role !== 'user') {
-        this.history.shift();
-    }
+        // Safety net: kalau setelah trim masih dimulai dari bot, strip
+        while (this.history.length > 0 && this.history[0].role !== 'user') {
+            this.history.shift();
+        }
 
-    const count = this.history.length;
-    const pct   = (count / MAX_HISTORY) * 100;
-    const fill  = document.getElementById('cb-tfill');
-    const lbl   = document.getElementById('cb-tlbl');
-    if (!fill || !lbl) return;
-    fill.style.width = pct + '%';
-    fill.className   = 'cb-tfill' + (pct >= 100 ? ' danger' : pct >= 66 ? ' warn' : '');
-    lbl.textContent  = `${count} / ${MAX_HISTORY} pesan`;
-}
+        const count = this.history.length;
+        const pct   = (count / MAX_HISTORY) * 100;
+        const fill  = document.getElementById('cb-tfill');
+        const lbl   = document.getElementById('cb-tlbl');
+        if (!fill || !lbl) return;
+        fill.style.width = pct + '%';
+        fill.className   = 'cb-tfill' + (pct >= 100 ? ' danger' : pct >= 66 ? ' warn' : '');
+        lbl.textContent  = `${count} / ${MAX_HISTORY} pesan`;
+    }
 
     _renderSugg(list) {
         const w = document.getElementById('cb-sugg');
@@ -365,6 +372,31 @@ class EkaChatbot {
         this._renderSugg([...pool].sort(() => Math.random() - .5).slice(0, 3));
     }
 
+    // ── FIX #6: RETRY HELPERS ─────────────────────────────────────────────
+
+    // Tampilkan retry button di bawah bubble user terakhir
+    _showRetry() {
+        const btn = document.getElementById('cb-retry-btn');
+        if (btn) btn.classList.add('show');
+    }
+
+    // Sembunyikan retry button (dipanggil saat user kirim pesan baru)
+    _hideRetry() {
+        document.querySelectorAll('.cb-retry-wrap').forEach(el => el.remove());
+    }
+
+    // Eksekusi retry — re-push lastUserText ke history lalu call ulang
+    _retry() {
+        if (this.loading || !this.lastUserText) return;
+        this._hideRetry();
+        // history sudah di-pop saat error, push kembali
+        this.history.push({ role: 'user', parts: [{ text: this.lastUserText }] });
+        this._updateBar();
+        this._call(1);
+    }
+
+    // ─────────────────────────────────────────────────────────────────────
+
     async _send() {
         const inp  = document.getElementById('cb-inp');
         const text = inp.value.trim();
@@ -375,6 +407,9 @@ class EkaChatbot {
             this._addBot(`Pesannya kepanjangan — maksimal ${MAX_INPUT_CHAR} karakter ya 😄`);
             return;
         }
+
+        this.lastUserText = text; // FIX #6: simpan untuk retry
+        this._hideRetry();        // FIX #6: bersihkan retry lama kalau ada
 
         document.getElementById('cb-sugg').style.display = 'none';
         inp.value        = '';
@@ -396,7 +431,7 @@ class EkaChatbot {
 
         try {
             const trimmed = this.history
-    .filter(m => m?.role && typeof m?.parts?.[0]?.text === 'string' && m.parts[0].text.trim());
+                .filter(m => m?.role && typeof m?.parts?.[0]?.text === 'string' && m.parts[0].text.trim());
 
             if (trimmed.length === 0) {
                 this._removeEl(bubbleId);
@@ -424,6 +459,7 @@ class EkaChatbot {
                 } else {
                     this.history.pop();
                     this._addBot(_rand(ERROR_OVERLOAD));
+                    this._showRetry(); // FIX #6
                 }
                 return;
             }
@@ -432,6 +468,7 @@ class EkaChatbot {
                 this._removeEl(bubbleId);
                 this.history.pop();
                 this._addBot(_rand(ERROR_BACKEND));
+                this._showRetry(); // FIX #6
                 return;
             }
 
@@ -473,6 +510,7 @@ class EkaChatbot {
                 this._removeEl(bubbleId);
                 this.history.pop();
                 this._addBot(_rand(ERROR_BACKEND));
+                this._showRetry(); // FIX #6
                 return;
             }
 
@@ -488,6 +526,7 @@ class EkaChatbot {
             this._removeEl(bubbleId);
             this.history.pop();
             this._addBot(_rand(ERROR_NETWORK));
+            this._showRetry(); // FIX #6
             console.error('[Chatbot] error:', err);
         } finally {
             this.loading = false;
@@ -516,14 +555,29 @@ class EkaChatbot {
         this._scroll();
     }
 
+    // FIX #6: _addUser sekarang inject retry button (hidden by default)
     _addUser(text) {
         const msgs = document.getElementById('cb-msgs');
+
+        // Bubble user
         const div  = document.createElement('div');
         div.className = 'cb-msg user';
         div.innerHTML = `
           <div class="cb-mav"><i class="fas fa-user"></i></div>
           <div class="cb-bbl">${text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
         msgs.appendChild(div);
+
+        // Retry button — hidden by default, muncul saat error via _showRetry()
+        const retryWrap = document.createElement('div');
+        retryWrap.className = 'cb-retry-wrap';
+        retryWrap.innerHTML = `
+          <button class="cb-retry" id="cb-retry-btn" title="Kirim ulang pesan">
+            <i class="fas fa-rotate-right"></i> Kirim ulang
+          </button>`;
+        msgs.appendChild(retryWrap);
+
+        retryWrap.querySelector('#cb-retry-btn').onclick = () => this._retry();
+
         this._scroll();
     }
 
@@ -579,7 +633,8 @@ class EkaChatbot {
     }
 
     _reset() {
-        this.history = [];
+        this.history      = [];
+        this.lastUserText = ''; // FIX #6: clear saat reset
         document.getElementById('cb-msgs').innerHTML = '';
         this._updateBar();
         this._renderSugg(SUGGESTIONS_INIT);
