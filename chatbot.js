@@ -1,11 +1,10 @@
 /**
  * chatbot.js — Floating AI Chatbot "Danar Alter"
- * v5.4 — Retry button patch
+ * v5.5 — Greeting fix + retry persistent
  *
- * CHANGES dari v5.3:
- * - FIX #6: retry button muncul di bawah bubble user saat bot error
- *   → klik langsung resend tanpa ketik ulang
- * - lastUserText property untuk simpan pesan terakhir user
+ * CHANGES dari v5.4:
+ * - FIX #7: greeting tidak lagi menyebut "AI" — konsisten dengan identitas Danar
+ * - FIX #8: retry button pakai data-attribute, tidak duplikat ID
  */
 
 // ─── CONFIG ──────────────────────────────────────────────────────────────
@@ -13,7 +12,7 @@ const BACKEND_URL    = 'https://backend-chatbot-self.vercel.app/api/chat';
 const GREETING_URL   = 'https://backend-chatbot-self.vercel.app/api/greeting';
 const BOT_PHOTO_URL  = './assets/bot_avatar.png';
 const MAX_HISTORY    = 6;
-const MAX_INPUT_CHAR = 300; // FIX #2: batas panjang pesan user
+const MAX_INPUT_CHAR = 300;
 // ─────────────────────────────────────────────────────────────────────────
 
 const SUGGESTIONS_INIT = [
@@ -131,7 +130,6 @@ const STYLES = `
   .cb-bbl ol li{list-style:decimal}
   .cb-bbl li{font-size:13px;line-height:1.55}
   .cb-bbl hr{border:none;border-top:1px solid var(--cb-border);margin:8px 0}
-  /* char counter */
   #cb-counter{font-family:var(--cb-font);font-size:10px;color:var(--cb-muted);text-align:right;padding:0 14px 6px;flex-shrink:0;transition:color .2s}
   #cb-counter.warn{color:#e59405}
   #cb-counter.danger{color:#e53e3e}
@@ -150,12 +148,12 @@ const STYLES = `
   #cb-snd{width:38px;height:38px;border-radius:10px;background:var(--cb-accent);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:background .2s,transform .15s;flex-shrink:0}
   #cb-snd:hover{background:var(--cb-accent-dark);transform:scale(1.05)}
   #cb-snd:disabled{background:var(--cb-border);cursor:not-allowed;transform:none}
-  /* FIX #6: retry button — ganti dari sebelumnya */
-.cb-retry-wrap{display:flex;justify-content:flex-end;margin-top:-4px;margin-right:34px;margin-bottom:2px}
-.cb-retry{display:none;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;border:1.5px solid #e53e3e;background:rgba(229,62,62,.07);color:#e53e3e;cursor:pointer;transition:all .2s;animation:cb-in .25s ease forwards}
-.cb-retry:hover{background:#e53e3e;color:#fff;transform:rotate(180deg);box-shadow:0 3px 8px rgba(229,62,62,.35)}
-.cb-retry i{font-size:12px}
-.cb-retry.show{display:flex}
+  /* FIX #6: retry button — icon only, circle merah */
+  .cb-retry-wrap{display:flex;justify-content:flex-end;margin-top:-4px;margin-right:34px;margin-bottom:2px}
+  .cb-retry{display:none;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;border:1.5px solid #e53e3e;background:rgba(229,62,62,.07);color:#e53e3e;cursor:pointer;transition:all .2s;animation:cb-in .25s ease forwards}
+  .cb-retry:hover{background:#e53e3e;color:#fff;transform:rotate(180deg);box-shadow:0 3px 8px rgba(229,62,62,.35)}
+  .cb-retry i{font-size:12px}
+  .cb-retry.show{display:flex}
   @keyframes cb-popIn{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
   @keyframes cb-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
   @keyframes cb-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.3)}}
@@ -189,15 +187,11 @@ function md(raw) {
         .replace(/^---$/gm, '<hr>');
 
     s = s.replace(/((?:^[ \t]*[-•] .+\n?)+)/gm, blk => {
-        const items = blk.trim().split('\n')
-            .map(l => `<li>${l.replace(/^[ \t]*[-•] /, '').trim()}</li>`)
-            .join('');
+        const items = blk.trim().split('\n').map(l => `<li>${l.replace(/^[ \t]*[-•] /, '').trim()}</li>`).join('');
         return `<ul>${items}</ul>`;
     });
     s = s.replace(/((?:^\d+\. .+\n?)+)/gm, blk => {
-        const items = blk.trim().split('\n')
-            .map(l => `<li>${l.replace(/^\d+\. /, '').trim()}</li>`)
-            .join('');
+        const items = blk.trim().split('\n').map(l => `<li>${l.replace(/^\d+\. /, '').trim()}</li>`).join('');
         return `<ol>${items}</ol>`;
     });
 
@@ -230,7 +224,7 @@ class EkaChatbot {
         this.history      = [];
         this.avatarUrl    = BOT_PHOTO_URL;
         this.ctx          = { name: 'Danar', portfolioCount: 0 };
-        this.lastUserText = ''; // FIX #6: simpan pesan terakhir user untuk retry
+        this.lastUserText = '';
 
         this._css();
         this._html();
@@ -260,7 +254,7 @@ class EkaChatbot {
               <div class="cb-av" id="cb-av">${this.avatarUrl ? `<img src="${this.avatarUrl}" alt="Danar">` : 'D'}</div>
               <div class="cb-hi">
                 <div class="cb-hn">Danar Alter</div>
-                <div class="cb-hs"><span class="cb-dot"></span>Online — AI Ver.</div>
+                <div class="cb-hs"><span class="cb-dot"></span>Online — Versi Digital</div>
               </div>
               <div class="cb-acts">
                 <button class="cb-ibtn" id="cb-clr" title="Reset"><i class="fas fa-rotate-right"></i></button>
@@ -296,7 +290,6 @@ class EkaChatbot {
         this._renderSugg(SUGGESTIONS_INIT);
     }
 
-    // FIX #2: char counter — tampil saat mulai ketik, merah saat hampir habis
     _updateCounter(len) {
         const el = document.getElementById('cb-counter');
         if (!el) return;
@@ -319,26 +312,23 @@ class EkaChatbot {
         this._addBot(this._greeting());
     }
 
+    // FIX #7: greeting tidak menyebut "AI" — konsisten dengan identitas Danar
     _greeting() {
         const { name, portfolioCount } = this.ctx;
         return _rand([
-            `Yo! Gw ${name} — versi AI 🤖\nTanya soal skills, project, pengalaman, atau cara kontak gw.`,
-            `Hei! Gw AI-nya ${name}.\nMau tau soal skill, karya, atau pengalaman gw? Tanya aja langsung.`,
-            `Sup! Gw ${name} tapi versi digital 🤖\n${portfolioCount > 0 ? `Gw punya ${portfolioCount} project di portfolio. ` : ''}Gas tanya apa aja!`,
+            `Yo! Gw ${name} — versi digital 🤖\nTanya soal skills, project, pengalaman, atau cara kontak gw.`,
+            `Hei! Gw ${name}, versi digital.\nMau tau soal skill, karya, atau pengalaman gw? Tanya aja langsung.`,
+            `Sup! Gw ${name} versi digital 🤖\n${portfolioCount > 0 ? `Gw punya ${portfolioCount} project di portfolio. ` : ''}Gas tanya apa aja!`,
         ]);
     }
 
     _updateBar() {
-        // Smart trim: buang dari depan sepasang [user, bot]
-        // sehingga history selalu valid dan selalu mulai dari user
         while (this.history.length > MAX_HISTORY) {
-            this.history.shift(); // buang user lama
+            this.history.shift();
             if (this.history.length > 0 && this.history[0].role === 'model') {
-                this.history.shift(); // buang bot pasangannya
+                this.history.shift();
             }
         }
-
-        // Safety net: kalau setelah trim masih dimulai dari bot, strip
         while (this.history.length > 0 && this.history[0].role !== 'user') {
             this.history.shift();
         }
@@ -372,30 +362,27 @@ class EkaChatbot {
         this._renderSugg([...pool].sort(() => Math.random() - .5).slice(0, 3));
     }
 
-    // ── FIX #6: RETRY HELPERS ─────────────────────────────────────────────
+    // ── FIX #6+#8: RETRY — pakai data-attribute, bukan ID ─────────────────
 
-    // Tampilkan retry button di bawah bubble user terakhir
     _showRetry() {
-    const wraps = document.querySelectorAll('.cb-retry-wrap');
-    const last  = wraps[wraps.length - 1]; // selalu ambil yang paling bawah
-    if (last) last.querySelector('[data-retry]')?.classList.add('show');
-}
+        const wraps = document.querySelectorAll('.cb-retry-wrap');
+        const last  = wraps[wraps.length - 1];
+        if (last) last.querySelector('[data-retry]')?.classList.add('show');
+    }
 
-    // Sembunyikan retry button (dipanggil saat user kirim pesan baru)
     _hideRetry() {
         document.querySelectorAll('.cb-retry-wrap').forEach(el => el.remove());
     }
 
-    // Eksekusi retry — re-push lastUserText ke history lalu call ulang
     _retry() {
-    if (this.loading || !this.lastUserText) return;
-    const wraps = document.querySelectorAll('.cb-retry-wrap');
-    const last  = wraps[wraps.length - 1];
-    last?.querySelector('[data-retry]')?.classList.remove('show');
-    this.history.push({ role: 'user', parts: [{ text: this.lastUserText }] });
-    this._updateBar();
-    this._call(1);
-}
+        if (this.loading || !this.lastUserText) return;
+        const wraps = document.querySelectorAll('.cb-retry-wrap');
+        const last  = wraps[wraps.length - 1];
+        last?.querySelector('[data-retry]')?.classList.remove('show');
+        this.history.push({ role: 'user', parts: [{ text: this.lastUserText }] });
+        this._updateBar();
+        this._call(1);
+    }
 
     // ─────────────────────────────────────────────────────────────────────
 
@@ -404,14 +391,13 @@ class EkaChatbot {
         const text = inp.value.trim();
         if (!text || this.loading) return;
 
-        // FIX #2: tolak input yang terlalu panjang — cegah token drain
         if (text.length > MAX_INPUT_CHAR) {
             this._addBot(`Pesannya kepanjangan — maksimal ${MAX_INPUT_CHAR} karakter ya 😄`);
             return;
         }
 
-        this.lastUserText = text; // FIX #6: simpan untuk retry
-        this._hideRetry();        // FIX #6: bersihkan retry lama kalau ada
+        this.lastUserText = text;
+        this._hideRetry();
 
         document.getElementById('cb-sugg').style.display = 'none';
         inp.value        = '';
@@ -461,7 +447,7 @@ class EkaChatbot {
                 } else {
                     this.history.pop();
                     this._addBot(_rand(ERROR_OVERLOAD));
-                    this._showRetry(); // FIX #6
+                    this._showRetry();
                 }
                 return;
             }
@@ -470,7 +456,7 @@ class EkaChatbot {
                 this._removeEl(bubbleId);
                 this.history.pop();
                 this._addBot(_rand(ERROR_BACKEND));
-                this._showRetry(); // FIX #6
+                this._showRetry();
                 return;
             }
 
@@ -507,12 +493,11 @@ class EkaChatbot {
                 }
             }
 
-            // Guard empty response
             if (!fullText.trim()) {
                 this._removeEl(bubbleId);
                 this.history.pop();
                 this._addBot(_rand(ERROR_BACKEND));
-                this._showRetry(); // FIX #6
+                this._showRetry();
                 return;
             }
 
@@ -528,7 +513,7 @@ class EkaChatbot {
             this._removeEl(bubbleId);
             this.history.pop();
             this._addBot(_rand(ERROR_NETWORK));
-            this._showRetry(); // FIX #6
+            this._showRetry();
             console.error('[Chatbot] error:', err);
         } finally {
             this.loading = false;
@@ -557,11 +542,10 @@ class EkaChatbot {
         this._scroll();
     }
 
-    // FIX #6: _addUser sekarang inject retry button (hidden by default)
+    // FIX #8: pakai data-attribute, tidak pakai ID — hindari duplikat
     _addUser(text) {
         const msgs = document.getElementById('cb-msgs');
 
-        // Bubble user
         const div  = document.createElement('div');
         div.className = 'cb-msg user';
         div.innerHTML = `
@@ -569,17 +553,15 @@ class EkaChatbot {
           <div class="cb-bbl">${text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
         msgs.appendChild(div);
 
-        // Retry button — hidden by default, muncul saat error via _showRetry()
         const retryWrap = document.createElement('div');
         retryWrap.className = 'cb-retry-wrap';
         retryWrap.innerHTML = `
-  <button class="cb-retry" data-retry title="Kirim ulang pesan">
-    <i class="fas fa-rotate-right"></i>
-  </button>`;
+          <button class="cb-retry" data-retry title="Kirim ulang pesan">
+            <i class="fas fa-rotate-right"></i>
+          </button>`;
         msgs.appendChild(retryWrap);
 
         retryWrap.querySelector('[data-retry]').onclick = () => this._retry();
-
         this._scroll();
     }
 
@@ -636,7 +618,7 @@ class EkaChatbot {
 
     _reset() {
         this.history      = [];
-        this.lastUserText = ''; // FIX #6: clear saat reset
+        this.lastUserText = '';
         document.getElementById('cb-msgs').innerHTML = '';
         this._updateBar();
         this._renderSugg(SUGGESTIONS_INIT);
