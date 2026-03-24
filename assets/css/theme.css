@@ -1,0 +1,418 @@
+/* ═══════════════════════════════════════════════════════════════
+   THEME.CSS — Dark Mode Overrides
+   Applied via body.dark-mode · GitHub Dark palette
+   ALL hardcoded light values in every CSS file are overridden here
+═══════════════════════════════════════════════════════════════ */
+
+/* ── ROOT CSS VARIABLES ──────────────────────────────────────── */
+body.dark-mode {
+  --background-color: #0d1117;
+  --default-color:    #c9d1d9;
+  --heading-color:    #e6edf3;
+  --accent-color:     #58a6ff;
+  /* ▼ THIS was the main bug — surface-color was never dark */
+  --surface-color:    #161b22;
+  --contrast-color:   #0d1117;
+  --nav-color:        #8b949e;
+  --nav-hover-color:  #58a6ff;
+  --nav-active-bg:    #1f6feb;
+  --sidebar-bg:       #161b22;
+  --sidebar-border:   #30363d;
+}
+
+/* ── GLOBAL BASE ─────────────────────────────────────────────── */
+body.dark-mode {
+  background-color: var(--background-color);
+  color:            var(--default-color);
+}
+
+/* ── SIDEBAR & NAV ───────────────────────────────────────────── */
+body.dark-mode #sidebar {
+  background:   var(--sidebar-bg);
+  border-color: var(--sidebar-border);
+}
+body.dark-mode .nav-btn:hover {
+  background: rgba(88, 166, 255, 0.12);
+  color:      var(--nav-hover-color);
+}
+
+/* ═══ FIX: tooltip is `background: var(--heading-color)` + `color:#fff`
+   In dark mode --heading-color ≈ white → white text on white bg ═══ */
+body.dark-mode .nav-btn::after {
+  background: #1c2128;
+  color:      #e6edf3;
+  border:     1px solid #30363d;
+  box-shadow: 0 4px 12px rgba(0,0,0,.4);
+}
+body.dark-mode .nav-btn::before {
+  border-right-color: #1c2128;
+}
+/* Mobile sidebar: label is rendered via ::after (static, transparent) */
+body.dark-mode #sidebar .nav-btn {
+  color: var(--default-color);
+}
+body.dark-mode #sidebar .nav-btn::after {
+  background: transparent;
+  border:     none;
+  box-shadow: none;
+  color:      var(--default-color);
+}
+body.dark-mode #sidebar .nav-btn:hover {
+  color: var(--accent-color);
+}
+body.dark-mode #sidebar .nav-btn.active {
+  color: #0d1117;
+}
+
+/* ── PAGE HEADER TITLES ── */
+body.dark-mode .page-title {
+  color: var(--heading-color);
+}
+body.dark-mode .page-subtitle {
+  color: var(--default-color);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PORTFOLIO PAGE
+══════════════════════════════════════════════════════════════ */
+
+/* Filter buttons */
+body.dark-mode .filter-btn,
+body.dark-mode .filter-tab {
+  background:  transparent;
+  border-color: #30363d;
+  color:        var(--default-color);
+}
+body.dark-mode .filter-btn:hover,
+body.dark-mode .filter-tab:hover {
+  border-color: var(--accent-color);
+  color:        var(--accent-color);
+  background:   rgba(88, 166, 255, 0.06);
+}
+body.dark-mode .filter-btn.active,
+body.dark-mode .filter-tab.active {
+  background:  var(--accent-color);
+  border-color: var(--accent-color);
+  color:        #0d1117;
+}
+
+/* Portfolio card */
+body.dark-mode .portfolio-card {
+  background:  #161b22 !important;
+  border-color: #30363d !important;
+  color:        var(--default-color);
+}
+body.dark-mode .portfolio-card:hover {
+  box-shadow:   0 16px 48px rgba(0,0,0,.5) !important;
+  border-color: rgba(88,166,255,.25) !important;
+}
+
+/* Card title & description text */
+body.dark-mode .card-title {
+  color: var(--heading-color);
+}
+body.dark-mode .card-desc {
+  color: var(--default-color);
+}
+
+/* Thumbnail placeholder gradient */
+body.dark-mode .card-thumb,
+body.dark-mode .thumb-placeholder,
+body.dark-mode .thumb-microlink {
+  background: linear-gradient(135deg, #1c2128, #21262d);
+}
+
+/* Card tags */
+body.dark-mode .card-tag {
+  background: rgba(88, 166, 255, 0.1);
+  color:      var(--accent-color);
+}
+
+/* ─── Lightbox (portfolio) — split-panel dark mode ─── */
+body.dark-mode .lightbox-box {
+  background: #161b22 !important;
+}
+body.dark-mode .lightbox-img-pane {
+  background: linear-gradient(135deg, #1c2128, #21262d);
+}
+body.dark-mode .lightbox-year   { color: var(--accent-color); }
+body.dark-mode .lightbox-title  { color: var(--heading-color); }
+body.dark-mode .lightbox-divider{ background: var(--accent-color); }
+body.dark-mode .lightbox-desc   { color: var(--default-color); }
+body.dark-mode .lightbox-tag {
+  background:   rgba(88,166,255,.1);
+  border-color: rgba(88,166,255,.2);
+  color:        var(--accent-color);
+}
+body.dark-mode .lightbox-actions { border-top-color: #30363d; }
+body.dark-mode .lb-btn-outline {
+  color:        var(--default-color);
+  border-color: #30363d;
+}
+body.dark-mode .lb-btn-outline:hover {
+  border-color: var(--accent-color);
+  color:        var(--accent-color);
+  background:   rgba(88,166,255,.06);
+}
+body.dark-mode .lightbox-close {
+  background: #21262d;
+  color:      var(--heading-color);
+}
+body.dark-mode .lightbox-close:hover { background: #30363d; }
+body.dark-mode .lightbox-img-placeholder {
+  background: linear-gradient(135deg, #1c2128, #21262d);
+}
+body.dark-mode .lightbox-body::-webkit-scrollbar-thumb {
+  background: rgba(88,166,255,.2);
+}
+
+
+/* ══════════════════════════════════════════════════════════════
+   CERTIFICATION PAGE
+══════════════════════════════════════════════════════════════ */
+body.dark-mode .cert-card {
+  background:   #161b22 !important;
+  border-color: #30363d !important;
+}
+body.dark-mode .cert-card:hover {
+  box-shadow:   0 10px 32px rgba(0,0,0,.45) !important;
+  border-color: rgba(88,166,255,.22) !important;
+}
+body.dark-mode .cert-name {
+  color: var(--heading-color);
+}
+body.dark-mode .cert-date {
+  color: var(--default-color);
+}
+
+/* Cert image area */
+body.dark-mode .cert-img-wrap {
+  background:   linear-gradient(135deg, #1c2128, #21262d);
+  border-color: #30363d;
+}
+body.dark-mode .cert-img-wrap img {
+  border-color: #30363d;
+}
+
+/* Cert frame placeholder */
+body.dark-mode .cert-img-placeholder {
+  background: transparent;
+}
+body.dark-mode .cert-frame {
+  border-color: rgba(88,166,255,.22);
+  background:   rgba(88,166,255,.04);
+}
+
+/* Cert footer / divider */
+body.dark-mode .cert-footer {
+  border-top-color: #30363d;
+}
+
+/* Stats bar on cert page */
+body.dark-mode .cert-stats {
+  background:  rgba(88,166,255,.03);
+  border-color: rgba(88,166,255,.1);
+}
+body.dark-mode .stat-divider {
+  background: rgba(88,166,255,.18);
+}
+
+/* Cert lightbox close button */
+body.dark-mode .lightbox-close {
+  background: #21262d;
+  color:      var(--heading-color);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   EVENT / ORGANIZATION PAGE
+══════════════════════════════════════════════════════════════ */
+body.dark-mode .event-card {
+  background:   #161b22 !important;
+  border-color: #30363d !important;
+}
+body.dark-mode .event-card:hover {
+  box-shadow:   0 8px 28px rgba(0,0,0,.45) !important;
+  border-color: rgba(88,166,255,.2) !important;
+}
+body.dark-mode .event-name {
+  color: var(--heading-color);
+}
+body.dark-mode .event-desc {
+  color: var(--default-color);
+}
+body.dark-mode .event-meta-item {
+  color: var(--default-color);
+}
+
+/* Event image placeholder */
+body.dark-mode .event-img-wrap {
+  background: linear-gradient(135deg, #1c2128, #21262d);
+}
+body.dark-mode .placeholder-icon-wrap {
+  background: rgba(88,166,255,.1);
+}
+body.dark-mode .placeholder-text {
+  color: var(--accent-color);
+}
+
+/* Event badges */
+body.dark-mode .badge-org   { background: rgba(88,166,255,.1); color: var(--accent-color); }
+body.dark-mode .badge-event { background: rgba(63,185,80,.1);  color: #3fb950; }
+body.dark-mode .badge-comp  { background: rgba(210,153,34,.1); color: #d29922; }
+
+/* ══════════════════════════════════════════════════════════════
+   EXPERIENCE PAGE
+══════════════════════════════════════════════════════════════ */
+body.dark-mode .exp-card {
+  background:   #161b22 !important;
+  border-color: #30363d !important;
+  color:        var(--default-color);
+}
+body.dark-mode .exp-card:hover {
+  box-shadow:   0 10px 36px rgba(0,0,0,.45) !important;
+  border-color: rgba(88,166,255,.25) !important;
+}
+body.dark-mode .exp-title {
+  color: var(--heading-color);
+}
+body.dark-mode .exp-desc,
+body.dark-mode .exp-desc-list li {
+  color: var(--default-color);
+}
+body.dark-mode .exp-period {
+  background:  #21262d !important;
+  border-color: #30363d !important;
+  color:        var(--default-color) !important;
+}
+body.dark-mode .exp-tag {
+  background:  #21262d !important;
+  border-color: #30363d !important;
+  color:        var(--default-color) !important;
+}
+body.dark-mode .exp-tag:hover {
+  background:   rgba(88,166,255,.12) !important;
+  border-color: rgba(88,166,255,.3) !important;
+  color:        var(--accent-color) !important;
+}
+body.dark-mode .exp-badge.selesai {
+  background: rgba(139,148,158,.12);
+  color:      #8b949e;
+}
+body.dark-mode .exp-divider {
+  background: #30363d;
+}
+body.dark-mode .exp-tags {
+  border-top-color: #30363d;
+}
+body.dark-mode .exp-card::before    { background: #30363d; }
+body.dark-mode .exp-card.aktif::before,
+body.dark-mode .exp-card:hover::before {
+  background: linear-gradient(to bottom, #58a6ff, rgba(88,166,255,.2));
+}
+body.dark-mode .exp-stats {
+  background:  rgba(88,166,255,.04);
+  border-color: rgba(88,166,255,.12);
+}
+body.dark-mode .exp-desc-list.collapsed::after {
+  background: linear-gradient(to bottom, transparent, #161b22);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SKILLS PAGE
+══════════════════════════════════════════════════════════════ */
+body.dark-mode .skill-stat {
+  background:   #21262d !important;
+  border-color: #30363d !important;
+}
+body.dark-mode .skill-stat-num { color: var(--accent-color); }
+body.dark-mode .skill-stat-lbl { color: var(--default-color); }
+body.dark-mode .skill-row {
+  border-bottom-color: #30363d;
+}
+body.dark-mode .skill-name-text {
+  color: var(--default-color);
+}
+body.dark-mode .skill-section-line  { background: #30363d; }
+body.dark-mode .skill-bar-track     { background: #30363d; }
+body.dark-mode .skill-pct           { color: var(--heading-color); }
+body.dark-mode .skill-level-badge.high { background: rgba(88,166,255,.12); color: #58a6ff; }
+body.dark-mode .skill-level-badge.mid  { background: rgba(63,185,80,.12);  color: #3fb950; }
+body.dark-mode .skill-level-badge.low  { background: rgba(210,153,34,.12); color: #d29922; }
+
+/* ══════════════════════════════════════════════════════════════
+   PROFIL PAGE
+══════════════════════════════════════════════════════════════ */
+body.dark-mode .section-card {
+  background:   #161b22 !important;
+  border-color: #30363d !important;
+  color:        var(--default-color);
+}
+body.dark-mode .profil-bio {
+  color: var(--default-color);
+}
+body.dark-mode .profil-left {
+  background:   #161b22 !important;
+  border-color: #30363d !important;
+}
+/* Contact items */
+body.dark-mode .profil-contact-item,
+body.dark-mode .profil-social-btn,
+body.dark-mode .left-stat-item,
+body.dark-mode .left-stats,
+body.dark-mode .interest-tag {
+  background:   #21262d !important;
+  border-color: #30363d !important;
+  color:        var(--default-color) !important;
+}
+body.dark-mode .profil-contact-item:hover {
+  background:   #2d333b !important;
+  border-color: rgba(88,166,255,.3) !important;
+  color:        var(--accent-color) !important;
+}
+body.dark-mode .profil-social-btn:hover {
+  background:   var(--accent-color) !important;
+  border-color: var(--accent-color) !important;
+  color:        #0d1117 !important;
+}
+body.dark-mode .interest-tag:hover {
+  background:   rgba(88,166,255,.12) !important;
+  border-color: rgba(88,166,255,.3) !important;
+  color:        var(--accent-color) !important;
+}
+body.dark-mode .left-stat-item:hover {
+  background:  #2d333b !important;
+}
+body.dark-mode .left-stat-label { color: var(--default-color); }
+/* Info grid */
+body.dark-mode .profil-info-grid,
+body.dark-mode .profil-info-item   { border-color: #30363d; }
+body.dark-mode .profil-info-label  { color: var(--accent-color); }
+body.dark-mode .profil-info-value  { color: var(--heading-color); }
+body.dark-mode .profil-info-item:hover { background: rgba(88,166,255,.04) !important; }
+/* Education */
+body.dark-mode .edu-item           { border-bottom-color: #30363d; }
+body.dark-mode .edu-school         { color: var(--heading-color); }
+body.dark-mode .edu-jurusan        { color: var(--default-color); }
+body.dark-mode .edu-tahun.past     { color:#8b949e !important; background: rgba(139,148,158,.1) !important; }
+/* Photo placeholder */
+body.dark-mode .profil-photo-placeholder {
+  background: linear-gradient(135deg, #1c2128, #21262d);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   SCROLLBAR
+══════════════════════════════════════════════════════════════ */
+body.dark-mode ::-webkit-scrollbar-track  { background: #0d1117; }
+body.dark-mode ::-webkit-scrollbar-thumb  { background: rgba(88,166,255,.25); border-radius: 10px; }
+body.dark-mode ::-webkit-scrollbar-thumb:hover { background: rgba(88,166,255,.45); }
+
+/* ══════════════════════════════════════════════════════════════
+   DARK MODE TOGGLE — pinned to sidebar bottom
+══════════════════════════════════════════════════════════════ */
+#darkModeToggle {
+  margin-top:    auto;
+  margin-bottom: 12px;
+}
+@media (max-width: 768px) {
+  #darkModeToggle { margin-top: 0; margin-bottom: 0; }
+}

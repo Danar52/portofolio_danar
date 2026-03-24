@@ -68,7 +68,7 @@ const _rand = arr => arr[Math.floor(Math.random() * arr.length)];
 
 // ── STYLES ────────────────────────────────────────────────────────────────
 const STYLES = `
-  :root {
+  #cb-root {
     --cb-accent:#0563bb; --cb-accent-dark:#0452a0; --cb-bg:#ffffff;
     --cb-surface:#f8f9fa; --cb-border:#e9ecef; --cb-text:#272829;
     --cb-muted:#6b7c8e; --cb-radius:18px;
@@ -76,6 +76,80 @@ const STYLES = `
     --cb-font:"Poppins",system-ui,sans-serif;
     --cb-body:"Roboto",system-ui,sans-serif;
   }
+  /* ── DARK MODE ── Applied via #cb-root.dark */
+  #cb-root.dark {
+    --cb-accent:       #58a6ff;
+    --cb-accent-dark:  #388bfd;
+    --cb-bg:           #161b22;
+    --cb-surface:      #21262d;
+    --cb-border:       #30363d;
+    --cb-text:         #c9d1d9;
+    --cb-muted:        #8b949e;
+    --cb-shadow:       0 8px 40px rgba(0,0,0,0.55);
+  }
+  #cb-root.dark #cb-win {
+    background: var(--cb-bg);
+    border-color: var(--cb-border);
+  }
+  #cb-root.dark .cb-iarea {
+    background: var(--cb-bg);
+    border-top-color: var(--cb-border);
+  }
+  #cb-root.dark #cb-inp {
+    background: var(--cb-surface);
+    border-color: var(--cb-border);
+    color: var(--cb-text);
+  }
+  #cb-root.dark #cb-inp::placeholder { color: var(--cb-muted); }
+  #cb-root.dark #cb-inp:focus {
+    border-color: var(--cb-accent);
+    box-shadow: 0 0 0 3px rgba(88,166,255,0.15);
+  }
+  #cb-root.dark .cb-mav {
+    background: var(--cb-surface);
+    border-color: var(--cb-border);
+    color: var(--cb-accent);
+  }
+  #cb-root.dark .cb-bbl {
+    background: var(--cb-surface);
+    border-color: var(--cb-border);
+    color: var(--cb-text);
+  }
+  #cb-root.dark .cb-bbl a { color: var(--cb-accent); }
+  #cb-root.dark .cb-bbl code {
+    background: rgba(88,166,255,0.12);
+    color: var(--cb-accent);
+  }
+  #cb-root.dark .cb-bbl pre {
+    background: #0d1117;
+    border-color: var(--cb-border);
+  }
+  #cb-root.dark .cb-bbl pre code { color: var(--cb-text); }
+  #cb-root.dark .cb-bbl hr { border-top-color: var(--cb-border); }
+  #cb-root.dark #cb-tbar {
+    background: rgba(88,166,255,0.04);
+    border-bottom-color: var(--cb-border);
+  }
+  #cb-root.dark .cb-ttrack  { background: var(--cb-border); }
+  #cb-root.dark .cb-sbtn {
+    background: rgba(88,166,255,0.08);
+    border-color: rgba(88,166,255,0.35);
+    color: var(--cb-accent);
+  }
+  #cb-root.dark .cb-sbtn:hover {
+    background: var(--cb-accent);
+    color: #0d1117;
+    box-shadow: 0 3px 10px rgba(88,166,255,.3);
+  }
+  #cb-root.dark .cb-msgs::-webkit-scrollbar-thumb { background: rgba(88,166,255,0.22); }
+  #cb-root.dark #cb-tip {
+    background: #1c2128;
+    color: #e6edf3;
+    border: 1px solid #30363d;
+  }
+  #cb-root.dark #cb-tip::after { border-left-color: #1c2128; }
+  #cb-root.dark #cb-notif { border-color: #161b22; }
+  #cb-root.dark .cb-dots span { background: var(--cb-muted); }
   #cb-bubble{position:fixed;bottom:28px;right:28px;width:56px;height:56px;border-radius:50%;background:var(--cb-accent);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 6px 24px rgba(5,99,187,0.38);z-index:9999;transition:transform .25s,background .2s;animation:cb-popIn .4s cubic-bezier(.34,1.56,.64,1) forwards}
   #cb-bubble:hover{background:var(--cb-accent-dark);transform:scale(1.1)}
   #cb-bubble.open{background:var(--cb-accent-dark)}
@@ -229,6 +303,7 @@ class EkaChatbot {
         this._css();
         this._html();
         this._events();
+        this._syncTheme();
         this._loadCtx();
         setTimeout(() => this._tooltip(), 3000);
     }
@@ -629,6 +704,25 @@ class EkaChatbot {
         const m = document.getElementById('cb-msgs');
         if (m) setTimeout(() => m.scrollTop = m.scrollHeight, 50);
     }
+
+    // ── DARK MODE SYNC ────────────────────────────────────────────────────────
+    _syncTheme() {
+        const root = document.getElementById('cb-root');
+        if (!root) return;
+
+        const apply = () => {
+            const isDark = document.body.classList.contains('dark-mode');
+            root.classList.toggle('dark', isDark);
+        };
+
+        // Initial sync
+        apply();
+
+        // Watch body for class changes (triggered by theme.js toggle)
+        const observer = new MutationObserver(apply);
+        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    }
+    // ─────────────────────────────────────────────────────────────────────────
 
     _tooltip() {
         if (this.open) return;
