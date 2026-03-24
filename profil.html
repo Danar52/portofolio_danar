@@ -31,100 +31,7 @@
     .nav-btn::before{content:'';position:absolute;left:calc(100% + 8px);top:50%;transform:translateY(-50%);border:5px solid transparent;border-right-color:var(--heading-color);opacity:0;pointer-events:none;transition:opacity .2s}
     .nav-btn:hover::after,.nav-btn:hover::before{opacity:1}
 
-    /* ── MAIN ── */
-    #main-content{margin-left:var(--sidebar-width);flex:1;min-height:100vh;padding:60px 80px}
-
-    .page-header{margin-bottom:48px;opacity:0;transform:translateY(20px);animation:fadeUp .6s ease .1s forwards}
-    .page-title{font-family:var(--heading-font);font-size:clamp(32px,4vw,52px);font-weight:700;color:var(--heading-color);margin-bottom:6px}
-    .page-title span{color:var(--accent-color)}
-    .page-subtitle{font-family:var(--nav-font);font-size:14px;color:var(--default-color);opacity:.5}
-
-    /* ── GRID UTAMA ── */
-    .profil-wrapper{display:grid;grid-template-columns:240px 1fr;gap:56px;align-items:start}
-
-    /* ── KOLOM KIRI ── */
-    .profil-left{display:flex;flex-direction:column;align-items:center;gap:18px;opacity:0;transform:translateY(24px);animation:fadeUp .65s ease .25s forwards;position:sticky;top:40px}
-
-    .profil-photo-wrap{position:relative;width:180px;height:180px}
-    .profil-photo-wrap::before{content:'';position:absolute;inset:-8px;border-radius:50%;border:2px solid rgba(5,99,187,.18);animation:ringPulse 2.8s ease-in-out infinite}
-    @keyframes ringPulse{0%,100%{transform:scale(1);opacity:.35}50%{transform:scale(1.05);opacity:.85}}
-    .profil-photo{width:180px;height:180px;border-radius:50%;object-fit:cover;border:4px solid var(--accent-color);box-shadow:0 8px 32px rgba(5,99,187,.15)}
-    .profil-photo-placeholder{width:180px;height:180px;border-radius:50%;background:linear-gradient(135deg,#e8f0fb,#c5d8f5);border:4px solid var(--accent-color);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;box-shadow:0 8px 32px rgba(5,99,187,.15)}
-    .profil-photo-placeholder .initials{font-family:var(--heading-font);font-size:48px;font-weight:800;color:var(--accent-color);line-height:1}
-    .profil-photo-placeholder .photo-label{font-family:var(--nav-font);font-size:10px;font-weight:600;color:var(--accent-color);opacity:.6;letter-spacing:1.5px;text-transform:uppercase}
-
-    .profil-left-name{font-family:var(--heading-font);font-size:15px;font-weight:700;color:var(--heading-color);text-align:center;line-height:1.3}
-    .profil-left-role{font-family:var(--nav-font);font-size:10px;font-weight:600;color:var(--accent-color);letter-spacing:1.2px;text-transform:uppercase;text-align:center}
-    .left-divider{width:36px;height:2px;background:linear-gradient(to right,var(--accent-color),rgba(5,99,187,.1));border-radius:2px}
-
-    .profil-contact-list{width:100%;display:flex;flex-direction:column;gap:7px}
-    .profil-contact-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--sidebar-bg);border:1px solid var(--sidebar-border);border-radius:10px;text-decoration:none;color:var(--heading-color);font-size:12px;transition:all .22s}
-    .profil-contact-item:hover{border-color:var(--accent-color);background:rgba(5,99,187,.05);color:var(--accent-color);transform:translateX(3px)}
-    .profil-contact-item i{color:var(--accent-color);font-size:12px;width:14px;text-align:center;flex-shrink:0}
-    .profil-contact-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-
-    .profil-socials{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
-    .profil-social-btn{width:36px;height:36px;border-radius:50%;background:var(--sidebar-bg);border:1px solid var(--sidebar-border);color:var(--heading-color);font-size:14px;display:flex;align-items:center;justify-content:center;text-decoration:none;transition:all .22s}
-    .profil-social-btn:hover{background:var(--accent-color);border-color:var(--accent-color);color:#fff;transform:translateY(-3px);box-shadow:0 6px 14px rgba(5,99,187,.28)}
-
-    .left-stats{width:100%;display:flex;flex-direction:column;gap:8px}
-    .left-stat-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--sidebar-bg);border:1px solid var(--sidebar-border);border-radius:10px;transition:all .22s}
-    .left-stat-item:hover{border-color:var(--accent-color);background:rgba(5,99,187,.04);transform:translateX(3px)}
-    .left-stat-label{font-family:var(--nav-font);font-size:11px;font-weight:500;color:var(--heading-color);opacity:.7}
-    .left-stat-value{font-family:var(--heading-font);font-size:16px;font-weight:800;color:var(--accent-color)}
-
-    /* ── KOLOM KANAN ── */
-    .profil-right{opacity:0;transform:translateY(24px);animation:fadeUp .65s ease .38s forwards;display:flex;flex-direction:column;gap:18px}
-
-    /* ── SECTION CARD ── */
-    .section-card{padding:26px 30px;border:1px solid var(--sidebar-border);border-radius:16px;background:#fff;transition:box-shadow .25s}
-    .section-card:hover{box-shadow:0 4px 24px rgba(5,99,187,.07)}
-    .section-card-header{display:flex;align-items:center;gap:10px;margin-bottom:18px}
-    .section-card-icon{width:32px;height:32px;border-radius:8px;background:rgba(5,99,187,.08);color:var(--accent-color);font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-    .section-label{font-family:var(--nav-font);font-size:11px;font-weight:700;color:var(--accent-color);text-transform:uppercase;letter-spacing:1.5px}
-
-    .profil-bio{font-size:15px;line-height:1.8;color:var(--default-color);opacity:.82}
-
-    /* Info grid */
-    .profil-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 32px}
-    .profil-info-item{display:flex;flex-direction:column;gap:4px}
-    .profil-info-label{font-family:var(--nav-font);font-size:10px;font-weight:700;color:var(--accent-color);text-transform:uppercase;letter-spacing:1.2px;display:flex;align-items:center;gap:5px}
-    .profil-info-label i{font-size:9px;opacity:.7}
-    .profil-info-value{font-size:14px;font-weight:500;color:var(--heading-color)}
-    .profil-info-value a{color:var(--accent-color);text-decoration:none}
-    .profil-info-value a:hover{text-decoration:underline}
-    .status-badge{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:#1a8f4e}
-    .status-badge::before{content:'';width:7px;height:7px;border-radius:50%;background:#1a8f4e;display:inline-block;animation:pulseDot 1.8s ease-in-out infinite}
-    @keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
-
-    /* Minat */
-    .interest-tags{display:flex;flex-wrap:wrap;gap:8px}
-    .interest-tag{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:20px;border:1px solid var(--sidebar-border);background:var(--sidebar-bg);font-family:var(--nav-font);font-size:12px;font-weight:500;color:var(--heading-color);transition:all .22s;cursor:default}
-    .interest-tag:hover{border-color:var(--accent-color);background:rgba(5,99,187,.06);color:var(--accent-color);transform:translateY(-2px)}
-    .interest-tag i{font-size:11px;color:var(--accent-color)}
-
-    /* Pendidikan */
-    .edu-timeline{position:relative;padding-left:28px}
-    .edu-timeline::before{content:'';position:absolute;left:7px;top:8px;bottom:8px;width:2px;background:linear-gradient(to bottom,var(--accent-color),rgba(5,99,187,.1))}
-    .edu-item{position:relative;padding-bottom:24px}
-    .edu-item:last-child{padding-bottom:0}
-    .edu-dot{position:absolute;left:-22px;top:4px;width:16px;height:16px;border-radius:50%;background:var(--accent-color);border:3px solid #fff;box-shadow:0 0 0 2px var(--accent-color)}
-    .edu-dot.past{background:#b0bec5;box-shadow:0 0 0 2px #b0bec5}
-    .edu-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:4px}
-    .edu-school{font-family:var(--heading-font);font-size:15px;font-weight:700;color:var(--heading-color)}
-    .edu-jurusan{font-size:13px;color:var(--default-color);opacity:.65}
-    .edu-tahun{display:inline-block;font-family:var(--nav-font);font-size:11px;font-weight:600;color:var(--accent-color);background:rgba(5,99,187,.08);padding:3px 12px;border-radius:20px;white-space:nowrap}
-    .edu-tahun.past{color:#6b7c8e;background:rgba(107,124,142,.08)}
-
-    .state-box{text-align:center;padding:60px 24px;color:var(--heading-color);opacity:.45}
-    .state-box i{font-size:36px;margin-bottom:12px;display:block}
-    .spin{animation:spinAnim .8s linear infinite}
-    @keyframes spinAnim{to{transform:rotate(360deg)}}
-    @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
-
-    /* ══════════════════════════════════════════════════════════
-       HAMBURGER
-    ══════════════════════════════════════════════════════════ */
+    /* ── HAMBURGER ── */
     #hamburger{display:none;position:fixed;top:16px;left:16px;z-index:1100;width:42px;height:42px;border-radius:10px;background:var(--accent-color);border:none;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:10px;box-shadow:0 4px 16px rgba(5,99,187,.30);transition:background .2s,transform .2s}
     #hamburger:hover{background:#0452a0;transform:scale(1.05)}
     #hamburger span{display:block;width:20px;height:2px;background:#fff;border-radius:2px;transform-origin:center;transition:transform .28s cubic-bezier(.4,0,.2,1),opacity .2s ease,width .2s ease}
@@ -132,203 +39,290 @@
     #hamburger.open span:nth-child(2){opacity:0;width:0}
     #hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
 
-    /* ══════════════════════════════════════════════════════════
-       BACKDROP
-    ══════════════════════════════════════════════════════════ */
-    #nav-backdrop {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 999;
-  background: rgba(39,40,41,.45);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
-  opacity: 0;
-  transition: opacity .28s ease;
-  pointer-events: none; /* ← TAMBAH INI */
-}
-#nav-backdrop.visible {
-  opacity: 1;
-  pointer-events: auto; /* ← TAMBAH INI */
-}
+    /* ── BACKDROP ── */
+    #nav-backdrop{display:none;position:fixed;inset:0;z-index:999;background:rgba(39,40,41,.45);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;transition:opacity .28s ease;pointer-events:none}
+    #nav-backdrop.visible{opacity:1;pointer-events:auto}
 
-    /* ══════════════════════════════════════════════════════════
-       RESPONSIVE MOBILE
-    ══════════════════════════════════════════════════════════ */
-    @media (max-width: 768px) {
+    /* ── MAIN ── */
+    #main-content{margin-left:var(--sidebar-width);flex:1;min-height:100vh;padding:60px 80px}
 
-      :root { --sidebar-width: 0px; }
+    /* ── PAGE HEADER ── */
+    .page-header{margin-bottom:32px;opacity:0;transform:translateY(20px);animation:fadeUp .6s ease .1s forwards}
+    .page-title{font-family:var(--heading-font);font-size:clamp(32px,4vw,52px);font-weight:700;color:var(--heading-color);margin-bottom:6px}
+    .page-title span{color:var(--accent-color)}
+    .page-subtitle{font-family:var(--nav-font);font-size:14px;color:var(--default-color);opacity:.5}
 
-      #hamburger    { display: flex; }
-      #nav-backdrop { display: block; }
+    /* ══════════════════════════════════════════════
+       LAYOUT GRID
+    ══════════════════════════════════════════════ */
+    .profil-wrapper{
+      display:grid;
+      grid-template-columns:220px 1fr;
+      gap:40px;
+      align-items:start;
+    }
 
-      /* Sidebar slide */
-      #sidebar {
-        position: fixed; top: 0; left: 0;
-        width: 220px; height: 100vh;
-        flex-direction: column; align-items: flex-start;
-        padding: 80px 16px 32px; gap: 6px;
-        border-right: 1px solid var(--sidebar-border); border-top: none;
-        transform: translateX(-100%);
-        transition: transform .32s cubic-bezier(.4,0,.2,1), box-shadow .32s ease;
-        box-shadow: none; z-index: 1000;
+    /* ══════════════════════════════════════════════
+       KOLOM KIRI
+    ══════════════════════════════════════════════ */
+    .profil-left{
+      display:flex;flex-direction:column;align-items:center;gap:20px;
+      position:sticky;top:40px;
+      opacity:0;transform:translateY(24px);animation:fadeUp .65s ease .22s forwards;
+    }
+
+    /* Foto */
+    .profil-photo-wrap{position:relative;width:160px;height:160px;flex-shrink:0}
+    .profil-photo-wrap::before{
+      content:'';position:absolute;inset:-7px;border-radius:50%;
+      border:1.5px solid rgba(5,99,187,.2);
+      animation:ringPulse 3s ease-in-out infinite;
+    }
+    @keyframes ringPulse{0%,100%{transform:scale(1);opacity:.3}50%{transform:scale(1.05);opacity:.8}}
+    .profil-photo{width:160px;height:160px;border-radius:50%;object-fit:cover;border:3px solid var(--accent-color);box-shadow:0 8px 28px rgba(5,99,187,.14)}
+    .profil-photo-placeholder{
+      width:160px;height:160px;border-radius:50%;
+      background:linear-gradient(135deg,#e8f0fb,#c5d8f5);
+      border:3px solid var(--accent-color);
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+      box-shadow:0 8px 28px rgba(5,99,187,.14);
+    }
+    .profil-photo-placeholder .initials{font-family:var(--heading-font);font-size:42px;font-weight:800;color:var(--accent-color);line-height:1}
+    .profil-photo-placeholder .photo-label{font-family:var(--nav-font);font-size:9px;font-weight:600;color:var(--accent-color);opacity:.6;letter-spacing:1.5px;text-transform:uppercase}
+
+    /* Nama & role */
+    .profil-left-name{font-family:var(--heading-font);font-size:15px;font-weight:700;color:var(--heading-color);text-align:center;line-height:1.3}
+    .profil-left-role{font-family:var(--nav-font);font-size:9.5px;font-weight:600;color:var(--accent-color);letter-spacing:1.8px;text-transform:uppercase;text-align:center}
+
+    .left-divider{width:32px;height:1.5px;background:linear-gradient(to right,var(--accent-color),rgba(5,99,187,.1));border-radius:2px}
+
+    /* Kontak */
+    .profil-contact-list{width:100%;display:flex;flex-direction:column;gap:6px}
+    .profil-contact-item{
+      display:flex;align-items:center;gap:10px;
+      padding:9px 13px;
+      background:var(--sidebar-bg);border:1px solid var(--sidebar-border);
+      border-radius:10px;text-decoration:none;
+      color:var(--heading-color);font-family:var(--nav-font);font-size:11.5px;
+      transition:all .22s;
+    }
+    .profil-contact-item:hover{border-color:rgba(5,99,187,.3);background:#fff;color:var(--accent-color);transform:translateX(3px)}
+    .contact-dot{width:5px;height:5px;border-radius:50%;background:var(--accent-color);flex-shrink:0;opacity:.6}
+    .profil-contact-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+    /* Socials */
+    .profil-socials{display:flex;flex-wrap:wrap;gap:7px;justify-content:center}
+    .profil-social-btn{
+      width:34px;height:34px;border-radius:50%;
+      background:var(--sidebar-bg);border:1px solid var(--sidebar-border);
+      color:var(--heading-color);font-size:13px;
+      display:flex;align-items:center;justify-content:center;
+      text-decoration:none;transition:all .22s;
+    }
+    .profil-social-btn:hover{background:var(--accent-color);border-color:var(--accent-color);color:#fff;transform:translateY(-3px);box-shadow:0 6px 14px rgba(5,99,187,.28)}
+
+    /* Stats kiri */
+    .left-stats{
+      width:100%;display:flex;flex-direction:column;gap:6px;
+    }
+    .left-stat-item{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:9px 14px;
+      background:var(--sidebar-bg);border:1px solid var(--sidebar-border);
+      border-radius:10px;transition:all .22s;
+    }
+    .left-stat-item:hover{border-color:rgba(5,99,187,.25);background:#fff;transform:translateX(3px)}
+    .left-stat-label{font-family:var(--nav-font);font-size:10.5px;font-weight:500;color:var(--heading-color);opacity:.6}
+    .left-stat-value{font-family:var(--heading-font);font-size:17px;font-weight:800;color:var(--accent-color)}
+
+    /* ══════════════════════════════════════════════
+       KOLOM KANAN
+    ══════════════════════════════════════════════ */
+    .profil-right{
+      display:flex;flex-direction:column;gap:16px;
+      opacity:0;transform:translateY(24px);animation:fadeUp .65s ease .36s forwards;
+    }
+
+    /* Section card */
+    .section-card{
+      padding:26px 28px;
+      border:1px solid var(--sidebar-border);
+      border-radius:16px;background:#fff;
+      transition:box-shadow .25s;
+    }
+    .section-card:hover{box-shadow:0 4px 24px rgba(5,99,187,.06)}
+
+    .section-label{
+      font-family:var(--heading-font);font-size:11px;font-weight:700;
+      color:var(--accent-color);text-transform:uppercase;letter-spacing:2px;
+      display:block;margin-bottom:18px;
+    }
+
+    /* Bio */
+    .profil-bio{font-size:14.5px;line-height:1.85;color:var(--default-color);opacity:.82}
+
+    /* Info grid */
+    .profil-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--sidebar-border);border-radius:12px;overflow:hidden}
+    .profil-info-item{
+      padding:14px 18px;
+      border-bottom:1px solid var(--sidebar-border);
+      border-right:1px solid var(--sidebar-border);
+      transition:background .18s;
+    }
+    .profil-info-item:hover{background:rgba(5,99,187,.025)}
+    .profil-info-item:nth-child(2n){border-right:none}
+    .profil-info-item:nth-last-child(-n+2){border-bottom:none}
+    .profil-info-label{
+      font-family:var(--nav-font);font-size:9.5px;font-weight:700;
+      color:var(--accent-color);text-transform:uppercase;letter-spacing:1.2px;
+      margin-bottom:5px;
+    }
+    .profil-info-value{font-size:13.5px;font-weight:500;color:var(--heading-color)}
+    .profil-info-value a{color:var(--accent-color);text-decoration:none}
+    .profil-info-value a:hover{text-decoration:underline}
+
+    /* Status badge */
+    .status-badge{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:500;color:#1a8f4e}
+    .status-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:#1a8f4e;display:inline-block;animation:pulseDot 1.8s ease-in-out infinite}
+    @keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.4)}}
+
+    /* Minat — pill tags, no icon */
+    .interest-tags{display:flex;flex-wrap:wrap;gap:8px}
+    .interest-tag{
+      padding:7px 15px;border-radius:999px;
+      border:1px solid var(--sidebar-border);background:#fafafa;
+      font-family:var(--nav-font);font-size:12px;font-weight:500;
+      color:var(--heading-color);transition:all .2s;cursor:default;
+    }
+    .interest-tag:hover{border-color:rgba(5,99,187,.3);background:#fff;color:var(--accent-color)}
+
+    /* Pendidikan timeline */
+    .edu-timeline{display:flex;flex-direction:column;gap:0}
+    .edu-item{
+      display:grid;
+      grid-template-columns:1fr auto;
+      align-items:start;gap:8px 16px;
+      padding:14px 0;
+      border-bottom:1px solid rgba(233,236,239,.9);
+      position:relative;
+    }
+    .edu-item:last-child{border-bottom:none;padding-bottom:0}
+    .edu-item:first-child{padding-top:0}
+    .edu-school{font-family:var(--heading-font);font-size:14.5px;font-weight:700;color:var(--heading-color);margin-bottom:3px}
+    .edu-jurusan{font-size:12.5px;color:var(--default-color);opacity:.6;line-height:1.4}
+    .edu-tahun{
+      font-family:var(--nav-font);font-size:10px;font-weight:600;
+      color:var(--accent-color);background:rgba(5,99,187,.08);
+      padding:3px 11px;border-radius:999px;white-space:nowrap;
+      align-self:start;margin-top:2px;
+    }
+    .edu-tahun.past{color:#7b8ea0;background:rgba(123,142,160,.08)}
+
+    /* State */
+    .state-box{text-align:center;padding:60px 24px;color:var(--heading-color);opacity:.4}
+    .state-box i{font-size:30px;margin-bottom:12px;display:block}
+    .state-box p{font-family:var(--nav-font);font-size:13px}
+    .spin{animation:spinAnim .8s linear infinite}
+
+    @keyframes spinAnim{to{transform:rotate(360deg)}}
+    @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+
+    /* ══════════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════════ */
+    @media(max-width:768px){
+      :root{--sidebar-width:0px}
+      #hamburger{display:flex}
+      #nav-backdrop{display:block}
+
+      #sidebar{
+        position:fixed;top:0;left:0;
+        width:220px;height:100vh;
+        flex-direction:column;align-items:flex-start;
+        padding:80px 16px 32px;gap:6px;
+        border-right:1px solid var(--sidebar-border);
+        transform:translateX(-100%);
+        transition:transform .32s cubic-bezier(.4,0,.2,1),box-shadow .32s ease;
+        box-shadow:none;z-index:1000;
       }
-      #sidebar.open { transform: translateX(0); box-shadow: 6px 0 32px rgba(5,99,187,.14); }
+      #sidebar.open{transform:translateX(0);box-shadow:6px 0 32px rgba(5,99,187,.14)}
+      #sidebar .nav-btn{width:100%;height:46px;border-radius:10px;justify-content:flex-start;padding:0 14px;gap:12px;font-size:15px}
+      #sidebar .nav-btn::after{position:static;transform:none;background:transparent;color:inherit;padding:0;border-radius:0;font-size:13px;font-weight:500;opacity:1;pointer-events:auto;content:attr(data-tooltip);white-space:nowrap}
+      #sidebar .nav-btn::before{display:none}
 
-      #sidebar .nav-btn {
-        width: 100%; height: 46px; border-radius: 10px;
-        justify-content: flex-start; padding: 0 14px; gap: 12px; font-size: 15px;
+      #main-content{margin-left:0;padding:72px 20px 48px}
+      .page-header{margin-bottom:28px}
+      .page-title{font-size:clamp(26px,7vw,34px)}
+
+      /* Layout 1 kolom */
+      .profil-wrapper{grid-template-columns:1fr;gap:20px}
+
+      /* Kiri jadi card compact */
+      .profil-left{
+        position:static;
+        background:#fff;border:1px solid var(--sidebar-border);
+        border-radius:18px;padding:24px 20px;
+        box-shadow:0 2px 12px rgba(5,99,187,.05);
+        gap:16px;
       }
-      #sidebar .nav-btn::after {
-        position: static; transform: none; background: transparent; color: inherit;
-        padding: 0; border-radius: 0; font-size: 13px; font-weight: 500;
-        opacity: 1; pointer-events: auto; content: attr(data-tooltip); white-space: nowrap;
+      .profil-photo-wrap{width:100px;height:100px}
+      .profil-photo{width:100px;height:100px;border-width:2.5px}
+      .profil-photo-placeholder{width:100px;height:100px}
+      .profil-photo-placeholder .initials{font-size:28px}
+      .profil-photo-wrap::before{inset:-5px}
+      .profil-left-name{font-size:15px}
+
+      /* Stats jadi row */
+      .left-stats{
+        flex-direction:row;
+        background:rgba(5,99,187,.03);
+        border:1px solid var(--sidebar-border);
+        border-radius:12px;padding:10px 6px;
+        gap:0;
       }
-      #sidebar .nav-btn::before { display: none; }
-
-      /* Main */
-      #main-content {
-        margin-left: 0; margin-bottom: 0;
-        padding: 72px 20px 40px;
+      .left-stat-item{
+        flex-direction:column;align-items:center;gap:2px;
+        padding:6px 12px;background:transparent;border:none;
+        border-radius:0;flex:1;text-align:center;
       }
+      .left-stat-item:not(:last-child){border-right:1px solid var(--sidebar-border)}
+      .left-stat-item:hover{transform:none;background:transparent}
+      .left-stat-value{font-size:16px}
+      .left-stat-label{font-size:9px;text-align:center;line-height:1.3;opacity:.55}
 
-      /* Header */
-      .page-header  { margin-bottom: 24px; }
-      .page-title   { font-size: clamp(26px, 7vw, 34px); }
+      /* Kontak 2 kolom */
+      .profil-contact-list{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+      .profil-contact-item{font-size:10.5px;padding:8px 10px;border-radius:9px}
+      .profil-contact-item:hover{transform:none}
 
-      /* ── PROFIL WRAPPER: ubah ke 1 kolom ── */
-      .profil-wrapper {
-        grid-template-columns: 1fr;
-        gap: 24px;
+      /* Kanan */
+      .profil-right{gap:12px}
+      .section-card{padding:18px 16px;border-radius:14px}
+      .section-label{font-size:10px;margin-bottom:14px}
+
+      .profil-bio{font-size:13.5px;line-height:1.8}
+
+      /* Info grid 1 kolom */
+      .profil-info-grid{grid-template-columns:1fr;border:none;gap:7px}
+      .profil-info-item{
+        border:1px solid var(--sidebar-border) !important;
+        border-radius:10px;padding:11px 14px;
       }
+      .profil-info-item:hover{background:rgba(5,99,187,.025)}
 
-      /* ── KOLOM KIRI: jadi card horizontal di atas ── */
-      .profil-left {
-        position: static; /* hapus sticky */
-        flex-direction: column;
-        align-items: center;
-        gap: 14px;
+      /* Minat */
+      .interest-tags{gap:6px}
+      .interest-tag{font-size:11.5px;padding:6px 13px}
 
-        /* Profile card compact */
-        background: var(--surface-color);
-        border: 1px solid var(--sidebar-border);
-        border-radius: 20px;
-        padding: 24px 20px;
-        box-shadow: 0 2px 16px rgba(5,99,187,.06);
-      }
+      /* Timeline */
+      .edu-item{grid-template-columns:1fr;gap:4px;padding:13px 0}
+      .edu-tahun{align-self:auto;width:fit-content}
+      .edu-school{font-size:13.5px}
+      .edu-jurusan{font-size:12px}
+    }
 
-      /* Foto lebih kecil di mobile */
-      .profil-photo-wrap  { width: 110px; height: 110px; }
-      .profil-photo       { width: 110px; height: 110px; border-width: 3px; }
-      .profil-photo-placeholder { width: 110px; height: 110px; }
-      .profil-photo-placeholder .initials { font-size: 30px; }
-      .profil-photo-wrap::before { inset: -5px; }
-
-      .profil-left-name { font-size: 16px; }
-      .profil-left-role { font-size: 9px; }
-
-      /* Stats jadi row 3 kolom */
-      .left-stats {
-        flex-direction: row;
-        justify-content: space-around;
-        gap: 0;
-        background: rgba(5,99,187,.03);
-        border: 1px solid var(--sidebar-border);
-        border-radius: 12px;
-        padding: 12px 8px;
-        width: 100%;
-      }
-      .left-stat-item {
-        flex-direction: column;
-        align-items: center;
-        gap: 3px;
-        padding: 6px 10px;
-        background: transparent;
-        border: none;
-        border-radius: 0;
-        flex: 1;
-        text-align: center;
-      }
-      .left-stat-item:not(:last-child) {
-        border-right: 1px solid var(--sidebar-border);
-      }
-      .left-stat-item:hover { transform: none; background: transparent; border-color: var(--sidebar-border); }
-      .left-stat-value { font-size: 18px; }
-      .left-stat-label { font-size: 9px; text-align: center; line-height: 1.3; }
-
-      /* Kontak: grid 2 kolom */
-      .profil-contact-list {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-        width: 100%;
-      }
-      .profil-contact-item {
-        padding: 8px 10px;
-        font-size: 11px;
-        border-radius: 10px;
-      }
-      .profil-contact-item:hover { transform: none; }
-
-      /* Socials — baris penuh */
-      .profil-socials { gap: 8px; }
-      .profil-social-btn { width: 38px; height: 38px; font-size: 15px; }
-
-      /* Left divider */
-      .left-divider { width: 48px; }
-
-      /* ── KOLOM KANAN: section cards ── */
-      .profil-right { gap: 14px; }
-
-      .section-card {
-        padding: 20px 18px;
-        border-radius: 14px;
-      }
-      .section-card-header { margin-bottom: 14px; gap: 8px; }
-      .section-card-icon   { width: 28px; height: 28px; font-size: 12px; border-radius: 7px; }
-      .section-label       { font-size: 10px; }
-
-      /* Bio */
-      .profil-bio { font-size: 14px; line-height: 1.75; }
-
-      /* Info grid: 1 kolom di mobile */
-      .profil-info-grid {
-        grid-template-columns: 1fr;
-        gap: 14px;
-      }
-      .profil-info-item {
-        display: grid;
-        grid-template-columns: 1fr auto;
-        align-items: center;
-        gap: 4px 12px;
-        padding: 10px 14px;
-        background: var(--sidebar-bg);
-        border: 1px solid var(--sidebar-border);
-        border-radius: 10px;
-      }
-      .profil-info-label {
-        font-size: 9px;
-        grid-column: 1;
-        grid-row: 1;
-      }
-      .profil-info-value {
-        font-size: 13px;
-        grid-column: 1;
-        grid-row: 2;
-      }
-
-      /* Minat — lebih kecil */
-      .interest-tags { gap: 6px; }
-      .interest-tag  { font-size: 11px; padding: 6px 12px; gap: 5px; }
-      .interest-tag:hover { transform: none; }
-
-      /* Edu timeline */
-      .edu-timeline { padding-left: 22px; }
-      .edu-dot      { left: -18px; width: 13px; height: 13px; }
-      .edu-school   { font-size: 14px; }
-      .edu-jurusan  { font-size: 12px; }
-      .edu-tahun    { font-size: 10px; padding: 2px 10px; }
-      .edu-item     { padding-bottom: 20px; }
+    @media(max-width:400px){
+      .profil-contact-list{grid-template-columns:1fr}
     }
   </style>
 </head>
@@ -404,9 +398,9 @@
              <span class="photo-label">Photo</span>
            </div>`;
 
-      // Socials
+      // Socials — tanpa icon diganti font awesome tetap karena brand identity
       const socials = [
-        { url: p.url_x,         icon: 'fab fa-x-twitter',   title: 'X / Twitter' },
+        { url: p.url_x,         icon: 'fab fa-x-twitter',   title: 'X' },
         { url: p.url_tiktok,    icon: 'fab fa-tiktok',      title: 'TikTok' },
         { url: p.url_instagram, icon: 'fab fa-instagram',   title: 'Instagram' },
         { url: p.url_linkedin,  icon: 'fab fa-linkedin-in', title: 'LinkedIn' },
@@ -418,46 +412,50 @@
         `<a href="${s.url}" target="_blank" class="profil-social-btn" title="${s.title}"><i class="${s.icon}"></i></a>`
       ).join('');
 
-      // Kontak
+      // Kontak — dot pengganti icon
       const contacts = [
-        p.email ? { icon: 'fas fa-envelope',     text: p.email, href: `mailto:${p.email}` } : null,
-        p.city  ? { icon: 'fas fa-location-dot', text: p.city,  href: null }                : null,
-        p.phone ? { icon: 'fas fa-phone',        text: `+${String(p.phone).replace(/\D/g,'')}`, href: `tel:${p.phone}` } : null,
+        p.email ? { text: p.email, href: `mailto:${p.email}` } : null,
+        p.city  ? { text: p.city,  href: null }                : null,
+        p.phone ? { text: `+${String(p.phone).replace(/\D/g,'')}`, href: `tel:${p.phone}` } : null,
       ].filter(Boolean);
 
       const contactsHtml = contacts.map(c =>
         c.href
-          ? `<a href="${c.href}" class="profil-contact-item"><i class="${c.icon}"></i><span class="profil-contact-text">${c.text}</span></a>`
-          : `<div class="profil-contact-item"><i class="${c.icon}"></i><span class="profil-contact-text">${c.text}</span></div>`
+          ? `<a href="${c.href}" class="profil-contact-item"><span class="contact-dot"></span><span class="profil-contact-text">${c.text}</span></a>`
+          : `<div class="profil-contact-item"><span class="contact-dot"></span><span class="profil-contact-text">${c.text}</span></div>`
       ).join('');
 
       // Education
       const eduHtml = eduList.map(e => `
         <div class="edu-item">
-          <div class="edu-dot ${e.is_active ? '' : 'past'}"></div>
-          <div class="edu-header">
+          <div>
             <p class="edu-school">${e.school_name}</p>
-            <span class="edu-tahun ${e.is_active ? '' : 'past'}">
-              ${e.year_start} — ${e.is_active ? 'Sekarang' : (e.year_end || '')}
-            </span>
+            <p class="edu-jurusan">${e.major || ''}</p>
           </div>
-          <p class="edu-jurusan">${e.major || ''}</p>
+          <span class="edu-tahun ${e.is_active ? '' : 'past'}">
+            ${e.year_start}–${e.is_active ? 'Skrg' : (e.year_end || '')}
+          </span>
         </div>`
       ).join('');
 
-      // Interests
+      // Interests — tanpa icon, pure text pill
       let interests = [
-        { icon: 'fas fa-code',        label: 'Web Development' },
-        { icon: 'fas fa-palette',     label: 'UI/UX Design' },
-        { icon: 'fas fa-camera',      label: 'Photography' },
-        { icon: 'fas fa-robot',       label: 'Artificial Intelligence' },
-        { icon: 'fas fa-film',        label: 'Motion Graphics' },
-        { icon: 'fas fa-pen-nib',     label: 'Graphic Design' },
+        { label: 'Web Development' },
+        { label: 'UI/UX Design' },
+        { label: 'Photography' },
+        { label: 'Artificial Intelligence' },
+        { label: 'Motion Graphics' },
+        { label: 'Graphic Design' },
       ];
-      if (p.interests) { try { interests = JSON.parse(p.interests); } catch(_) {} }
+      if (p.interests) {
+        try {
+          const parsed = JSON.parse(p.interests);
+          interests = parsed.map(i => ({ label: i.label || i }));
+        } catch(_) {}
+      }
 
       const interestsHtml = interests.map(i =>
-        `<span class="interest-tag"><i class="${i.icon}"></i>${i.label}</span>`
+        `<span class="interest-tag">${i.label}</span>`
       ).join('');
 
       el.innerHTML = `
@@ -471,7 +469,7 @@
             <div class="left-divider"></div>
 
             ${contactsHtml ? `<div class="profil-contact-list">${contactsHtml}</div>` : ''}
-            <div class="profil-socials">${socialsHtml}</div>
+            ${socialsHtml ? `<div class="profil-socials">${socialsHtml}</div>` : ''}
             <div class="left-divider"></div>
 
             <div class="left-stats">
@@ -493,57 +491,45 @@
           <!-- ═══ KANAN ═══ -->
           <div class="profil-right">
 
-            <!-- 1. Tentang Saya -->
+            <!-- Tentang Saya -->
             <div class="section-card">
-              <div class="section-card-header">
-                <div class="section-card-icon"><i class="fas fa-user-circle"></i></div>
-                <span class="section-label">Tentang Saya</span>
-              </div>
+              <span class="section-label">Tentang Saya</span>
               <p class="profil-bio">${p.bio || ''}</p>
             </div>
 
-            <!-- 2. Informasi Personal — setiap field jadi item terpisah dengan icon -->
+            <!-- Informasi Personal -->
             <div class="section-card">
-              <div class="section-card-header">
-                <div class="section-card-icon"><i class="fas fa-id-card"></i></div>
-                <span class="section-label">Informasi Personal</span>
-              </div>
+              <span class="section-label">Informasi Personal</span>
               <div class="profil-info-grid">
                 <div class="profil-info-item">
-                  <p class="profil-info-label"><i class="fas fa-cake-candles"></i> Tanggal Lahir</p>
+                  <p class="profil-info-label">Tanggal Lahir</p>
                   <p class="profil-info-value">${birthDate}</p>
                 </div>
                 <div class="profil-info-item">
-                  <p class="profil-info-label"><i class="fas fa-location-dot"></i> Domisili</p>
+                  <p class="profil-info-label">Domisili</p>
                   <p class="profil-info-value">${p.city || '—'}</p>
                 </div>
                 <div class="profil-info-item">
-                  <p class="profil-info-label"><i class="fas fa-envelope"></i> Email</p>
+                  <p class="profil-info-label">Email</p>
                   <p class="profil-info-value"><a href="mailto:${p.email}">${p.email || '—'}</a></p>
                 </div>
                 <div class="profil-info-item">
-                  <p class="profil-info-label"><i class="fas fa-circle-check"></i> Status</p>
+                  <p class="profil-info-label">Status</p>
                   <p class="profil-info-value"><span class="status-badge">Mahasiswa Aktif</span></p>
                 </div>
               </div>
             </div>
 
-            <!-- 3. Minat & Ketertarikan -->
+            <!-- Minat -->
             <div class="section-card">
-              <div class="section-card-header">
-                <div class="section-card-icon"><i class="fas fa-heart"></i></div>
-                <span class="section-label">Minat &amp; Ketertarikan</span>
-              </div>
+              <span class="section-label">Minat &amp; Ketertarikan</span>
               <div class="interest-tags">${interestsHtml}</div>
             </div>
 
-            <!-- 4. Riwayat Pendidikan -->
+            <!-- Pendidikan -->
             ${eduHtml ? `
             <div class="section-card">
-              <div class="section-card-header">
-                <div class="section-card-icon"><i class="fas fa-graduation-cap"></i></div>
-                <span class="section-label">Riwayat Pendidikan</span>
-              </div>
+              <span class="section-label">Riwayat Pendidikan</span>
               <div class="edu-timeline">${eduHtml}</div>
             </div>` : ''}
 
@@ -584,10 +570,7 @@
     });
 
     backdrop.addEventListener('click', closeMenu);
-
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 768) closeMenu();
-    });
+    window.addEventListener('resize', () => { if (window.innerWidth > 768) closeMenu(); });
   })();
   </script>
 
