@@ -3,55 +3,68 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="robots" content="noindex, nofollow"/>
   <title>Admin Dashboard — Portfolio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@600;700;800&family=Poppins:wght@400;500;600&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <link rel="stylesheet" href="./assets/css/admin.css"/>
   <link rel="stylesheet" href="./assets/css/theme.css"/>
   <script src="./assets/js/theme.js"></script>
 </head>
 <body>
+
+  <!-- Mobile Overlay -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
   <aside id="adminSidebar">
     <div class="sidebar-brand">
       <div class="brand-row">
-        <div class="brand-icon"><i class="fas fa-layer-group"></i></div>
-        <div><p class="brand-name">Portfolio Admin</p><p class="brand-role">Eka Danar Arrasyid</p></div>
+        <div class="brand-icon"><i class="fas fa-terminal"></i></div>
+        <div>
+          <p class="brand-name">Admin Panel</p>
+          <p class="brand-role">Portfolio Dashboard</p>
+        </div>
       </div>
     </div>
     <nav class="sidebar-nav">
       <p class="nav-section-label">Profil</p>
-      <button class="sidebar-link" data-page="profile"><i class="fas fa-user-circle"></i> Edit Profil</button>
+      <button class="sidebar-link" data-page="profile"><i class="fas fa-user"></i> Edit Profil</button>
+
       <p class="nav-section-label">Konten</p>
-      <button class="sidebar-link active" data-page="skills"><i class="fas fa-list-check"></i> Skills</button>
-      <button class="sidebar-link" data-page="portfolio"><i class="fas fa-briefcase-clock"></i> Portfolio</button>
+      <button class="sidebar-link active" data-page="skills"><i class="fas fa-code"></i> Skills</button>
+      <button class="sidebar-link" data-page="portfolio"><i class="fas fa-folder-open"></i> Portfolio</button>
       <button class="sidebar-link" data-page="experience"><i class="fas fa-briefcase"></i> Experience</button>
-      <button class="sidebar-link" data-page="events"><i class="fas fa-calendar-days"></i> Event / Org</button>
-      <button class="sidebar-link" data-page="certifications"><i class="fas fa-award"></i> Certification</button>
-      <p class="nav-section-label" style="margin-top:8px">Portfolio</p>
-      <a class="sidebar-link" href="index.html" target="_blank"><i class="fas fa-eye"></i> Lihat Portfolio</a>
-      <a href="#" id="darkModeToggle" class="nav-btn" data-tooltip="Dark Mode"><i class="fas fa-moon"></i></a>
-</nav>
+      <button class="sidebar-link" data-page="events"><i class="fas fa-calendar"></i> Event / Org</button>
+      <button class="sidebar-link" data-page="certifications"><i class="fas fa-certificate"></i> Certification</button>
+
+      <p class="nav-section-label" style="margin-top:8px">Links</p>
+      <a class="sidebar-link" href="index.html" target="_blank"><i class="fas fa-external-link-alt"></i> Lihat Portfolio</a>
+      <button class="sidebar-link" id="darkModeToggle"><i class="fas fa-moon"></i> Dark Mode</button>
+    </nav>
     <div class="sidebar-footer">
-      <button class="sidebar-link" id="btnLogout"><i class="fas fa-right-from-bracket"></i> Logout</button>
+      <button class="sidebar-link logout-link" id="btnLogout"><i class="fas fa-sign-out-alt"></i> Logout</button>
     </div>
   </aside>
 
   <div id="adminMain">
     <header class="topbar">
-      <h1 class="topbar-title" id="topbarTitle">Manage <span>Skills</span></h1>
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+        <h1 class="topbar-title" id="topbarTitle">Manage <span>Skills</span></h1>
+      </div>
       <div class="topbar-right">
         <button class="btn btn-primary" id="btnAddNew"><i class="fas fa-plus"></i> Tambah Baru</button>
-        <button class="btn btn-primary" id="btnSaveProfile" style="display:none"><i class="fas fa-floppy-disk"></i> Simpan Profil</button>
+        <button class="btn btn-primary" id="btnSaveProfile" style="display:none"><i class="fas fa-save"></i> Simpan Profil</button>
       </div>
     </header>
     <div class="content">
-      <div class="page" id="page-profile"><div id="profileContent"><div class="loading"><i class="fas fa-circle-notch"></i></div></div></div>
-      <div class="page active" id="page-skills"><div id="skillsContent"><div class="loading"><i class="fas fa-circle-notch"></i></div></div></div>
-      <div class="page" id="page-portfolio"><div id="portfolioContent"><div class="loading"><i class="fas fa-circle-notch"></i></div></div></div>
-      <div class="page" id="page-experience"><div id="expContent"><div class="loading"><i class="fas fa-circle-notch"></i></div></div></div>
-      <div class="page" id="page-events"><div id="eventsContent"><div class="loading"><i class="fas fa-circle-notch"></i></div></div></div>
-      <div class="page" id="page-certifications"><div id="certContent"><div class="loading"><i class="fas fa-circle-notch"></i></div></div></div>
+      <div class="page" id="page-profile"><div id="profileContent"><div class="loading"><i class="fas fa-spinner fa-spin"></i></div></div></div>
+      <div class="page active" id="page-skills"><div id="skillsContent"><div class="loading"><i class="fas fa-spinner fa-spin"></i></div></div></div>
+      <div class="page" id="page-portfolio"><div id="portfolioContent"><div class="loading"><i class="fas fa-spinner fa-spin"></i></div></div></div>
+      <div class="page" id="page-experience"><div id="expContent"><div class="loading"><i class="fas fa-spinner fa-spin"></i></div></div></div>
+      <div class="page" id="page-events"><div id="eventsContent"><div class="loading"><i class="fas fa-spinner fa-spin"></i></div></div></div>
+      <div class="page" id="page-certifications"><div id="certContent"><div class="loading"><i class="fas fa-spinner fa-spin"></i></div></div></div>
     </div>
   </div>
 
@@ -66,7 +79,7 @@
       <div class="modal-body" id="modalBody"></div>
       <div class="modal-footer">
         <button class="btn btn-outline" id="btnCancel">Batal</button>
-        <button class="btn btn-primary" id="btnSave"><i class="fas fa-floppy-disk"></i> Simpan</button>
+        <button class="btn btn-primary" id="btnSave"><i class="fas fa-save"></i> Simpan</button>
       </div>
     </div>
   </div>
@@ -75,21 +88,21 @@
     <div class="modal" style="max-width:360px">
       <div class="modal-body">
         <div class="confirm-modal">
-          <div class="confirm-icon"><i class="fas fa-trash-can"></i></div>
+          <div class="confirm-icon"><i class="fas fa-trash"></i></div>
           <p class="confirm-title">Hapus Data?</p>
           <p class="confirm-text" id="confirmText">Data yang dihapus tidak bisa dikembalikan.</p>
           <div class="confirm-btns">
             <button class="btn btn-outline" id="confirmCancel">Batal</button>
-            <button class="btn btn-danger" id="confirmOk"><i class="fas fa-trash-can"></i> Hapus</button>
+            <button class="btn btn-danger" id="confirmOk"><i class="fas fa-trash"></i> Hapus</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- CDN FIRST, then app scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="./assets/js/admin.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
 </body>
 </html>

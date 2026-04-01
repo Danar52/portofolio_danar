@@ -1,68 +1,97 @@
-// ── CONFIG — ganti dengan milik lo ──────────────────────
-    const SUPABASE_URL     = 'https://vdnysjewpqunxokscaan.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkbnlzamV3cHF1bnhva3NjYWFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MjQ2MDcsImV4cCI6MjA4OTUwMDYwN30.GfnHPRuO8bDdfTJeOhLAV0gw54_PDGojQCrVPTzSA3g';
-    // ────────────────────────────────────────────────────────
+// ── CONFIG ──────────────────────────────────────────────────
+const SUPABASE_URL      = 'https://vdnysjewpqunxokscaan.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkbnlzamV3cHF1bnhva3NjYWFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MjQ2MDcsImV4cCI6MjA4OTUwMDYwN30.GfnHPRuO8bDdfTJeOhLAV0gw54_PDGojQCrVPTzSA3g';
+// ────────────────────────────────────────────────────────────
 
-    const { createClient } = supabase;
-    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let db;
+try {
+  const { createClient } = supabase;
+  db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} catch (err) {
+  console.error('Gagal inisialisasi Supabase:', err);
+  const errEl = document.getElementById('errorMsg');
+  const errTxt = document.getElementById('errorText');
+  if (errEl && errTxt) {
+    errTxt.textContent = 'Gagal terhubung ke server. Refresh halaman ini.';
+    errEl.classList.add('show');
+  }
+}
 
-    // Kalau sudah login, langsung redirect ke dashboard
-    db.auth.getSession().then(({ data }) => {
-      if (data.session) window.location.href = 'admin.html';
-    });
+// Kalau sudah login, langsung redirect ke dashboard
+if (db) {
+  db.auth.getSession().then(({ data }) => {
+    if (data.session) window.location.href = 'admin.html';
+  });
+}
 
-    // ── Toggle password visibility ───────────────────────────
-    document.getElementById('togglePw').addEventListener('click', () => {
-      const input   = document.getElementById('password');
-      const icon    = document.getElementById('eyeIcon');
-      const isHidden = input.type === 'password';
-      input.type    = isHidden ? 'text' : 'password';
-      icon.className = isHidden ? 'fas fa-eye-slash' : 'fas fa-eye';
-    });
+// ── Toggle password visibility ───────────────────────────
+document.getElementById('togglePw').addEventListener('click', () => {
+  const input   = document.getElementById('password');
+  const icon    = document.getElementById('eyeIcon');
+  const isHidden = input.type === 'password';
+  input.type    = isHidden ? 'text' : 'password';
+  icon.className = isHidden ? 'fas fa-eye-slash' : 'fas fa-eye';
+});
 
-    // ── Login ────────────────────────────────────────────────
-    async function doLogin() {
-      const email    = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const errorMsg = document.getElementById('errorMsg');
-      const errorTxt = document.getElementById('errorText');
-      const btn      = document.getElementById('btnLogin');
-      const spinner  = document.getElementById('spinner');
-      const icon     = document.getElementById('loginIcon');
-      const btnText  = document.getElementById('btnText');
+// ── Login ────────────────────────────────────────────────
+async function doLogin() {
+  if (!db) {
+    document.getElementById('errorText').textContent = 'Supabase belum terhubung. Refresh halaman.';
+    document.getElementById('errorMsg').classList.add('show');
+    return;
+  }
 
-      // Validasi
-      if (!email || !password) {
-        errorTxt.textContent = 'Email dan password wajib diisi.';
-        errorMsg.classList.add('show');
-        return;
-      }
+  const email    = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const errorMsg = document.getElementById('errorMsg');
+  const errorTxt = document.getElementById('errorText');
+  const btn      = document.getElementById('btnLogin');
+  const spinner  = document.getElementById('spinner');
+  const icon     = document.getElementById('loginIcon');
+  const btnText  = document.getElementById('btnText');
 
-      // Loading state
-      btn.disabled      = true;
-      spinner.style.display = 'block';
-      icon.style.display    = 'none';
-      btnText.textContent   = 'Memproses...';
-      errorMsg.classList.remove('show');
+  // Validasi
+  if (!email || !password) {
+    errorTxt.textContent = 'Email dan password wajib diisi.';
+    errorMsg.classList.add('show');
+    return;
+  }
 
-      const { error } = await db.auth.signInWithPassword({ email, password });
+  // Loading state
+  btn.disabled      = true;
+  spinner.style.display = 'block';
+  icon.style.display    = 'none';
+  btnText.textContent   = 'Memproses...';
+  errorMsg.classList.remove('show');
 
-      if (error) {
-        errorTxt.textContent = 'Email atau password salah. Coba lagi.';
-        errorMsg.classList.add('show');
-        btn.disabled          = false;
-        spinner.style.display = 'none';
-        icon.style.display    = 'inline';
-        btnText.textContent   = 'Masuk';
-      } else {
-        btnText.textContent = 'Berhasil! Mengalihkan...';
-        setTimeout(() => window.location.href = 'admin.html', 800);
-      }
+  try {
+    const { error } = await db.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      errorTxt.textContent = 'Email atau password salah. Coba lagi.';
+      errorMsg.classList.add('show');
+      btn.disabled          = false;
+      spinner.style.display = 'none';
+      icon.style.display    = 'inline';
+      btnText.textContent   = 'Masuk';
+    } else {
+      btnText.textContent = 'Berhasil! Mengalihkan...';
+      setTimeout(() => window.location.href = 'admin.html', 800);
     }
+  } catch (err) {
+    console.error('Login error:', err);
+    errorTxt.textContent = 'Terjadi kesalahan koneksi. Coba lagi.';
+    errorMsg.classList.add('show');
+    btn.disabled          = false;
+    spinner.style.display = 'none';
+    icon.style.display    = 'inline';
+    btnText.textContent   = 'Masuk';
+  }
+}
 
-    document.getElementById('btnLogin').addEventListener('click', doLogin);
+document.getElementById('btnLogin').addEventListener('click', doLogin);
 
-    // Enter key
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Enter') doLogin();
-    });
+// Enter key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});

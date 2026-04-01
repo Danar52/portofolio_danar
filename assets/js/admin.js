@@ -1,13 +1,40 @@
 pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
+// ── CONFIG ──────────────────────────────────────────────────
 const SUPABASE_URL      = 'https://vdnysjewpqunxokscaan.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkbnlzamV3cHF1bnhva3NjYWFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MjQ2MDcsImV4cCI6MjA4OTUwMDYwN30.GfnHPRuO8bDdfTJeOhLAV0gw54_PDGojQCrVPTzSA3g';
-    const { createClient } = supabase;
-    const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkbnlzamV3cHF1bnhva3NjYWFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MjQ2MDcsImV4cCI6MjA4OTUwMDYwN30.GfnHPRuO8bDdfTJeOhLAV0gw54_PDGojQCrVPTzSA3g';
 
-    db.auth.getSession().then(({ data }) => {
-      if (!data.session) window.location.href = 'admin-login.html';
-    });
+let db;
+try {
+  const { createClient } = supabase;
+  db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} catch (err) {
+  console.error('Gagal inisialisasi Supabase:', err);
+  document.querySelector('.content').innerHTML = '<div style="text-align:center;padding:60px 24px;color:#f87171"><i class="fas fa-exclamation-triangle" style="font-size:40px;margin-bottom:16px;display:block"></i><p style="font-size:15px;font-weight:600">Gagal terhubung ke server</p><p style="font-size:13px;opacity:.7;margin-top:8px">Refresh halaman ini atau cek koneksi internet.</p></div>';
+}
+
+if (db) {
+  db.auth.getSession().then(({ data }) => {
+    if (!data.session) window.location.href = 'admin-login.html';
+  });
+}
+
+// ── Mobile Sidebar Toggle ───────────────────────────────────
+const hamburgerBtn = document.getElementById('hamburgerBtn');
+const sidebar = document.getElementById('adminSidebar');
+const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+function openSidebar() {
+  sidebar.classList.add('open');
+  sidebarOverlay.classList.add('show');
+}
+function closeSidebar() {
+  sidebar.classList.remove('open');
+  sidebarOverlay.classList.remove('show');
+}
+
+if (hamburgerBtn) hamburgerBtn.addEventListener('click', openSidebar);
+if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
 
     function showToast(msg, type='success') {
       const t = document.getElementById('toast');
@@ -120,6 +147,7 @@ const SUPABASE_URL      = 'https://vdnysjewpqunxokscaan.supabase.co';
         document.getElementById('topbarTitle').innerHTML = pageMap[currentPage].title;
         document.getElementById('btnAddNew').style.display      = pageMap[currentPage].hasAdd ? '' : 'none';
         document.getElementById('btnSaveProfile').style.display = currentPage==='profile' ? '' : 'none';
+        closeSidebar();
         pageMap[currentPage].load();
       });
     });
