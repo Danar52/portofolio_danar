@@ -1,73 +1,134 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Eka Danar Arrasyid — Home</title>
+  <link rel="icon" type="image/png" href="./assets/Title HTML.jpg"/>
+  <title>Eka Danar Arrasyid</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&family=Poppins:wght@400;500;600&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
+  <link rel="stylesheet" href="./assets/css/base.css"/>
   <link rel="stylesheet" href="./assets/css/index.css"/>
-  <link rel="stylesheet" href="./assets/css/theme.css"/>
-  <script src="./assets/js/theme.js"></script>
 </head>
 <body>
 
-  <nav id="sidebar">
-    <a href="index.html"         class="nav-btn active" data-tooltip="Home"><i class="fas fa-house"></i></a>
-    <a href="profil.html"        class="nav-btn" data-tooltip="Profil"><i class="fas fa-user"></i></a>
-    <a href="skills.html"        class="nav-btn" data-tooltip="Skills"><i class="fas fa-list-check"></i></a>
-    <a href="experience.html"    class="nav-btn" data-tooltip="Experience"><i class="fas fa-briefcase"></i></a>
-    <a href="event.html"         class="nav-btn" data-tooltip="Event / Organization"><i class="fas fa-calendar-days"></i></a>
-    <a href="certification.html" class="nav-btn" data-tooltip="Certification"><i class="fas fa-award"></i></a>
-    <a href="portfolio.html"     class="nav-btn" data-tooltip="Portfolio"><i class="fas fa-briefcase-clock"></i></a>
-    <a href="#" id="darkModeToggle" class="nav-btn" data-tooltip="Dark Mode"><i class="fas fa-moon"></i></a>
-</nav>
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+  <div class="page-transition" id="pageTransition"></div>
 
-  <button id="hamburger" aria-label="Menu" aria-expanded="false">
-    <span></span><span></span><span></span>
-  </button>
-  <div id="nav-backdrop"></div>
+  <header class="site-header">
+    <a href="index.html" class="site-logo">Danar<em>.</em></a>
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+      <span class="menu-label">Menu</span>
+      <div class="menu-bars"><span></span><span></span></div>
+    </button>
+  </header>
+
+  <div class="nav-overlay" id="navOverlay">
+    <nav>
+      <ul class="nav-links-list">
+        <li><a href="index.html"         class="nav-link"><span class="nav-link-num">01</span>Home<i class="fas fa-arrow-right nav-link-arrow"></i></a></li>
+        <li><a href="profil.html"        class="nav-link"><span class="nav-link-num">02</span>About<i class="fas fa-arrow-right nav-link-arrow"></i></a></li>
+        <li><a href="skills.html"        class="nav-link"><span class="nav-link-num">03</span>Skills<i class="fas fa-arrow-right nav-link-arrow"></i></a></li>
+        <li><a href="experience.html"    class="nav-link"><span class="nav-link-num">04</span>Experience<i class="fas fa-arrow-right nav-link-arrow"></i></a></li>
+        <li><a href="portfolio.html"     class="nav-link"><span class="nav-link-num">05</span>Portfolio<i class="fas fa-arrow-right nav-link-arrow"></i></a></li>
+        <li><a href="certification.html" class="nav-link"><span class="nav-link-num">06</span>Certification<i class="fas fa-arrow-right nav-link-arrow"></i></a></li>
+        <li><a href="event.html"         class="nav-link"><span class="nav-link-num">07</span>Events<i class="fas fa-arrow-right nav-link-arrow"></i></a></li>
+      </ul>
+    </nav>
+    <div class="nav-overlay-footer">
+      <div class="nav-social-row">
+        <a href="https://x.com/DanarrArrsyd"                   target="_blank" class="nav-social">Twitter</a>
+        <a href="https://www.instagram.com/danar_arrsyd/"       target="_blank" class="nav-social">Instagram</a>
+        <a href="https://www.linkedin.com/in/ekadanararrasyid/" target="_blank" class="nav-social">LinkedIn</a>
+        <a href="https://github.com/Danar52"                    target="_blank" class="nav-social">GitHub</a>
+      </div>
+      <span class="nav-footer-loc">Bekasi, Indonesia</span>
+    </div>
+  </div>
 
   <main id="main-content">
-    <div class="home-hero">
 
-      <!-- KIRI: teks -->
-      <div class="hero-text">
-        <h1 class="home-name">Eka Danar Arrasyid</h1>
-        <p class="home-tagline">
-          We Are <span class="typewriter-text" id="typewriter"></span>
-        </p>
-        <div class="home-divider"></div>
-        <div class="social-links">
-          <a href="https://x.com/DanarrArrsyd"                   target="_blank" class="social-link" title="X / Twitter"><i class="fab fa-x-twitter"></i></a>
-          <a href="https://www.tiktok.com/@danararrsyd"           target="_blank" class="social-link" title="TikTok"><i class="fab fa-tiktok"></i></a>
-          <a href="https://www.instagram.com/danar_arrsyd/"       target="_blank" class="social-link" title="Instagram"><i class="fab fa-instagram"></i></a>
-          <a href="https://www.linkedin.com/in/ekadanararrasyid/" target="_blank" class="social-link" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-          <a href="https://github.com/Danar52"                    target="_blank" class="social-link" title="GitHub"><i class="fab fa-github"></i></a>
-          <a href="https://www.behance.net/ekadanararrasyid"      target="_blank" class="social-link" title="Behance"><i class="fab fa-behance"></i></a>
+    <section class="hero">
+      <div class="hero-top">
+        <div class="hero-status">
+          <span class="status-dot"></span>Available for work
         </div>
+        <span class="hero-loc">Bekasi, Indonesia</span>
       </div>
 
-      <!-- KANAN: chibi -->
-      <div class="chibi-stage">
-        <div class="chibi-shadow" id="chibiShadow"></div>
-        <div class="chibi-wrap" id="chibiWrap">
-          <img class="chibi-img" id="chibiImgA" src="./assets/chibi_1.png" alt="Chibi Danar"/>
-          <img class="chibi-img" id="chibiImgB" src="./assets/chibi_2.png" alt="Chibi Danar"/>
-        </div>
+      <div class="hero-center">
+        <h1 class="hero-name">
+          <span class="hero-line">Eka Danar</span>
+          <span class="hero-line">Arrasyid</span>
+        </h1>
       </div>
 
+      <div class="hero-bottom">
+        <p class="hero-role">Information Engineering<br>Student &amp; Developer</p>
+        <a href="portfolio.html" class="hero-cta">
+          View my work <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+    </section>
+
+    <div class="marquee-wrap">
+      <div class="marquee-inner">
+        <span>Web Development</span><span aria-hidden="true">·</span>
+        <span>UI/UX Design</span><span aria-hidden="true">·</span>
+        <span>Photography</span><span aria-hidden="true">·</span>
+        <span>Motion Graphics</span><span aria-hidden="true">·</span>
+        <span>Graphic Design</span><span aria-hidden="true">·</span>
+        <span>Web Development</span><span aria-hidden="true">·</span>
+        <span>UI/UX Design</span><span aria-hidden="true">·</span>
+        <span>Photography</span><span aria-hidden="true">·</span>
+        <span>Motion Graphics</span><span aria-hidden="true">·</span>
+        <span>Graphic Design</span><span aria-hidden="true">·</span>
+      </div>
     </div>
+
+    <section class="work-section">
+      <div class="work-header">
+        <span class="work-label">Selected Work</span>
+        <a href="portfolio.html" class="work-all">View all <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <ul class="work-list" id="workList">
+        <li class="work-skeleton"></li>
+        <li class="work-skeleton"></li>
+        <li class="work-skeleton"></li>
+      </ul>
+    </section>
+
+    <footer class="home-footer">
+      <div class="footer-cta">
+        <p class="footer-big">Let's build<br>something.</p>
+        <a href="mailto:edanararrasyid@gmail.com" class="footer-email">
+          edanararrasyid@gmail.com <i class="fas fa-arrow-up-right"></i>
+        </a>
+      </div>
+      <div class="footer-meta">
+        <div class="footer-socials">
+          <a href="https://x.com/DanarrArrsyd"                   target="_blank">Twitter</a>
+          <a href="https://www.instagram.com/danar_arrsyd/"       target="_blank">Instagram</a>
+          <a href="https://www.linkedin.com/in/ekadanararrasyid/" target="_blank">LinkedIn</a>
+          <a href="https://github.com/Danar52"                    target="_blank">GitHub</a>
+          <a href="https://www.behance.net/ekadanararrasyid"      target="_blank">Behance</a>
+        </div>
+        <span class="footer-copy">&copy; 2024 Eka Danar Arrasyid</span>
+      </div>
+    </footer>
+
   </main>
 
+  <!-- Hover image for work list -->
+  <img class="work-hover-img" id="workHoverImg" src="" alt=""/>
+
+  <script src="./assets/js/site.js"></script>
   <script type="module" src="./assets/js/index.js"></script>
-
   <script type="module" src="chatbot.js"></script>
-
-  
 
 </body>
 </html>

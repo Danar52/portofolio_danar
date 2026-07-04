@@ -1,121 +1,67 @@
-// ── Typewriter ──
-    const words = ['One', 'Developer', 'Engineer', 'Technologist'];
-    const el    = document.getElementById('typewriter');
-    let wIdx = 0, cIdx = 0, deleting = false;
-    function type() {
-      const word = words[wIdx];
-      if (!deleting) {
-        el.textContent = word.slice(0, ++cIdx);
-        if (cIdx === word.length) { deleting = true; setTimeout(type, 1800); return; }
-      } else {
-        el.textContent = word.slice(0, --cIdx);
-        if (cIdx === 0) { deleting = false; wIdx = (wIdx + 1) % words.length; }
-      }
-      setTimeout(type, deleting ? 65 : 105);
-    }
-    setTimeout(type, 900);
+import { supabase } from '../../supabase.js';
 
-    // ── Chibi Animation ──
-    const CHIBI_POSES   = ['./assets/chibi_1.png','./assets/chibi_2.png','./assets/chibi_3.png', './assets/chibi_4.png'];
-    const IDLE_DURATION = 4000;
-    const EXIT_DUR      = 480;
-    const ENTER_DUR     = 700;
-    const LAND_DUR      = 500;
+/* ── SELECTED WORK ────────────────────────────────────────── */
+const workList     = document.getElementById('workList');
+const workHoverImg = document.getElementById('workHoverImg');
+let hoverImgX = 0, hoverImgY = 0;
 
-    const imgA   = document.getElementById('chibiImgA');
-    const imgB   = document.getElementById('chibiImgB');
-    const shadow = document.getElementById('chibiShadow');
+async function loadWork() {
+  if (!workList) return;
 
-    let poseIdx = 0, activeImg = imgA, inactiveImg = imgB, isTransitioning = false;
+  const { data, error } = await supabase
+    .from('portfolio')
+    .select('id, title, type, thumbnail_url, created_at')
+    .eq('is_published', true)
+    .order('sort_order', { ascending: true })
+    .limit(4);
 
-    CHIBI_POSES.forEach((src, i) => { if (i > 0) { const img = new Image(); img.src = src; } });
+  if (error || !data || data.length === 0) {
+    workList.innerHTML = `<li class="state-box"><p>Belum ada karya.</p></li>`;
+    return;
+  }
 
-    const ALL_STATES = ['state-enter','state-entering','state-idle','state-exit','state-landing'];
-    function setState(imgEl, state) {
-      imgEl.classList.remove(...ALL_STATES);
-      if (state) imgEl.classList.add(state);
-    }
+  const TYPE_LABEL = { web: 'Web Dev', design: 'Design', other: 'Other' };
 
-    function initFirstPose() {
-      setState(activeImg, 'state-enter');
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setState(activeImg, 'state-entering');
-          shadow.style.opacity = '1';
-          setTimeout(() => {
-            setState(activeImg, 'state-landing');
-            shadow.style.transform = 'scaleX(1.15)';
-            setTimeout(() => { shadow.style.transform = ''; }, LAND_DUR);
-            setTimeout(() => { setState(activeImg, 'state-idle'); scheduleNext(); }, LAND_DUR);
-          }, ENTER_DUR);
-        });
+  workList.innerHTML = data.map((item, i) => {
+    const year  = item.created_at ? new Date(item.created_at).getFullYear() : '';
+    const cat   = TYPE_LABEL[item.type] || item.type || '';
+    return `
+      <li class="work-item" data-img="${item.thumbnail_url || ''}"
+          style="animation-delay:${0.08 * i}s">
+        <span class="work-item-name">${item.title}</span>
+        <span class="work-item-cat">${cat}</span>
+        <span class="work-item-year">${year}</span>
+      </li>`;
+  }).join('');
+
+  /* Reveal items on scroll */
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: 0.15 });
+  workList.querySelectorAll('.work-item').forEach(el => obs.observe(el));
+
+  /* Hover image effect */
+  if (workHoverImg) {
+    document.addEventListener('mousemove', e => {
+      hoverImgX = e.clientX;
+      hoverImgY = e.clientY;
+      workHoverImg.style.left = (hoverImgX + 24) + 'px';
+      workHoverImg.style.top  = (hoverImgY - 80) + 'px';
+    });
+
+    workList.querySelectorAll('.work-item').forEach(item => {
+      const imgSrc = item.dataset.img;
+      item.addEventListener('mouseenter', () => {
+        if (imgSrc) {
+          workHoverImg.src = imgSrc;
+          workHoverImg.classList.add('show');
+        }
       });
-    }
-
-    function doTransition() {
-      if (isTransitioning) return;
-      isTransitioning = true;
-      const nextIdx = (poseIdx + 1) % CHIBI_POSES.length;
-      inactiveImg.src = CHIBI_POSES[nextIdx];
-      setState(inactiveImg, 'state-enter');
-      setState(activeImg, 'state-exit');
-      shadow.style.opacity = '0.3';
-      shadow.style.transform = 'scaleX(0.85)';
-      setTimeout(() => {
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            setState(inactiveImg, 'state-entering');
-            shadow.style.opacity = '1';
-            setTimeout(() => {
-              setState(inactiveImg, 'state-landing');
-              shadow.style.transform = 'scaleX(1.15)';
-              setTimeout(() => { shadow.style.transform = ''; }, LAND_DUR);
-              setTimeout(() => {
-                setState(inactiveImg, 'state-idle');
-                setState(activeImg, '');
-                [activeImg, inactiveImg] = [inactiveImg, activeImg];
-                poseIdx = nextIdx;
-                isTransitioning = false;
-                scheduleNext();
-              }, LAND_DUR);
-            }, ENTER_DUR);
-          });
-        });
-      }, EXIT_DUR);
-    }
-
-    function scheduleNext() { setTimeout(doTransition, IDLE_DURATION); }
-    initFirstPose();
-
-(function() {
-    const hamburger = document.getElementById('hamburger');
-    const sidebar   = document.getElementById('sidebar');
-    const backdrop  = document.getElementById('nav-backdrop');
-    if (!hamburger || !sidebar || !backdrop) return;
-
-    function openMenu() {
-      sidebar.classList.add('open');
-      backdrop.classList.add('visible');
-      hamburger.classList.add('open');
-      hamburger.setAttribute('aria-expanded', 'true');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeMenu() {
-      sidebar.classList.remove('open');
-      backdrop.classList.remove('visible');
-      hamburger.classList.remove('open');
-      hamburger.setAttribute('aria-expanded', 'false');
-      document.body.style.overflow = '';
-    }
-
-    hamburger.addEventListener('click', () => {
-      sidebar.classList.contains('open') ? closeMenu() : openMenu();
+      item.addEventListener('mouseleave', () => {
+        workHoverImg.classList.remove('show');
+      });
     });
+  }
+}
 
-    backdrop.addEventListener('click', closeMenu);
-
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 768) closeMenu();
-    });
-  })();
+loadWork();
