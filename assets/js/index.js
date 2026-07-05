@@ -65,3 +65,120 @@ async function loadWork() {
 }
 
 loadWork();
+
+/* ── HOME TEASERS — ringkasan tiap menu ──────────────────── */
+async function loadTeasers() {
+  const [profRes, eduRes, expRes, skillRes, certRes, eventRes] = await Promise.all([
+    supabase.from('profile').select('bio, birth_date').single(),
+    supabase.from('education').select('year_start, is_active').order('sort_order'),
+    supabase.from('experience').select('job_title, company, period_start, period_end, is_active').order('sort_order'),
+    supabase.from('skills').select('skill_name, category, percentage').order('category').order('sort_order'),
+    supabase.from('certifications').select('cert_name, issuer, issued_date').order('sort_order'),
+    supabase.from('events').select('name, type, role, period').order('sort_order'),
+  ]);
+
+  renderAbout(profRes.data, eduRes.data || []);
+  renderExp(expRes.data || []);
+  renderSkills(skillRes.data || []);
+  renderCreds(certRes.data || [], eventRes.data || []);
+  revealSections();
+}
+
+function renderAbout(p, eduList) {
+  const bioEl   = document.getElementById('haBio');
+  const statsEl = document.getElementById('haStats');
+  if (!bioEl || !p) { document.getElementById('homeAbout')?.remove(); return; }
+
+  bioEl.textContent = p.bio || '';
+
+  let age = null;
+  if (p.birth_date) {
+    const b = new Date(p.birth_date), t = new Date();
+    age = t.getFullYear() - b.getFullYear();
+    if (t.getMonth() < b.getMonth() || (t.getMonth() === b.getMonth() && t.getDate() < b.getDate())) age--;
+  }
+  const eduStart = eduList.length ? eduList[eduList.length - 1].year_start : null;
+  const yearsLearning = eduStart ? new Date().getFullYear() - eduStart : null;
+
+  const stats = [
+    age           ? { n: age,                 l: 'Usia (thn)' }   : null,
+    yearsLearning ? { n: yearsLearning + '+', l: 'Thn Belajar' }  : null,
+    eduList.length? { n: eduList.length,      l: 'Pendidikan' }   : null,
+  ].filter(Boolean);
+
+  statsEl.innerHTML = stats.map(s => `
+    <div class="ha-stat">
+      <span class="ha-stat-num">${s.n}</span>
+      <span class="ha-stat-lbl">${s.l}</span>
+    </div>`).join('');
+}
+
+function renderExp(list) {
+  const el = document.getElementById('heList');
+  if (!el || list.length === 0) { document.getElementById('homeExp')?.remove(); return; }
+
+  el.innerHTML = list.slice(0, 4).map(e => `
+    <a href="experience.html" class="he-row">
+      <span class="he-period">${e.period_start} — ${e.is_active ? 'Saat Ini' : (e.period_end || '')}</span>
+      <span class="he-title">${e.job_title}</span>
+      <span class="he-company">${e.company}</span>
+      <i class="fas fa-arrow-right he-arrow"></i>
+    </a>`).join('');
+}
+
+function renderSkills(list) {
+  const el = document.getElementById('hkGroups');
+  if (!el || list.length === 0) { document.getElementById('homeSkills')?.remove(); return; }
+
+  const groups = {};
+  list.forEach(s => {
+    if (!groups[s.category]) groups[s.category] = [];
+    groups[s.category].push(s);
+  });
+
+  el.innerHTML = Object.entries(groups).map(([cat, items]) => {
+    const top = items.sort((a, b) => (b.percentage || 0) - (a.percentage || 0)).slice(0, 6);
+    return `
+      <div class="hk-group">
+        <span class="hk-cat">${cat}</span>
+        <ul class="hk-names">
+          ${top.map(s => `<li>${s.skill_name}</li>`).join('')}
+        </ul>
+      </div>`;
+  }).join('');
+}
+
+function renderCreds(certs, events) {
+  const certList  = document.getElementById('hcCertList');
+  const eventList = document.getElementById('hcEventList');
+  if (!certList || (certs.length === 0 && events.length === 0)) {
+    document.getElementById('homeCred')?.remove(); return;
+  }
+
+  document.getElementById('hcCertCount').textContent  = certs.length ? `(${certs.length})` : '';
+  document.getElementById('hcEventCount').textContent = events.length ? `(${events.length})` : '';
+
+  certList.innerHTML = certs.slice(0, 3).map(c => `
+    <a href="certification.html" class="hc-row">
+      <span class="hc-name">${c.cert_name}</span>
+      <span class="hc-sub">${c.issuer}${c.issued_date ? ' · ' + c.issued_date : ''}</span>
+    </a>`).join('');
+
+  const typeLabel = { org: 'Organisasi', event: 'Event', comp: 'Kompetisi' };
+  eventList.innerHTML = events.slice(0, 3).map(e => `
+    <a href="event.html" class="hc-row">
+      <span class="hc-name">${e.name}</span>
+      <span class="hc-sub">${typeLabel[e.type] || e.type}${e.role ? ' · ' + e.role : ''}</span>
+    </a>`).join('');
+}
+
+function revealSections() {
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (en.isIntersecting) { en.target.classList.add('visible'); obs.unobserve(en.target); }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.home-section').forEach(s => obs.observe(s));
+}
+
+loadTeasers();
