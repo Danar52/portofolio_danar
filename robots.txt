@@ -2,4 +2,4 @@ User-agent: *
 
 Allow: /
 
-Sitemap: https://edanararrasyid.my.id/sitemap.xml
+Sitemap: https://www.edanararrasyid.my.id/sitemap.xml
