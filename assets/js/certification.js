@@ -58,20 +58,17 @@ import { supabase } from '../../supabase.js';
 
         const d = delay; delay += 0.1;
         return `
-          <div class="cert-card" style="animation:fadeUp .55s ease ${d}s forwards">
+          <section class="cert-row" style="animation:fadeUp .55s ease ${d}s forwards">
             ${previewArea}
             <div class="cert-body">
-              <div class="cert-issuer-row">
-                <div class="cert-issuer-icon"><i class="${c.issuer_icon || 'fas fa-building'}"></i></div>
-                <span class="cert-issuer">${c.issuer}</span>
-              </div>
+              <span class="cert-issuer">${c.issuer}</span>
               <p class="cert-name">${c.cert_name}</p>
               <div class="cert-footer">
-                <span class="cert-date"><i class="fas fa-calendar"></i> ${c.issued_date || '—'}</span>
-                ${c.cert_url ? `<a href="${c.cert_url}" target="_blank" class="cert-link"><i class="fas fa-arrow-up-right-from-square"></i> Verifikasi</a>` : ''}
+                <span class="cert-date">${c.issued_date || '—'}</span>
+                ${c.cert_url ? `<a href="${c.cert_url}" target="_blank" class="cert-link">Verifikasi <i class="fas fa-arrow-right"></i></a>` : ''}
               </div>
             </div>
-          </div>`;
+          </section>`;
       }).join('');
 
       document.querySelectorAll('.cert-img-wrap[data-thumbnail]').forEach(wrap => {

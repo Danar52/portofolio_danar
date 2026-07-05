@@ -8,18 +8,58 @@ import { supabase } from '../../supabase.js';
 
     let allItems = [];
 
+    // ══════════════════════════════════════════════════════════
+    // SCREENSHOT LOADER — mShots (primary) → Microlink → icon
+    // Microlink free ±50 req/hari → gampang habis, spinner muter
+    // terus. thum.io free nge-serve gambar error "sign-up" dengan
+    // HTTP 200 → tak terdeteksi onerror. mShots (WordPress) gratis
+    // tanpa kuota ketat dan jalan dari browser; screenshot pertama
+    // butuh generate → server balikin placeholder "generating"
+    // 400×300 dulu, jadi perlu retry pakai cache-buster.
+    // ══════════════════════════════════════════════════════════
+    function loadScreenshot(wrap, rawUrl) {
+      const img     = wrap.querySelector('.thumb-ml-img');
+      const loading = wrap.querySelector('.thumb-loading');
+      const encoded = encodeURIComponent(rawUrl);
+      const showFail = () => {
+        loading.innerHTML = '<i class="fas fa-globe" style="font-size:24px;color:var(--text-3);opacity:.4"></i>';
+      };
+
+      const tryMicrolink = () => {
+        img.onload  = () => { loading.style.display = 'none'; img.style.display = 'block'; };
+        img.onerror = showFail;
+        img.src = `https://api.microlink.io/?url=${encoded}&screenshot=true&meta=false&embed=screenshot.url`;
+      };
+
+      let attempt = 0;
+      const MAX_RETRY = 10;
+      img.onload = () => {
+        // Placeholder "generating" mShots = 400×300
+        if (img.naturalWidth === 400 && img.naturalHeight === 300 && attempt < MAX_RETRY) {
+          attempt++;
+          setTimeout(() => {
+            img.src = `https://s.wordpress.com/mshots/v1/${encoded}?w=900&h=563&r=${Date.now()}`;
+          }, 2500);
+          return;
+        }
+        loading.style.display = 'none';
+        img.style.display = 'block';
+      };
+      img.onerror = tryMicrolink;
+      img.src = `https://s.wordpress.com/mshots/v1/${encoded}?w=900&h=563`;
+    }
+
     function getThumbSrc(item) {
       if (item.thumbnail_url) return { type: 'img', src: item.thumbnail_url };
-      if (item.url_live)      return { type: 'microlink', url: item.url_live };
+      if (item.url_live)      return { type: 'screenshot', url: item.url_live };
       return { type: 'placeholder' };
     }
 
     function buildThumbHtml(item, cfg) {
       const t = getThumbSrc(item);
       if (t.type === 'img') return `<img src="${t.src}" alt="${item.title}" loading="lazy">`;
-      if (t.type === 'microlink') {
-        const encoded = encodeURIComponent(t.url);
-        return `<div class="thumb-microlink" data-url="${encoded}">
+      if (t.type === 'screenshot') {
+        return `<div class="thumb-microlink" data-url="${item.url_live}">
           <div class="thumb-loading"><i class="fas fa-circle-notch fa-spin"></i></div>
           <img class="thumb-ml-img" style="display:none" alt="${item.title}" loading="lazy">
         </div>`;
@@ -56,48 +96,41 @@ import { supabase } from '../../supabase.js';
         return;
       }
 
-      const cardsHtml = items.map((item, idx) => {
-        const cfg = TYPE_CONFIG[item.type] || TYPE_CONFIG.other;
-        const isFeatured = item.is_featured ? 'featured' : '';
-        const thumbHtml  = buildThumbHtml(item, cfg);
-        const tagsHtml   = (item.tags || []).slice(0, 3).map(t => `<span class="card-tag">${t}</span>`).join('');
+      let delay = 0.15;
+      const rowsHtml = items.map(item => {
+        const cfg       = TYPE_CONFIG[item.type] || TYPE_CONFIG.other;
+        const thumbHtml = buildThumbHtml(item, cfg);
+        const tagsHtml  = (item.tags || []).slice(0, 4).map(t => `<span class="pf-tag">${t}</span>`).join('');
+        const metaBits  = [cfg.label, item.year].filter(Boolean).join(' · ');
 
+        const d = delay; delay += 0.08;
         return `
-          <div class="portfolio-card ${isFeatured}" data-type="${item.type}" data-id="${item.id}"
-            style="opacity:0;transform:translateY(20px);animation:fadeUp .5s ease ${0.05*idx+0.3}s forwards">
-            <div class="card-thumb">
-              ${thumbHtml}
-              <span class="card-badge ${cfg.cls}"><i class="${cfg.icon}"></i>${cfg.label}</span>
+          <section class="pf-row" data-type="${item.type}" data-id="${item.id}"
+            style="animation:fadeUp .55s ease ${d}s forwards">
+            <div class="pf-thumb">${thumbHtml}</div>
+            <div class="pf-body">
+              <span class="pf-meta">${metaBits}</span>
+              <h2 class="pf-title">${item.title}</h2>
+              ${item.description ? `<p class="pf-desc">${item.description}</p>` : ''}
+              ${tagsHtml ? `<div class="pf-tags">${tagsHtml}</div>` : ''}
+              <span class="pf-link">Lihat detail <i class="fas fa-arrow-right"></i></span>
             </div>
-            <div class="card-body">
-              <p class="card-title">${item.title}</p>
-              <p class="card-desc">${item.description || ''}</p>
-              <div class="card-footer">
-                <div class="card-tags">${tagsHtml}</div>
-                <span class="card-link"><i class="fas fa-arrow-right"></i> Lihat detail</span>
-              </div>
-            </div>
-          </div>`;
+          </section>`;
       }).join('');
 
-      el.innerHTML = `<div class="portfolio-grid">${cardsHtml}</div>`;
+      el.innerHTML = `<div class="pf-list">${rowsHtml}</div>`;
 
-      document.querySelectorAll('.portfolio-card').forEach(card => {
-        card.addEventListener('click', () => {
-          const id   = parseInt(card.dataset.id);
+      document.querySelectorAll('.pf-row').forEach(row => {
+        row.addEventListener('click', () => {
+          const id   = parseInt(row.dataset.id);
           const item = allItems.find(i => i.id === id);
           if (item) openLightbox(item);
         });
       });
 
-      // Microlink screenshots
+      // Screenshot thumbnails
       document.querySelectorAll('.thumb-microlink').forEach(wrap => {
-        const encoded = wrap.dataset.url;
-        const img     = wrap.querySelector('.thumb-ml-img');
-        const loading = wrap.querySelector('.thumb-loading');
-        img.src = `https://api.microlink.io/?url=${encoded}&screenshot=true&meta=false&embed=screenshot.url`;
-        img.onload  = () => { loading.style.display = 'none'; img.style.display = 'block'; };
-        img.onerror = () => { loading.innerHTML = '<i class="fas fa-globe" style="font-size:28px;color:var(--accent-color);opacity:.3"></i>'; };
+        loadScreenshot(wrap, wrap.dataset.url);
       });
     }
 
@@ -112,23 +145,22 @@ import { supabase } from '../../supabase.js';
       });
     });
 
-    // Lightbox — Split Panel
+    // Lightbox
     function openLightbox(item) {
       const cfg      = TYPE_CONFIG[item.type] || TYPE_CONFIG.other;
       const tagsHtml = (item.tags || []).map(t => `<span class="lightbox-tag">${t}</span>`).join('');
 
-      // ─── Image Pane (left on desktop / top on mobile) ───────────────
       let imgContent;
       if (item.thumbnail_url) {
         imgContent = `<img class="lightbox-img" src="${item.thumbnail_url}" alt="${item.title}" loading="lazy">`;
       } else if (item.url_live) {
-        const encoded = encodeURIComponent(item.url_live);
-        const mlSrc   = `https://api.microlink.io/?url=${encoded}&screenshot=true&meta=false&embed=screenshot.url`;
+        // w=900 sama kayak thumbnail list → screenshot udah di-generate
+        // & ke-cache dari list, lightbox tinggal ambil versi cache-nya
         imgContent = `
           <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center" id="lbThumbSpinWrap">
-            <i class="fas fa-circle-notch fa-spin" style="font-size:28px;color:var(--accent-color);opacity:.5"></i>
+            <i class="fas fa-circle-notch fa-spin" style="font-size:24px;color:var(--text-3);opacity:.5"></i>
           </div>
-          <img class="lightbox-img" src="${mlSrc}" alt="${item.title}" style="display:none"
+          <img class="lightbox-img" src="https://s.wordpress.com/mshots/v1/${encodeURIComponent(item.url_live)}?w=900&h=563" alt="${item.title}" style="display:none"
             onload="document.getElementById('lbThumbSpinWrap').style.display='none';this.style.display='block'"
             onerror="document.getElementById('lbThumbSpinWrap').style.display='none'">`;
       } else {
@@ -138,19 +170,17 @@ import { supabase } from '../../supabase.js';
       const imgPane = `
         <div class="lightbox-img-pane">
           ${imgContent}
-          <span class="lightbox-img-badge ${cfg.cls}">
+          <span class="lightbox-img-badge">
             <i class="${cfg.icon}"></i>${cfg.label}
           </span>
         </div>`;
 
-      // ─── Action buttons ──────────────────────────────────────────────
       const actionLinks = [];
       if (item.url_live)    actionLinks.push(`<a href="${item.url_live}"    target="_blank" class="lb-btn lb-btn-primary"><i class="fas fa-external-link-alt"></i> Lihat Live</a>`);
       if (item.url_github)  actionLinks.push(`<a href="${item.url_github}"  target="_blank" class="lb-btn lb-btn-outline"><i class="fab fa-github"></i> GitHub</a>`);
       if (item.url_behance) actionLinks.push(`<a href="${item.url_behance}" target="_blank" class="lb-btn lb-btn-outline"><i class="fab fa-behance"></i> Behance</a>`);
       if (item.url_figma)   actionLinks.push(`<a href="${item.url_figma}"   target="_blank" class="lb-btn lb-btn-outline"><i class="fab fa-figma"></i> Figma</a>`);
 
-      // ─── Assemble ────────────────────────────────────────────────────
       document.getElementById('lightboxContent').innerHTML = `
         ${imgPane}
         <div class="lightbox-body">
@@ -179,36 +209,3 @@ import { supabase } from '../../supabase.js';
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 
     loadPortfolio();
-
-(function() {
-    const hamburger = document.getElementById('hamburger');
-    const sidebar   = document.getElementById('sidebar');
-    const backdrop  = document.getElementById('nav-backdrop');
-    if (!hamburger || !sidebar || !backdrop) return;
-
-    function openMenu() {
-      sidebar.classList.add('open');
-      backdrop.classList.add('visible');
-      hamburger.classList.add('open');
-      hamburger.setAttribute('aria-expanded', 'true');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeMenu() {
-      sidebar.classList.remove('open');
-      backdrop.classList.remove('visible');
-      hamburger.classList.remove('open');
-      hamburger.setAttribute('aria-expanded', 'false');
-      document.body.style.overflow = '';
-    }
-
-    hamburger.addEventListener('click', () => {
-      sidebar.classList.contains('open') ? closeMenu() : openMenu();
-    });
-
-    backdrop.addEventListener('click', closeMenu);
-
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 768) closeMenu();
-    });
-  })();

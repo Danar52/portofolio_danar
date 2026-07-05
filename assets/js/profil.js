@@ -52,36 +52,6 @@ import { supabase } from '../../supabase.js';
         { url: p.url_behance,   icon: 'fab fa-behance',     title: 'Behance' },
       ].filter(s => s.url);
 
-      const socialsHtml = socials.map(s =>
-        `<a href="${s.url}" target="_blank" class="profil-social-btn" title="${s.title}"><i class="${s.icon}"></i></a>`
-      ).join('');
-
-      // Kontak — dot pengganti icon
-      const contacts = [
-        p.email ? { text: p.email, href: `mailto:${p.email}` } : null,
-        p.city  ? { text: p.city,  href: null }                : null,
-        p.phone ? { text: `+${String(p.phone).replace(/\D/g,'')}`, href: `tel:${p.phone}` } : null,
-      ].filter(Boolean);
-
-      const contactsHtml = contacts.map(c =>
-        c.href
-          ? `<a href="${c.href}" class="profil-contact-item"><span class="contact-dot"></span><span class="profil-contact-text">${c.text}</span></a>`
-          : `<div class="profil-contact-item"><span class="contact-dot"></span><span class="profil-contact-text">${c.text}</span></div>`
-      ).join('');
-
-      // Education
-      const eduHtml = eduList.map(e => `
-        <div class="edu-item">
-          <div>
-            <p class="edu-school">${e.school_name}</p>
-            <p class="edu-jurusan">${e.major || ''}</p>
-          </div>
-          <span class="edu-tahun ${e.is_active ? '' : 'past'}">
-            ${e.year_start}–${e.is_active ? 'Skrg' : (e.year_end || '')}
-          </span>
-        </div>`
-      ).join('');
-
       // Interests — tanpa icon, pure text pill
       let interests = [
         { label: 'Web Development' },
@@ -102,82 +72,84 @@ import { supabase } from '../../supabase.js';
         `<span class="interest-tag">${i.label}</span>`
       ).join('');
 
+      // Info rows — label kiri / nilai kanan
+      const infoRows = [
+        { label: 'Tanggal Lahir', value: birthDate },
+        { label: 'Usia',          value: `${age} tahun` },
+        { label: 'Domisili',      value: p.city || '—' },
+        { label: 'Email',         value: p.email ? `<a href="mailto:${p.email}">${p.email}</a>` : '—' },
+        p.phone ? { label: 'WhatsApp', value: `<a href="tel:${p.phone}">+${String(p.phone).replace(/\D/g,'')}</a>` } : null,
+        { label: 'Status',        value: `<span class="about-status"><span class="about-status-dot"></span>Mahasiswa Aktif</span>` },
+        { label: 'Lama Belajar',  value: `${yearsLearning}+ tahun` },
+      ].filter(Boolean);
+
+      const infoRowsHtml = infoRows.map(r => `
+        <div class="about-row">
+          <span class="about-row-label">${r.label}</span>
+          <span class="about-row-value">${r.value}</span>
+        </div>`).join('');
+
+      const socialLinksHtml = socials.map(s =>
+        `<a href="${s.url}" target="_blank" class="about-social">${s.title}</a>`
+      ).join('');
+
+      const eduRowsHtml = eduList.map(e => `
+        <div class="about-edu-row">
+          <div class="about-edu-main">
+            <p class="about-edu-school">${e.school_name}</p>
+            <p class="about-edu-major">${e.major || ''}</p>
+          </div>
+          <span class="about-edu-year ${e.is_active ? 'now' : ''}">${e.year_start} — ${e.is_active ? 'Sekarang' : (e.year_end || '')}</span>
+        </div>`).join('');
+
       el.innerHTML = `
-        <div class="profil-wrapper">
+        <div class="about">
 
-          <!-- ═══ KIRI ═══ -->
-          <div class="profil-left">
-            <div class="profil-photo-wrap">${photoHtml}</div>
-            <p class="profil-left-name">${p.full_name}</p>
-            <p class="profil-left-role">${p.role || ''}</p>
-            <div class="left-divider"></div>
-
-            ${contactsHtml ? `<div class="profil-contact-list">${contactsHtml}</div>` : ''}
-            ${socialsHtml ? `<div class="profil-socials">${socialsHtml}</div>` : ''}
-            <div class="left-divider"></div>
-
-            <div class="left-stats">
-              <div class="left-stat-item">
-                <span class="left-stat-value">${age}</span>
-                <span class="left-stat-label">Usia (thn)</span>
-              </div>
-              <div class="left-stat-item">
-                <span class="left-stat-value">${yearsLearning}+</span>
-                <span class="left-stat-label">Thn Belajar</span>
-              </div>
-              <div class="left-stat-item">
-                <span class="left-stat-value">${eduList.length}</span>
-                <span class="left-stat-label">Pendidikan</span>
+          <!-- Intro -->
+          <section class="about-intro">
+            <div class="about-photo-wrap">${photoHtml}</div>
+            <div class="about-intro-body">
+              <p class="about-bio">${p.bio || ''}</p>
+              <div class="about-intro-meta">
+                <span>${p.full_name}</span>
+                <span class="about-meta-sep" aria-hidden="true"></span>
+                <span>${p.role || ''}</span>
+                <span class="about-meta-sep" aria-hidden="true"></span>
+                <span>${p.city || ''}</span>
               </div>
             </div>
-          </div>
+          </section>
 
-          <!-- ═══ KANAN ═══ -->
-          <div class="profil-right">
+          <!-- Informasi Personal -->
+          <section class="about-section">
+            <span class="about-section-label">Informasi<br>Personal</span>
+            <div class="about-section-body">${infoRowsHtml}</div>
+          </section>
 
-            <!-- Tentang Saya -->
-            <div class="section-card">
-              <span class="section-label">Tentang Saya</span>
-              <p class="profil-bio">${p.bio || ''}</p>
+          <!-- Minat -->
+          <section class="about-section">
+            <span class="about-section-label">Minat &amp;<br>Ketertarikan</span>
+            <div class="about-section-body">
+              <div class="about-interests">${interestsHtml}</div>
             </div>
+          </section>
 
-            <!-- Informasi Personal -->
-            <div class="section-card">
-              <span class="section-label">Informasi Personal</span>
-              <div class="profil-info-grid">
-                <div class="profil-info-item">
-                  <p class="profil-info-label">Tanggal Lahir</p>
-                  <p class="profil-info-value">${birthDate}</p>
-                </div>
-                <div class="profil-info-item">
-                  <p class="profil-info-label">Domisili</p>
-                  <p class="profil-info-value">${p.city || '—'}</p>
-                </div>
-                <div class="profil-info-item">
-                  <p class="profil-info-label">Email</p>
-                  <p class="profil-info-value"><a href="mailto:${p.email}">${p.email || '—'}</a></p>
-                </div>
-                <div class="profil-info-item">
-                  <p class="profil-info-label">Status</p>
-                  <p class="profil-info-value"><span class="status-badge">Mahasiswa Aktif</span></p>
-                </div>
-              </div>
+          <!-- Pendidikan -->
+          ${eduRowsHtml ? `
+          <section class="about-section">
+            <span class="about-section-label">Riwayat<br>Pendidikan</span>
+            <div class="about-section-body">${eduRowsHtml}</div>
+          </section>` : ''}
+
+          <!-- Sosial -->
+          ${socialLinksHtml ? `
+          <section class="about-section">
+            <span class="about-section-label">Temukan<br>Gw Di</span>
+            <div class="about-section-body">
+              <div class="about-socials">${socialLinksHtml}</div>
             </div>
+          </section>` : ''}
 
-            <!-- Minat -->
-            <div class="section-card">
-              <span class="section-label">Minat &amp; Ketertarikan</span>
-              <div class="interest-tags">${interestsHtml}</div>
-            </div>
-
-            <!-- Pendidikan -->
-            ${eduHtml ? `
-            <div class="section-card">
-              <span class="section-label">Riwayat Pendidikan</span>
-              <div class="edu-timeline">${eduHtml}</div>
-            </div>` : ''}
-
-          </div>
         </div>`;
     }
 

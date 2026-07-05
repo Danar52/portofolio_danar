@@ -53,34 +53,29 @@ import { supabase } from '../../supabase.js';
         document.getElementById('statTahun').textContent = diff > 0 ? `${diff}+` : '< 1';
       }
 
-      // Cards
+      // Rows — editorial: periode+status kiri, detail kanan
       let delay = 0.15;
       grid.innerHTML = data.map(e => {
         const tags  = (e.tags || []).map(t => `<span class="exp-tag">${t}</span>`).join('');
         const badge = e.is_active
-          ? `<span class="exp-badge aktif"><span class="badge-dot"></span> Aktif</span>`
-          : `<span class="exp-badge selesai"><i class="fas fa-check" style="font-size:9px"></i> Selesai</span>`;
+          ? `<span class="exp-badge aktif"><span class="badge-dot"></span>Aktif</span>`
+          : `<span class="exp-badge selesai">Selesai</span>`;
 
         const d = delay; delay += 0.08;
         return `
-          <div class="exp-card ${e.is_active ? 'aktif' : ''}" style="animation:cardIn .5s ease ${d}s forwards">
-            <div class="exp-card-header">
-              <span class="exp-title">${e.job_title}</span>
+          <section class="exp-row" style="animation:cardIn .5s ease ${d}s forwards">
+            <div class="exp-row-side">
+              <span class="exp-period">${e.period_start} — ${e.period_end || 'Saat Ini'}</span>
+              ${e.duration ? `<span class="exp-duration">${e.duration}</span>` : ''}
               ${badge}
             </div>
-            <p class="exp-company">
-              <i class="fas fa-building"></i>
-              ${e.company}
-            </p>
-            <span class="exp-period">
-              <i class="fas fa-calendar-alt"></i>
-              ${e.period_start} — ${e.period_end || 'Saat Ini'}
-              ${e.duration ? `&nbsp;·&nbsp; ${e.duration}` : ''}
-            </span>
-            <div class="exp-divider"></div>
-            ${renderDesc(e.description)}
-            ${tags ? `<div class="exp-tags">${tags}</div>` : ''}
-          </div>`;
+            <div class="exp-row-body">
+              <h2 class="exp-title">${e.job_title}</h2>
+              <p class="exp-company">${e.company}</p>
+              ${renderDesc(e.description)}
+              ${tags ? `<div class="exp-tags">${tags}</div>` : ''}
+            </div>
+          </section>`;
       }).join('');
     }
 

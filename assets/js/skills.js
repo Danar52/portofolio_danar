@@ -35,39 +35,30 @@ import { supabase } from '../../supabase.js';
       document.getElementById('statAvg').textContent        = avg + '%';
       statsEl.style.display = 'flex';
 
-      // Render
+      // Render — editorial: kategori kiri, skill rows kanan
       let html  = '';
       let delay = 0.15;
 
       for (const [cat, items] of Object.entries(groups)) {
         html += `
-          <div class="skill-section" style="animation:fadeUp .55s ease ${delay}s forwards">
-            <div class="skill-section-header">
-              <span class="skill-section-title">${cat}</span>
-              <div class="skill-section-line"></div>
-              <span class="skill-section-count">${items.length}</span>
-            </div>
-
-            <div class="skills-list">
+          <section class="skill-section" style="animation:fadeUp .55s ease ${delay}s forwards">
+            <span class="skill-section-label">${cat}<em>${items.length}</em></span>
+            <div class="skill-section-body">
               ${items.map(s => {
                 const pct = s.percentage || 0;
                 const lv  = getLevel(pct);
                 return `
-                  <div class="skill-row level-${lv.cls}">
-                    <div class="skill-row-name">
-                      <span class="skill-name-text">${s.skill_name}</span>
-                      <span class="skill-level-badge ${lv.cls}">${lv.label}</span>
-                    </div>
-                    <div class="skill-row-bar">
-                      <div class="skill-bar-track">
-                        <div class="skill-bar-fill" data-pct="${pct}"></div>
-                      </div>
+                  <div class="skill-row">
+                    <span class="skill-name-text">${s.skill_name}</span>
+                    <span class="skill-level">${lv.label}</span>
+                    <div class="skill-bar-track">
+                      <div class="skill-bar-fill" data-pct="${pct}"></div>
                     </div>
                     <span class="skill-pct">${pct}%</span>
                   </div>`;
               }).join('')}
             </div>
-          </div>`;
+          </section>`;
         delay += 0.1;
       }
 

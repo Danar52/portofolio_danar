@@ -40,22 +40,20 @@ import { supabase } from '../../supabase.js';
 
         const d = delay; delay += 0.1;
         return `
-          <div class="event-card" style="animation:fadeUp .55s ease ${d}s forwards" data-type="${e.type}">
+          <section class="event-row" style="animation:fadeUp .55s ease ${d}s forwards" data-type="${e.type}">
             <div class="event-img-wrap">${imgHtml}</div>
             <div class="event-body">
-              <span class="event-type-badge ${typeBadge[e.type] || 'badge-org'}">
-                <i class="${typeIcon[e.type] || 'fas fa-circle'}"></i>
-                ${typeLabel[e.type] || e.type}
-              </span>
-              <p class="event-name">${e.name}</p>
-              <p class="event-role">${e.role || ''}</p>
+              <span class="event-type">${typeLabel[e.type] || e.type}</span>
+              <h2 class="event-name">${e.name}</h2>
+              ${e.role ? `<p class="event-role">${e.role}</p>` : ''}
               <div class="event-meta">
-                ${e.period   ? `<span class="event-meta-item"><i class="fas fa-calendar"></i> ${e.period}</span>`       : ''}
-                ${e.location ? `<span class="event-meta-item"><i class="fas fa-location-dot"></i> ${e.location}</span>` : ''}
+                ${e.period   ? `<span class="event-meta-item">${e.period}</span>`   : ''}
+                ${e.period && e.location ? `<span class="event-meta-sep" aria-hidden="true"></span>` : ''}
+                ${e.location ? `<span class="event-meta-item">${e.location}</span>` : ''}
               </div>
-              <p class="event-desc">${e.description || ''}</p>
+              ${e.description ? `<p class="event-desc">${e.description}</p>` : ''}
             </div>
-          </div>`;
+          </section>`;
       }).join('');
     }
 
