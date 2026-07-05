@@ -89,4 +89,88 @@
     }
   });
 
+  /* ── CUSTOM CONTEXT MENU ────────────────────────────────── */
+  const CM_ITEMS = [
+    { icon: 'fa-arrow-left',      label: 'Kembali',      action: () => history.back() },
+    { icon: 'fa-rotate-right',    label: 'Muat Ulang',   action: () => location.reload() },
+    { icon: 'fa-link',            label: 'Salin Link',   action: copyLink },
+    { divider: true },
+    { icon: 'fa-house',           label: 'Home',         action: () => goTo('index.html') },
+    { icon: 'fa-briefcase',       label: 'Portfolio',    action: () => goTo('portfolio.html') },
+    { icon: 'fa-envelope',        label: 'Kontak Gw',    action: () => { location.href = 'mailto:edanararrasyid@gmail.com'; } },
+  ];
+
+  function copyLink(menuEl) {
+    navigator.clipboard?.writeText(location.href).then(() => {
+      const item = menuEl.querySelector('[data-copy] span');
+      if (item) { item.textContent = 'Tersalin!'; }
+      setTimeout(hideMenu, 600);
+    }).catch(hideMenu);
+  }
+
+  const cm = document.createElement('div');
+  cm.className = 'ctx-menu';
+  cm.setAttribute('role', 'menu');
+  cm.innerHTML = CM_ITEMS.map(it => it.divider
+    ? '<div class="ctx-divider"></div>'
+    : `<button class="ctx-item" role="menuitem" ${it.label === 'Salin Link' ? 'data-copy' : ''}>
+         <i class="fas ${it.icon}"></i><span>${it.label}</span>
+       </button>`
+  ).join('');
+  document.body.appendChild(cm);
+
+  const cmButtons = cm.querySelectorAll('.ctx-item');
+  let btnIdx = 0;
+  CM_ITEMS.forEach(it => {
+    if (it.divider) return;
+    const btn = cmButtons[btnIdx++];
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      if (it.label === 'Salin Link') { it.action(cm); return; }
+      hideMenu();
+      it.action();
+    });
+  });
+
+  function showMenu(x, y) {
+    cm.classList.add('open');
+    const { offsetWidth: w, offsetHeight: h } = cm;
+    cm.style.left = Math.min(x, window.innerWidth  - w - 12) + 'px';
+    cm.style.top  = Math.min(y, window.innerHeight - h - 12) + 'px';
+  }
+  function hideMenu() { cm.classList.remove('open'); }
+
+  let cmShownAt = 0;
+  document.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    cmShownAt = Date.now();
+    showMenu(e.clientX, e.clientY);
+  });
+  // macOS: Ctrl+klik nge-fire contextmenu + click sekaligus →
+  // click susulan itu jangan langsung nutup menu yang baru kebuka
+  document.addEventListener('click', () => {
+    if (Date.now() - cmShownAt < 250) return;
+    hideMenu();
+  });
+  document.addEventListener('scroll', hideMenu, { passive: true });
+  window.addEventListener('resize',   hideMenu);
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') hideMenu(); });
+
+  /* ── DETERRENT — blokir shortcut devtools/view-source ─────
+     Catatan: ini cuma penghalang buat user awam. DevTools tetap
+     bisa dibuka lewat menu bar browser — tak ada cara memblokir
+     total dari JavaScript. ─────────────────────────────────── */
+  document.addEventListener('keydown', e => {
+    const k = e.key.toLowerCase();
+    const combo = e.metaKey || e.ctrlKey;
+    if (
+      e.key === 'F12' ||
+      (combo && e.altKey && (k === 'i' || k === 'j' || k === 'c')) || // Cmd/Ctrl+Alt+I/J/C
+      (combo && e.shiftKey && (k === 'i' || k === 'j' || k === 'c')) || // Ctrl+Shift+I/J/C
+      (combo && k === 'u')                                              // view-source
+    ) {
+      e.preventDefault();
+    }
+  });
+
 })();

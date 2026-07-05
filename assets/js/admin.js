@@ -461,12 +461,12 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
       let html = '';
       for (const [cat, items] of Object.entries(groups)) {
         html += `<div style="margin-bottom:28px">
-          <h3 style="font-family:var(--font-h);font-size:15px;font-weight:700;color:var(--heading);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)">${cat}</h3>
+          <h3 style="font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--text-1);margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)">${cat} <span style="font-weight:400;color:var(--text-3);font-size:11px">(${items.length})</span></h3>
           <div class="table-wrap"><table>
-            <thead><tr><th>Skill</th><th>Persentase</th><th style="width:100px">Aksi</th></tr></thead>
+            <thead><tr><th>Skill</th><th style="width:90px">Urutan</th><th style="width:100px">Aksi</th></tr></thead>
             <tbody>${items.map(s=>`<tr>
-              <td>${s.skill_name}</td>
-              <td><div class="pct-wrap"><div class="pct-bar"><div class="pct-fill" style="width:${s.percentage}%"></div></div><span class="pct-num">${s.percentage}%</span></div></td>
+              <td style="font-weight:500;color:var(--text-1)">${s.skill_name}</td>
+              <td style="color:var(--text-3)">${s.sort_order ?? 0}</td>
               <td><div class="td-actions">
                 <button class="btn btn-outline btn-sm" onclick="openSkillForm(${JSON.stringify(s).replace(/"/g,'&quot;')})"><i class="fas fa-pen"></i></button>
                 <button class="btn btn-danger btn-sm" onclick="deleteSkill(${s.id},'${s.skill_name}')"><i class="fas fa-trash"></i></button>
@@ -485,19 +485,14 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
           <p class="form-hint">Ketik bebas. Kategori yang sudah ada muncul sebagai saran.</p></div>
         <div class="form-group"><label class="form-label">Nama Skill</label>
           <input class="form-input" id="f_name" placeholder="cth: PHP" value="${data?.skill_name||''}"/></div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Sort Order</label>
-            <input class="form-input" id="f_sort" type="number" value="${data?.sort_order||0}"/>
-            <p class="form-hint">Urutan dalam kategori (kecil = duluan)</p></div>
-          <div class="form-group"><label class="form-label">Persentase: <span id="pctLabel" style="color:var(--accent);font-weight:700">${data?.percentage||70}%</span></label>
-            <div class="range-wrap" style="margin-top:8px">
-              <input type="range" id="f_pct" min="0" max="100" value="${data?.percentage||70}" oninput="document.getElementById('pctLabel').textContent=this.value+'%';document.getElementById('pctDisp').textContent=this.value+'%'"/>
-              <span class="range-val" id="pctDisp">${data?.percentage||70}%</span></div></div>
-        </div>
+        <div class="form-group"><label class="form-label">Sort Order</label>
+          <input class="form-input" id="f_sort" type="number" value="${data?.sort_order||0}"/>
+          <p class="form-hint">Urutan dalam kategori (kecil = duluan)</p></div>
       `, async () => {
         const catVal = document.getElementById('f_cat').value.trim();
         if (!catVal) { showToast('Kategori tidak boleh kosong','error'); return; }
-        const payload = { category:catVal, category_icon:'fas fa-star', skill_name:document.getElementById('f_name').value.trim(), skill_icon:'', percentage:parseInt(document.getElementById('f_pct').value), sort_order:parseInt(document.getElementById('f_sort').value)||0 };
+        // percentage tidak dipakai lagi di tampilan — pertahankan nilai lama (edit) / 0 (baru) demi kompatibilitas kolom DB
+        const payload = { category:catVal, category_icon:'fas fa-star', skill_name:document.getElementById('f_name').value.trim(), skill_icon:'', percentage:data?.percentage ?? 0, sort_order:parseInt(document.getElementById('f_sort').value)||0 };
         if (!payload.skill_name) { showToast('Nama skill tidak boleh kosong','error'); return; }
         const {error} = isEdit?await db.from('skills').update(payload).eq('id',data.id):await db.from('skills').insert(payload);
         if (error) { showToast('Gagal menyimpan: '+error.message,'error'); return; }

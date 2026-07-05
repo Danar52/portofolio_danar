@@ -1,11 +1,5 @@
 import { supabase } from '../../supabase.js';
 
-    function getLevel(pct) {
-      if (pct >= 80) return { cls: 'high', label: 'Mahir' };
-      if (pct >= 60) return { cls: 'mid',  label: 'Menengah' };
-      return           { cls: 'low',  label: 'Dasar' };
-    }
-
     async function loadSkills() {
       const wrapper = document.getElementById('skillsWrapper');
       const statsEl = document.getElementById('skillsStats');
@@ -29,13 +23,11 @@ import { supabase } from '../../supabase.js';
       });
 
       // Stats
-      const avg = Math.round(data.reduce((a, b) => a + (b.percentage || 0), 0) / data.length);
       document.getElementById('statTotal').textContent      = data.length;
       document.getElementById('statCategories').textContent = Object.keys(groups).length;
-      document.getElementById('statAvg').textContent        = avg + '%';
       statsEl.style.display = 'flex';
 
-      // Render — editorial: kategori kiri, skill rows kanan
+      // Render — editorial: kategori kiri, nama skill besar kanan
       let html  = '';
       let delay = 0.15;
 
@@ -44,32 +36,15 @@ import { supabase } from '../../supabase.js';
           <section class="skill-section" style="animation:fadeUp .55s ease ${delay}s forwards">
             <span class="skill-section-label">${cat}<em>${items.length}</em></span>
             <div class="skill-section-body">
-              ${items.map(s => {
-                const pct = s.percentage || 0;
-                const lv  = getLevel(pct);
-                return `
-                  <div class="skill-row">
-                    <span class="skill-name-text">${s.skill_name}</span>
-                    <span class="skill-level">${lv.label}</span>
-                    <div class="skill-bar-track">
-                      <div class="skill-bar-fill" data-pct="${pct}"></div>
-                    </div>
-                    <span class="skill-pct">${pct}%</span>
-                  </div>`;
-              }).join('')}
+              ${items.map((s, i) => `
+                <span class="skill-item" style="animation-delay:${delay + 0.04 * i}s">${s.skill_name}</span>
+              `).join('')}
             </div>
           </section>`;
         delay += 0.1;
       }
 
       wrapper.innerHTML = html;
-
-      // Animate bars
-      setTimeout(() => {
-        document.querySelectorAll('.skill-bar-fill').forEach(bar => {
-          bar.style.width = bar.dataset.pct + '%';
-        });
-      }, 350);
     }
 
     loadSkills();

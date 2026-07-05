@@ -242,6 +242,44 @@ body.cur-click .cursor-ring { width: 18px; height: 18px; }
   color: var(--text-2); letter-spacing: 0.3px;
 }
 
+/* ── CUSTOM CONTEXT MENU ────────────────────────────────────── */
+.ctx-menu {
+  position: fixed; z-index: 99500;
+  min-width: 200px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 14px 44px rgba(28,28,26,0.16);
+  padding: 6px;
+  opacity: 0; transform: scale(0.96) translateY(-4px);
+  transform-origin: top left;
+  pointer-events: none;
+  transition: opacity 0.16s ease, transform 0.18s cubic-bezier(0.22,1,0.36,1);
+}
+.ctx-menu.open {
+  opacity: 1; transform: scale(1) translateY(0);
+  pointer-events: all;
+}
+.ctx-item {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; padding: 10px 12px;
+  background: none; border: none; border-radius: 5px;
+  font-family: var(--font-body); font-size: 12.5px; font-weight: 400;
+  color: var(--text-2); text-align: left;
+  cursor: none; transition: background 0.15s, color 0.15s;
+}
+.ctx-item:hover { background: var(--bg-surface); color: var(--text-1); }
+.ctx-item i {
+  font-size: 11px; width: 14px; text-align: center;
+  color: var(--text-3); transition: color 0.15s;
+}
+.ctx-item:hover i { color: var(--text-1); }
+.ctx-divider {
+  height: 1px; background: var(--border);
+  margin: 6px 4px;
+}
+@media (hover: none) { .ctx-item { cursor: pointer; } }
+
 /* ── STATE BOX ──────────────────────────────────────────────── */
 .state-box {
   text-align: center; padding: 72px 24px; color: var(--text-3);

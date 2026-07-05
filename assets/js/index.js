@@ -72,7 +72,7 @@ async function loadTeasers() {
     supabase.from('profile').select('bio, birth_date').single(),
     supabase.from('education').select('year_start, is_active').order('sort_order'),
     supabase.from('experience').select('job_title, company, period_start, period_end, is_active').order('sort_order'),
-    supabase.from('skills').select('skill_name, category, percentage').order('category').order('sort_order'),
+    supabase.from('skills').select('skill_name, category').order('category').order('sort_order'),
     supabase.from('certifications').select('cert_name, issuer, issued_date').order('sort_order'),
     supabase.from('events').select('name, type, role, period').order('sort_order'),
   ]);
@@ -137,7 +137,7 @@ function renderSkills(list) {
   });
 
   el.innerHTML = Object.entries(groups).map(([cat, items]) => {
-    const top = items.sort((a, b) => (b.percentage || 0) - (a.percentage || 0)).slice(0, 6);
+    const top = items.slice(0, 6); // udah terurut sort_order dari query
     return `
       <div class="hk-group">
         <span class="hk-cat">${cat}</span>
