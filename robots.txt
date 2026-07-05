@@ -1,0 +1,5 @@
+User-agent: *
+
+Allow: /
+
+Sitemap: https://edanararrasyid.my.id/sitemap.xml
