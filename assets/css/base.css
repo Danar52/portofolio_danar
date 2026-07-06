@@ -3,6 +3,24 @@
    Inspired by dennissnellenberg.com — Clean · Grey · Refined
 ═══════════════════════════════════════════════════════════════ */
 
+/* ── ACCESSIBILITY: SKIP LINK ──────────────────────────────── */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 9999;
+  background: #1c1c1a;
+  color: #fff;
+  padding: 12px 20px;
+  font-family: "Outfit", sans-serif;
+  font-size: 14px;
+  text-decoration: none;
+  border-radius: 0 0 6px 0;
+}
+.skip-link:focus {
+  left: 0;
+}
+
 /* ── VARIABLES ─────────────────────────────────────────────── */
 :root {
   /* Fonts */

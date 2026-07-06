@@ -1,0 +1,15 @@
+/* TEAM */
+Owner, Developer: Eka Danar Arrasyid
+Role: Software Engineer, Web Developer, Production & Maintenance Administrator
+Location: Bekasi, Indonesia
+Contact: edanararrasyid@gmail.com
+X (Twitter): https://x.com/DanarrArrsyd
+Instagram: https://www.instagram.com/danar_arrsyd/
+LinkedIn: https://www.linkedin.com/in/ekadanararrasyid/
+GitHub: https://github.com/Danar52
+Behance: https://www.behance.net/ekadanararrasyid
+
+/* SITE */
+Last update: 2026/07/06
+Language: Indonesian
+Hosting: Vercel
