@@ -15,7 +15,7 @@ import { supabase } from '../../supabase.js';
 
       // Tambah toggle button kalau di mobile dan lebih dari 4 poin
       if (isMobile() && points.length > 4) {
-        return list + `<button class="exp-toggle" onclick="toggleDesc(this)">
+        return list + `<button class="exp-toggle" type="button">
           <i class="fas fa-chevron-down"></i> Lihat selengkapnya
         </button>`;
       }
@@ -95,6 +95,12 @@ import { supabase } from '../../supabase.js';
       btn.innerHTML = '<i class="fas fa-chevron-down"></i> Lihat selengkapnya';
     }
   }
+
+  // Event delegation — script type="module" scope, inline onclick gak bisa akses function di sini
+  document.getElementById('expGrid')?.addEventListener('click', (e) => {
+    const btn = e.target.closest('.exp-toggle');
+    if (btn) toggleDesc(btn);
+  });
 
 (function() {
     const hamburger = document.getElementById('hamburger');
