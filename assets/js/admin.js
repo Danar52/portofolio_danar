@@ -391,6 +391,25 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
               <div class="form-group"><label class="form-label"><i class="fab fa-behance" style="color:var(--accent);margin-right:6px"></i>Behance</label>
                 <input class="form-input" id="p_behance" value="${data.url_behance||''}" placeholder="https://behance.net/..."/></div>
             </div>
+            <p class="form-section-title">CV / Resume</p>
+            <div class="form-group">
+              ${data.cv_url ? `
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                  <a href="${data.cv_url}" target="_blank" rel="noopener noreferrer" class="form-label" style="text-decoration:underline">
+                    <i class="fas fa-file-pdf"></i> Lihat CV saat ini
+                  </a>
+                  <button class="btn btn-danger btn-sm" onclick="removeCv()"><i class="fas fa-trash"></i> Hapus CV</button>
+                </div>
+              ` : `
+                <label class="photo-upload-btn">
+                  <i class="fas fa-file-arrow-up"></i> Upload CV (PDF)
+                  <input type="file" id="cvFileInput" accept="application/pdf,.pdf" onchange="handleCvChange(this)"/>
+                </label>
+              `}
+              <div class="photo-saving-overlay" id="cvSavingOverlay">
+                <i class="fas fa-circle-notch"></i><span>Mengupload CV...</span>
+              </div>
+            </div>
           </div>
         </div>`;
       document.getElementById('btnSaveProfile').onclick = saveProfile;
@@ -420,6 +439,32 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
       const { error } = await db.from('profile').update({ photo_url: null }).eq('id', profileId);
       if (error) { showToast('Gagal hapus foto','error'); return; }
       showToast('Foto profil dihapus!'); loadProfile();
+    }
+
+    async function handleCvChange(input) {
+      const file = input.files[0];
+      if (!file) return;
+      if (file.type !== 'application/pdf') {
+        showToast('File harus PDF', 'error');
+        input.value = '';
+        return;
+      }
+      const overlay = document.getElementById('cvSavingOverlay');
+      overlay.classList.add('show');
+      const url = await uploadFile(file, 'cv');
+      if (!url) { overlay.classList.remove('show'); return; }
+      const { error } = await db.from('profile').update({ cv_url: url }).eq('id', profileId);
+      overlay.classList.remove('show');
+      if (error) { showToast('Gagal menyimpan CV', 'error'); return; }
+      showToast('CV berhasil diupload! 📄');
+      loadProfile();
+    }
+
+    async function removeCv() {
+      const { error } = await db.from('profile').update({ cv_url: null }).eq('id', profileId);
+      if (error) { showToast('Gagal hapus CV', 'error'); return; }
+      showToast('CV dihapus!');
+      loadProfile();
     }
 
     async function saveProfile() {
