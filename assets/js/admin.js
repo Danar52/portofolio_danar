@@ -716,6 +716,10 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
     }
     async function deleteCert(id,name){confirmDelete(`Hapus sertifikat "${name}"?`,async()=>{const{error}=await db.from('certifications').delete().eq('id',id);if(error){showToast('Gagal hapus','error');return;}showToast('Sertifikat dihapus!');loadCertifications();});}
 
+    function escapeHtml(str) {
+      return String(str ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+    }
+
     async function loadMessages() {
       const el = document.getElementById('messagesContent');
       el.innerHTML = '<div class="loading"><i class="fas fa-circle-notch"></i></div>';
@@ -724,10 +728,10 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
       el.innerHTML = data.length ? `<div class="table-wrap"><table>
         <thead><tr><th>Nama</th><th>Email</th><th>Subjek</th><th>Pesan</th><th>Tanggal</th><th style="width:60px">Aksi</th></tr></thead>
         <tbody>${data.map(m => `<tr>
-          <td style="font-weight:600;color:var(--heading)">${m.name}</td>
-          <td style="font-size:12px">${m.email}</td>
-          <td style="font-size:12px">${m.subject || '-'}</td>
-          <td style="font-size:12px;max-width:280px;white-space:pre-wrap">${m.message}</td>
+          <td style="font-weight:600;color:var(--heading)">${escapeHtml(m.name)}</td>
+          <td style="font-size:12px">${escapeHtml(m.email)}</td>
+          <td style="font-size:12px">${escapeHtml(m.subject) || '-'}</td>
+          <td style="font-size:12px;max-width:280px;white-space:pre-wrap">${escapeHtml(m.message)}</td>
           <td style="font-size:12px;opacity:.7">${new Date(m.created_at).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}</td>
           <td><div class="td-actions">
             <button class="btn btn-danger btn-sm" onclick="deleteMessage('${m.id}','${m.name.replace(/'/g,'\\\'')}')"><i class="fas fa-trash"></i></button>
