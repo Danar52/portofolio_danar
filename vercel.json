@@ -28,7 +28,16 @@
       ]
     },
     {
-      "source": "/assets/(.*)",
+      "source": "/(.*)\\.(js|css)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)\\.(png|jpg|jpeg|gif|webp|svg|ico|woff|woff2|ttf)",
       "headers": [
         {
           "key": "Cache-Control",
