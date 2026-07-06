@@ -69,7 +69,7 @@ loadWork();
 /* ── HOME TEASERS — ringkasan tiap menu ──────────────────── */
 async function loadTeasers() {
   const [profRes, eduRes, expRes, skillRes, certRes, eventRes] = await Promise.all([
-    supabase.from('profile').select('bio, birth_date').single(),
+    supabase.from('profile').select('bio, birth_date, cv_url').single(),
     supabase.from('education').select('year_start, is_active').order('sort_order'),
     supabase.from('experience').select('job_title, company, period_start, period_end, is_active').order('sort_order'),
     supabase.from('skills').select('skill_name, category').order('category').order('sort_order'),
@@ -84,11 +84,19 @@ async function loadTeasers() {
   revealSections();
 }
 
+function renderCvButton(p) {
+  const btn = document.getElementById('heroCvBtn');
+  if (!btn || !p?.cv_url) return;
+  btn.href = `${p.cv_url}?download=Danar-CV.pdf`;
+  btn.style.display = '';
+}
+
 function renderAbout(p, eduList) {
   const bioEl   = document.getElementById('haBio');
   const statsEl = document.getElementById('haStats');
   if (!bioEl || !p) { document.getElementById('homeAbout')?.remove(); return; }
 
+  renderCvButton(p);
   bioEl.textContent = p.bio || '';
 
   let age = null;
