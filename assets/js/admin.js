@@ -203,6 +203,37 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
         `<option value="${t.val}" ${data?.type===t.val?'selected':''}>${t.label}</option>`
       ).join('');
 
+      let galleryArr = data?.gallery_images || [];
+      if (typeof galleryArr === 'string') {
+        try { galleryArr = JSON.parse(galleryArr); } catch { galleryArr = []; }
+      }
+      if (!Array.isArray(galleryArr)) galleryArr = [];
+      let pendingGalleryFiles = [];
+
+      function renderGalleryPreview() {
+        const wrap = document.getElementById('galleryPreviewWrap');
+        if (!wrap) return;
+        const savedHtml = galleryArr.map((url, i) => `
+          <div class="gallery-thumb-item">
+            <img src="${url}">
+            <button type="button" class="gallery-thumb-remove" data-kind="saved" data-idx="${i}"><i class="fas fa-times"></i></button>
+          </div>`).join('');
+        const pendingHtml = pendingGalleryFiles.map((file, i) => `
+          <div class="gallery-thumb-item">
+            <img src="${URL.createObjectURL(file)}">
+            <button type="button" class="gallery-thumb-remove" data-kind="pending" data-idx="${i}"><i class="fas fa-times"></i></button>
+          </div>`).join('');
+        wrap.innerHTML = savedHtml + pendingHtml;
+        wrap.querySelectorAll('.gallery-thumb-remove').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const idx = parseInt(btn.dataset.idx);
+            if (btn.dataset.kind === 'saved') galleryArr.splice(idx, 1);
+            else pendingGalleryFiles.splice(idx, 1);
+            renderGalleryPreview();
+          });
+        });
+      }
+
       openModal(isEdit?'Edit Portfolio':'Tambah Portfolio', `
         <div class="form-group"><label class="form-label">Judul Project</label>
           <input class="form-input" id="f_title" value="${data?.title||''}" placeholder="cth: Redesign App E-Commerce"/></div>
@@ -219,6 +250,21 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
           <div class="tags-input-wrap" id="tagsWrap">
             ${tagsArr.map(t=>`<span class="tag-chip">${t}<button onclick="removeTag(this)">✕</button></span>`).join('')}
             <input class="tags-input" id="tagInput" placeholder="cth: Figma, Laravel..."/>
+          </div></div>
+
+        <div class="form-group"><label class="form-label">Latar Belakang <span style="opacity:.4">(opsional)</span></label>
+          <textarea class="form-textarea" id="f_background" placeholder="Konteks/latar belakang project...">${data?.background||''}</textarea></div>
+        <div class="form-group"><label class="form-label">Masalah <span style="opacity:.4">(opsional)</span></label>
+          <textarea class="form-textarea" id="f_problem" placeholder="Masalah yang diselesaikan...">${data?.problem||''}</textarea></div>
+        <div class="form-group"><label class="form-label">Solusi <span style="opacity:.4">(opsional)</span></label>
+          <textarea class="form-textarea" id="f_solution" placeholder="Proses/solusi yang dikerjakan...">${data?.solution||''}</textarea></div>
+        <div class="form-group"><label class="form-label">Hasil <span style="opacity:.4">(opsional)</span></label>
+          <textarea class="form-textarea" id="f_result" placeholder="Hasil/dampak project...">${data?.result||''}</textarea></div>
+
+        <div class="form-group"><label class="form-label">Galeri Foto <span style="opacity:.4">(opsional, bisa lebih dari 1)</span></label>
+          <div class="gallery-thumb-wrap" id="galleryPreviewWrap"></div>
+          <div class="file-upload-area"><input type="file" id="f_gallery" accept="image/*" multiple/>
+            <i class="fas fa-cloud-upload-alt"></i><p>Klik untuk upload foto galeri</p><p class="file-type-hint">JPG, PNG, WEBP — bisa pilih beberapa sekaligus</p>
           </div></div>
 
         <div class="form-group"><label class="form-label">Thumbnail / Cover</label>
@@ -268,12 +314,22 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
           if (!thumbnailUrl) { btnSave.disabled=false; btnSave.innerHTML='<i class="fas fa-floppy-disk"></i> Simpan'; return; }
         }
 
+        for (const file of pendingGalleryFiles) {
+          const url = await uploadFile(file, 'portfolio');
+          if (url) galleryArr.push(url);
+        }
+
         const tags = [...document.querySelectorAll('#tagsWrap .tag-chip')].map(c=>c.textContent.replace('✕','').trim());
         const payload = {
-          title:         document.getElementById('f_title').value.trim(),
-          type:          document.getElementById('f_type').value,
-          year:          document.getElementById('f_year').value.trim() || null,
-          description:   document.getElementById('f_desc').value.trim(),
+          title:          document.getElementById('f_title').value.trim(),
+          type:           document.getElementById('f_type').value,
+          year:           document.getElementById('f_year').value.trim() || null,
+          description:    document.getElementById('f_desc').value.trim(),
+          background:     document.getElementById('f_background').value.trim() || null,
+          problem:        document.getElementById('f_problem').value.trim() || null,
+          solution:       document.getElementById('f_solution').value.trim() || null,
+          result:         document.getElementById('f_result').value.trim() || null,
+          gallery_images: galleryArr,
           tags,
           thumbnail_url: thumbnailUrl,
           url_live:      document.getElementById('f_live').value.trim() || null,
@@ -311,6 +367,13 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
           }
         });
       }, 50);
+
+      renderGalleryPreview();
+      document.getElementById('f_gallery').addEventListener('change', (e) => {
+        pendingGalleryFiles.push(...Array.from(e.target.files));
+        e.target.value = '';
+        renderGalleryPreview();
+      });
     }
 
     async function deletePortfolio(id, title) {
