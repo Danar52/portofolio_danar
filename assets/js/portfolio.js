@@ -113,20 +113,12 @@ import { supabase } from '../../supabase.js';
               <h2 class="pf-title">${item.title}</h2>
               ${item.description ? `<p class="pf-desc">${item.description}</p>` : ''}
               ${tagsHtml ? `<div class="pf-tags">${tagsHtml}</div>` : ''}
-              <span class="pf-link">Lihat detail <i class="fas fa-arrow-right"></i></span>
+              <a href="portfolio-detail.html?id=${item.id}" class="pf-link">Lihat detail <i class="fas fa-arrow-right"></i></a>
             </div>
           </section>`;
       }).join('');
 
       el.innerHTML = `<div class="pf-list">${rowsHtml}</div>`;
-
-      document.querySelectorAll('.pf-row').forEach(row => {
-        row.addEventListener('click', () => {
-          const id   = parseInt(row.dataset.id);
-          const item = allItems.find(i => i.id === id);
-          if (item) openLightbox(item);
-        });
-      });
 
       // Screenshot thumbnails
       document.querySelectorAll('.thumb-microlink').forEach(wrap => {
@@ -144,68 +136,5 @@ import { supabase } from '../../supabase.js';
         renderGrid(filtered);
       });
     });
-
-    // Lightbox
-    function openLightbox(item) {
-      const cfg      = TYPE_CONFIG[item.type] || TYPE_CONFIG.other;
-      const tagsHtml = (item.tags || []).map(t => `<span class="lightbox-tag">${t}</span>`).join('');
-
-      let imgContent;
-      if (item.thumbnail_url) {
-        imgContent = `<img class="lightbox-img" src="${item.thumbnail_url}" alt="${item.title}" loading="lazy">`;
-      } else if (item.url_live) {
-        // w=900 sama kayak thumbnail list → screenshot udah di-generate
-        // & ke-cache dari list, lightbox tinggal ambil versi cache-nya
-        imgContent = `
-          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center" id="lbThumbSpinWrap">
-            <i class="fas fa-circle-notch fa-spin" style="font-size:24px;color:var(--text-3);opacity:.5"></i>
-          </div>
-          <img class="lightbox-img" src="https://s.wordpress.com/mshots/v1/${encodeURIComponent(item.url_live)}?w=900&h=563" alt="${item.title}" style="display:none"
-            onload="document.getElementById('lbThumbSpinWrap').style.display='none';this.style.display='block'"
-            onerror="document.getElementById('lbThumbSpinWrap').style.display='none'">`;
-      } else {
-        imgContent = `<div class="lightbox-img-placeholder"><i class="${cfg.icon}"></i></div>`;
-      }
-
-      const imgPane = `
-        <div class="lightbox-img-pane">
-          ${imgContent}
-          <span class="lightbox-img-badge">
-            <i class="${cfg.icon}"></i>${cfg.label}
-          </span>
-        </div>`;
-
-      const actionLinks = [];
-      if (item.url_live)    actionLinks.push(`<a href="${item.url_live}"    target="_blank" class="lb-btn lb-btn-primary"><i class="fas fa-external-link-alt"></i> Lihat Live</a>`);
-      if (item.url_github)  actionLinks.push(`<a href="${item.url_github}"  target="_blank" class="lb-btn lb-btn-outline"><i class="fab fa-github"></i> GitHub</a>`);
-      if (item.url_behance) actionLinks.push(`<a href="${item.url_behance}" target="_blank" class="lb-btn lb-btn-outline"><i class="fab fa-behance"></i> Behance</a>`);
-      if (item.url_figma)   actionLinks.push(`<a href="${item.url_figma}"   target="_blank" class="lb-btn lb-btn-outline"><i class="fab fa-figma"></i> Figma</a>`);
-
-      document.getElementById('lightboxContent').innerHTML = `
-        ${imgPane}
-        <div class="lightbox-body">
-          ${item.year ? `<p class="lightbox-year">${item.year}</p>` : ''}
-          <h2 class="lightbox-title">${item.title}</h2>
-          <div class="lightbox-divider"></div>
-          <p class="lightbox-desc">${item.description || ''}</p>
-          ${tagsHtml ? `<div class="lightbox-tags">${tagsHtml}</div>` : ''}
-          <div class="lightbox-spacer"></div>
-          ${actionLinks.length ? `<div class="lightbox-actions">${actionLinks.join('')}</div>` : ''}
-        </div>`;
-
-      document.getElementById('lightboxOverlay').classList.add('open');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeLightbox() {
-      document.getElementById('lightboxOverlay').classList.remove('open');
-      document.body.style.overflow = '';
-    }
-
-    document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
-    document.getElementById('lightboxOverlay').addEventListener('click', e => {
-      if (e.target === document.getElementById('lightboxOverlay')) closeLightbox();
-    });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 
     loadPortfolio();
