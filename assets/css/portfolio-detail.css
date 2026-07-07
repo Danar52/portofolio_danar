@@ -3,8 +3,8 @@
 ═══════════════════════════════════════════════════════════════ */
 
 .detail-back {
-  display: inline-flex; align-items: center; gap: 8px;
-  margin: 40px 40px 0;
+  display: flex; align-items: center; gap: 8px;
+  max-width: 900px; margin: 40px auto 0; padding: 0 40px;
   font-family: var(--font-body); font-size: 12.5px; font-weight: 500;
   color: var(--text-2); text-decoration: none;
   transition: color 0.2s;
@@ -12,21 +12,25 @@
 .detail-back:hover { color: var(--text-1); }
 
 .detail-hero {
-  margin: 28px 40px 0;
-  border-radius: 8px; overflow: hidden;
-  background: var(--bg-elevated);
-  max-width: 900px;
+  max-width: 900px; margin: 28px auto 0; padding: 0 40px;
+  box-sizing: content-box;
 }
-.detail-hero-img { width: 100%; max-height: 520px; object-fit: cover; display: block; }
+.detail-hero-img {
+  width: 100%; max-height: 520px; object-fit: cover; display: block;
+  border-radius: 8px; border: 1px solid var(--border);
+  background: var(--bg-elevated);
+}
 .detail-hero-placeholder {
   width: 100%; height: 320px;
+  border-radius: 8px; border: 1px solid var(--border);
+  background: var(--bg-elevated);
   display: flex; align-items: center; justify-content: center;
 }
 .detail-hero-placeholder i { font-size: 48px; color: var(--text-3); opacity: 0.3; }
 
 .detail-gallery-strip {
   display: flex; gap: 10px; flex-wrap: wrap;
-  margin: 14px 40px 0; max-width: 900px;
+  max-width: 900px; margin: 14px auto 0; padding: 0 40px;
 }
 .detail-gallery-thumb {
   width: 84px; height: 60px; object-fit: cover;
@@ -37,7 +41,7 @@
 .detail-gallery-thumb:hover { opacity: 0.85; }
 .detail-gallery-thumb.active { opacity: 1; border-color: var(--text-1); }
 
-.detail-body { margin: 36px 40px 80px; max-width: 900px; }
+.detail-body { max-width: 900px; margin: 36px auto 80px; padding: 0 40px; }
 
 .detail-meta {
   display: inline-flex; align-items: center; gap: 7px;
@@ -94,9 +98,9 @@
 .detail-btn-outline:hover { border-color: var(--text-1); color: var(--text-1); }
 
 @media (max-width: 768px) {
-  .detail-back  { margin: 28px 20px 0; }
-  .detail-hero  { margin: 20px 20px 0; }
-  .detail-gallery-strip { margin: 12px 20px 0; }
-  .detail-body  { margin: 28px 20px 56px; }
+  .detail-back  { margin-top: 28px; padding: 0 20px; }
+  .detail-hero  { margin-top: 20px; padding: 0 20px; }
+  .detail-gallery-strip { margin-top: 12px; padding: 0 20px; }
+  .detail-body  { margin-top: 28px; margin-bottom: 56px; padding: 0 20px; }
   .detail-section { grid-template-columns: 1fr; gap: 8px; padding: 20px 0; }
 }
