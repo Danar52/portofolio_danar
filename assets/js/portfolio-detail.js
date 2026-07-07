@@ -70,16 +70,20 @@ async function loadDetail() {
   const tagsHtml = (item.tags || []).map(t => `<span class="detail-tag">${t}</span>`).join('');
 
   const sections = [
-    { label: 'Latar<br>Belakang', value: item.background },
-    { label: 'Masalah',          value: item.problem },
-    { label: 'Solusi',           value: item.solution },
-    { label: 'Hasil',            value: item.result },
+    { label: 'Latar Belakang', value: item.background },
+    { label: 'Masalah',        value: item.problem },
+    { label: 'Solusi',         value: item.solution },
+    { label: 'Hasil',          value: item.result },
   ].filter(s => s.value);
 
-  const sectionsHtml = sections.map(s => `
-    <div class="detail-section">
-      <span class="detail-section-label">${s.label}</span>
-      <div class="detail-section-body"><p>${s.value}</p></div>
+  // Accordion — section pertama kebuka default biar kolom kanan gak keliatan kosong
+  const sectionsHtml = sections.map((s, i) => `
+    <div class="detail-acc${i === 0 ? ' open' : ''}">
+      <button type="button" class="detail-acc-head" aria-expanded="${i === 0 ? 'true' : 'false'}">
+        <span class="detail-acc-label">${s.label}</span>
+        <i class="fas fa-chevron-right detail-acc-arrow"></i>
+      </button>
+      <div class="detail-acc-body"><p>${s.value}</p></div>
     </div>`).join('');
 
   const actionLinks = [];
@@ -89,14 +93,16 @@ async function loadDetail() {
   if (item.url_figma)   actionLinks.push(`<a href="${item.url_figma}"   target="_blank" rel="noopener noreferrer" class="detail-btn detail-btn-outline"><i class="fab fa-figma"></i> Figma</a>`);
 
   document.getElementById('detailContent').innerHTML = `
-    <div class="detail-hero">${buildHeroHtml(item, gallery)}</div>
-    ${buildGalleryStripHtml(gallery, item.title)}
-    <div class="detail-body">
-      <span class="detail-meta"><i class="${cfg.icon}"></i>${cfg.label}${item.year ? ' · ' + item.year : ''}</span>
-      <h1 class="detail-title">${item.title}</h1>
-      ${tagsHtml ? `<div class="detail-tags">${tagsHtml}</div>` : ''}
-      ${sectionsHtml}
-      ${actionLinks.length ? `<div class="detail-actions">${actionLinks.join('')}</div>` : ''}
+    <div class="detail-split">
+      <div class="detail-left">
+        <div class="detail-hero">${buildHeroHtml(item, gallery)}</div>
+        ${buildGalleryStripHtml(gallery, item.title)}
+        <span class="detail-meta"><i class="${cfg.icon}"></i>${cfg.label}${item.year ? ' · ' + item.year : ''}</span>
+        <h1 class="detail-title">${item.title}</h1>
+        ${tagsHtml ? `<div class="detail-tags">${tagsHtml}</div>` : ''}
+        ${actionLinks.length ? `<div class="detail-actions">${actionLinks.join('')}</div>` : ''}
+      </div>
+      ${sections.length ? `<div class="detail-right">${sectionsHtml}</div>` : ''}
     </div>`;
 
   if (gallery.length > 1) {
@@ -108,6 +114,14 @@ async function loadDetail() {
       });
     });
   }
+
+  document.querySelectorAll('.detail-acc-head').forEach(head => {
+    head.addEventListener('click', () => {
+      const acc    = head.parentElement;
+      const isOpen = acc.classList.toggle('open');
+      head.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+  });
 }
 
 loadDetail();

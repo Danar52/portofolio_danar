@@ -4,24 +4,31 @@
 
 .detail-back {
   display: flex; align-items: center; gap: 8px;
-  max-width: 900px; margin: 40px auto 0; padding: 0 40px;
+  max-width: 1200px; margin: 40px auto 0; padding: 0 40px;
   font-family: var(--font-body); font-size: 12.5px; font-weight: 500;
   color: var(--text-2); text-decoration: none;
   transition: color 0.2s;
 }
 .detail-back:hover { color: var(--text-1); }
 
-.detail-hero {
-  max-width: 900px; margin: 28px auto 0; padding: 0 40px;
-  box-sizing: content-box;
+/* ── SPLIT — kiri sticky (media+judul), kanan accordion story ── */
+.detail-split {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 56px; align-items: start;
+  max-width: 1200px; margin: 28px auto 80px; padding: 0 40px;
 }
+.detail-left {
+  position: sticky; top: calc(var(--header-height) + 24px);
+}
+
+.detail-hero { margin: 0; }
 .detail-hero-img {
-  width: 100%; max-height: 520px; object-fit: cover; display: block;
+  width: 100%; max-height: 420px; object-fit: cover; display: block;
   border-radius: 8px; border: 1px solid var(--border);
   background: var(--bg-elevated);
 }
 .detail-hero-placeholder {
-  width: 100%; height: 320px;
+  width: 100%; height: 280px;
   border-radius: 8px; border: 1px solid var(--border);
   background: var(--bg-elevated);
   display: flex; align-items: center; justify-content: center;
@@ -30,7 +37,7 @@
 
 .detail-gallery-strip {
   display: flex; gap: 10px; flex-wrap: wrap;
-  max-width: 900px; margin: 14px auto 0; padding: 0 40px;
+  margin: 14px 0 0;
 }
 .detail-gallery-thumb {
   width: 84px; height: 60px; object-fit: cover;
@@ -41,46 +48,60 @@
 .detail-gallery-thumb:hover { opacity: 0.85; }
 .detail-gallery-thumb.active { opacity: 1; border-color: var(--text-1); }
 
-.detail-body { max-width: 900px; margin: 36px auto 80px; padding: 0 40px; }
-
 .detail-meta {
   display: inline-flex; align-items: center; gap: 7px;
   font-family: var(--font-body); font-size: 11px; font-weight: 500;
   color: var(--text-3); text-transform: uppercase; letter-spacing: 0.1em;
-  margin-bottom: 12px;
+  margin: 24px 0 12px;
 }
 
 .detail-title {
-  font-family: var(--font-display); font-size: clamp(26px, 3.2vw, 38px);
-  font-weight: 700; letter-spacing: -0.6px; line-height: 1.15;
-  color: var(--text-1); margin-bottom: 18px;
+  font-family: var(--font-display); font-size: clamp(22px, 2.2vw, 30px);
+  font-weight: 700; letter-spacing: -0.6px; line-height: 1.2;
+  color: var(--text-1); margin-bottom: 16px;
 }
 
-.detail-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 32px; }
+.detail-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 24px; }
 .detail-tag {
   font-family: var(--font-body); font-size: 10px; font-weight: 500;
   padding: 4px 12px; border-radius: 2px; letter-spacing: 0.04em;
   color: var(--text-2); border: 1px solid var(--border);
 }
 
-.detail-section {
-  display: grid; grid-template-columns: 180px 1fr;
-  gap: 32px; padding: 28px 0;
-  border-bottom: 1px solid var(--border);
+/* ── ACCORDION — story sections ─────────────────────────────── */
+.detail-right { border-top: 1px solid var(--border); }
+.detail-acc { border-bottom: 1px solid var(--border); }
+.detail-acc-head {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; padding: 22px 0;
+  background: none; border: none; cursor: pointer;
+  text-align: left;
 }
-.detail-section:first-of-type { border-top: 1px solid var(--border); }
-.detail-section-label {
-  font-family: var(--font-body); font-size: 10.5px; font-weight: 500;
-  color: var(--text-3); text-transform: uppercase; letter-spacing: 2px;
-  line-height: 1.6; padding-top: 4px;
+.detail-acc-label {
+  font-family: var(--font-display); font-size: 16px; font-weight: 700;
+  letter-spacing: -0.2px; color: var(--text-1);
+  transition: color 0.18s;
 }
-.detail-section-body { min-width: 0; }
-.detail-section-body p {
-  font-size: 14.5px; line-height: 1.85; color: var(--text-2);
+.detail-acc-head:hover .detail-acc-label { color: var(--text-2); }
+.detail-acc-arrow {
+  font-size: 12px; color: var(--text-3);
+  transition: transform 0.25s ease;
+}
+.detail-acc.open .detail-acc-arrow { transform: rotate(90deg); color: var(--text-1); }
+
+.detail-acc-body {
+  display: grid; grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+}
+.detail-acc.open .detail-acc-body { grid-template-rows: 1fr; }
+.detail-acc-body p {
+  overflow: hidden;
+  font-size: 14px; line-height: 1.85; color: var(--text-2);
   white-space: pre-wrap;
 }
+.detail-acc.open .detail-acc-body p { padding-bottom: 24px; }
 
-.detail-actions { display: flex; gap: 10px; flex-wrap: wrap; padding-top: 28px; }
+.detail-actions { display: flex; gap: 10px; flex-wrap: wrap; padding-top: 4px; }
 .detail-btn {
   display: inline-flex; align-items: center; gap: 8px;
   padding: 11px 24px; border-radius: 40px;
@@ -99,8 +120,11 @@
 
 @media (max-width: 768px) {
   .detail-back  { margin-top: 28px; padding: 0 20px; }
-  .detail-hero  { margin-top: 20px; padding: 0 20px; }
-  .detail-gallery-strip { margin-top: 12px; padding: 0 20px; }
-  .detail-body  { margin-top: 28px; margin-bottom: 56px; padding: 0 20px; }
-  .detail-section { grid-template-columns: 1fr; gap: 8px; padding: 20px 0; }
+  .detail-split {
+    grid-template-columns: 1fr;
+    gap: 32px; margin: 20px auto 56px; padding: 0 20px;
+  }
+  .detail-left { position: static; }
+  .detail-acc-head { padding: 18px 0; }
+  .detail-acc-label { font-size: 15px; }
 }
