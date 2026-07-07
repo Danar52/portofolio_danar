@@ -223,6 +223,19 @@
 }
 .lightbox-close:hover { transform: rotate(90deg); }
 
+/* Short viewports (small laptop screens, non-maximized windows) — shrink
+   the image pane so the description/tags/action buttons stay visible
+   without needing to scroll inside the modal. */
+@media (max-height: 700px) {
+  .lightbox-box     { max-height: 94vh; }
+  .lightbox-img-pane{ height: 160px; }
+  .lightbox-body    { padding: 20px 32px 20px; }
+  .lightbox-title   { font-size: 18px; margin-bottom: 10px; }
+  .lightbox-desc    { font-size: 13px; margin-bottom: 14px; }
+  .lightbox-tags    { margin-bottom: 14px; }
+  .lightbox-actions { padding-top: 14px; }
+}
+
 /* ── RESPONSIVE ─────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .filter-bar, #portfolioContent { padding-left: 20px; padding-right: 20px; }
