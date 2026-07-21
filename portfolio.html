@@ -50,7 +50,7 @@
   </script>
   <!-- Runs before first paint: if this load came from an in-site click, put the
        transition panel over the page so the arrival reads as one motion. -->
-  <script>try{var n=sessionStorage.getItem('pt-nav');if(n){document.documentElement.classList.add('pt-arrive');window.__ptLabel=n;sessionStorage.removeItem('pt-nav');}}catch(e){}</script>
+  <script>try{var n=sessionStorage.getItem('pt-nav');if(n){var c=document.documentElement.classList;c.add('pt-arrive');c.add('pt-nogreet');window.__ptLabel=n;sessionStorage.removeItem('pt-nav');}}catch(e){}</script>
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>

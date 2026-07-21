@@ -286,9 +286,15 @@ html.pt-arrive .page-transition .pt-label { opacity: 1; transform: none; }
   }
 }
 
-/* Arriving home by click already has the transition panel over the page —
-   greeting the visitor again on top of it would stack two overlays. */
-html.pt-arrive .preloader { display: none; }
+/* The greeting marks arriving at the site, not moving around inside it, so
+   an internal click through to home gets the "Home." panel like any other
+   page. A refresh or a direct hit still gets the greeting.
+
+   Keyed off pt-nogreet, which is never removed — not pt-arrive, which is
+   dropped when the reveal ends. display:none does not pause an animation,
+   it prevents it existing, so releasing the class later started the whole
+   greeting cycle from zero, right after the panel had finished lifting. */
+html.pt-nogreet .preloader { display: none; }
 
 /* No motion: never show the overlay at all rather than flash it. */
 @media (prefers-reduced-motion: reduce) {
