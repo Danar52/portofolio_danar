@@ -6,7 +6,54 @@ const TYPE_CONFIG = {
   other:  { label: 'Lainnya', icon: 'fas fa-box-open' },
 };
 
+const SITE = 'https://www.edanararrasyid.my.id';
+
+/* ── INDEXING ──────────────────────────────────────────────────────────────
+   This page is a template: its content depends entirely on ?id=. The markup
+   ships with "index, follow" on purpose — a noindex in the served HTML can
+   stop Google rendering the page at all, and then nothing here ever runs.
+   Instead each outcome sets its own rules once the data is in.
+────────────────────────────────────────────────────────────────────────── */
+function setMeta(selector, attr, value) {
+  const el = document.querySelector(selector);
+  if (el) el.setAttribute(attr, value);
+}
+
+/** Withhold from the index: nothing worth ranking is on the page. */
+function markNotIndexable() {
+  setMeta('meta[name="robots"]', 'content', 'noindex, follow');
+}
+
+/**
+ * Point every canonical-ish URL at this exact project.
+ *
+ * The static canonical named the bare template URL, so every ?id= told Google
+ * they were all the same document and the projects collapsed into one empty
+ * page. Each one is its own URL now.
+ */
+function describeProject(item) {
+  const url = `${SITE}/portfolio-detail.html?id=${encodeURIComponent(item.id)}`;
+  const title = `${item.title} — Eka Danar Arrasyid`;
+  const desc = item.description || `Studi kasus project ${item.title} oleh Eka Danar Arrasyid.`;
+  const image = item.thumbnail_url || `${SITE}/assets/bot_avatar.png`;
+
+  document.title = title;
+  setMeta('link[rel="canonical"]', 'href', url);
+  setMeta('meta[name="description"]', 'content', desc);
+
+  setMeta('meta[property="og:url"]', 'content', url);
+  setMeta('meta[property="og:title"]', 'content', title);
+  setMeta('meta[property="og:description"]', 'content', desc);
+  setMeta('meta[property="og:image"]', 'content', image);
+  setMeta('meta[property="og:type"]', 'content', 'article');
+
+  setMeta('meta[name="twitter:title"]', 'content', title);
+  setMeta('meta[name="twitter:description"]', 'content', desc);
+  setMeta('meta[name="twitter:image"]', 'content', image);
+}
+
 function showNotFound() {
+  markNotIndexable();
   document.getElementById('detailContent').innerHTML = `
     <div class="state-box">
       <i class="fas fa-triangle-exclamation"></i>
@@ -60,9 +107,7 @@ async function loadDetail() {
 
   if (error || !item) { showNotFound(); return; }
 
-  document.title = `${item.title} — Eka Danar Arrasyid`;
-  const metaDesc = document.querySelector('meta[name="description"]');
-  if (metaDesc && item.description) metaDesc.setAttribute('content', item.description);
+  describeProject(item);
 
   const cfg     = TYPE_CONFIG[item.type] || TYPE_CONFIG.other;
   const gallery = parseGallery(item.gallery_images);
