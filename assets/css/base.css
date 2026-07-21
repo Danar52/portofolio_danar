@@ -53,6 +53,10 @@
      over that distance. */
   --ease-pt:      cubic-bezier(0.16, 1, 0.3, 1);
   --pt-curve-h:   12vh;
+  /* The nav panel travels sideways across a shorter distance than the page
+     panels, so it keeps a curve that bites harder at both ends. */
+  --ease-nav:     cubic-bezier(0.7, 0, 0.2, 1);
+  --nav-curve-w:  6vw;
   --dur-fast:     0.3s;
   --dur:          0.5s;
   --dur-smooth:   0.7s;
@@ -366,18 +370,58 @@ html.pt-nogreet .preloader { display: none; }
 .menu-toggle.is-open .menu-bars span:first-child { transform: translateY(3px) rotate(45deg); }
 .menu-toggle.is-open .menu-bars span:last-child  { width: 20px; transform: translateY(-3px) rotate(-45deg); }
 
-/* ── NAV OVERLAY ────────────────────────────────────────────── */
+/* ── NAV PANEL ───────────────────────────────────────────────────
+   A dark panel that slides in from the right over the page, rather than
+   a full-screen sheet — the page stays visible and dimmed behind it.
+
+   Parked a curve-width clear of the edge, the same reason the transition
+   panel is: the curved cap sits outside the panel, so parking at plain
+   translateX(100%) would leave it showing down the right edge.
+─────────────────────────────────────────────────────────────── */
 .nav-overlay {
-  position: fixed; inset: 0; z-index: 999;
-  background: var(--bg-surface);
+  position: fixed; top: 0; right: 0; bottom: 0; left: auto;
+  width: clamp(320px, 50vw, 640px);
+  /* Above the fixed header (1000), which would otherwise cut a light bar
+     across the top of the panel. The toggle sits higher still at 1002. */
+  z-index: 1001;
+  background: var(--text-1);
+  color: var(--bg);
   display: flex; flex-direction: column;
-  justify-content: center;
-  padding: 80px var(--container-padding) 64px;
+  justify-content: space-between;
+  /* Eight links plus two labels and a footer, against the reference's four —
+     the padding has to stay modest or the panel starts scrolling on an
+     ordinary laptop. */
+  padding: clamp(68px, 11vh, 120px) 6vw clamp(36px, 6vh, 72px);
   overflow-y: auto;
-  pointer-events: none; opacity: 0;
-  transition: opacity 0.3s ease;
+  transform: translateX(calc(100% + var(--nav-curve-w)));
+  transition: transform 0.8s var(--ease-nav);
+  pointer-events: none;
 }
-.nav-overlay.is-open { opacity: 1; pointer-events: all; }
+.nav-overlay.is-open { transform: translateX(0); pointer-events: all; }
+
+/* Curved leading edge. It is a slice of ellipse held against the panel's
+   left side, at full width while the panel travels and collapsed to zero
+   once it lands — so the edge bulges on the way in and settles flat. */
+.nav-curve {
+  position: absolute; top: 0; right: 100%;
+  width: var(--nav-curve-w); height: 100%;
+  background: var(--text-1);
+  border-radius: 100% 0 0 100% / 50% 0 0 50%;
+  transition: width 0.85s var(--ease-nav);
+  pointer-events: none;
+}
+html.nav-open .nav-curve { width: 0; }
+
+/* Dims the page rather than hiding it. Weighted to the right so the panel
+   still separates cleanly from whatever sits behind it. */
+.nav-backdrop {
+  /* Below the header so the logo stays legible, above the page content. */
+  position: fixed; inset: 0; z-index: 998;
+  background: linear-gradient(to right, rgba(0,0,0,0.25) 40%, rgba(0,0,0,0.85) 85%);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.8s var(--ease-nav);
+}
+html.nav-open .nav-backdrop { opacity: 0.5; pointer-events: all; }
 
 /* The chat widget lives at a higher z-index than this overlay, so while the
    menu is open it floats over the links instead of behind them.
@@ -393,17 +437,29 @@ html.nav-open #cb-tip {
   transition: opacity 0.2s ease;
 }
 
-.nav-links-list { list-style: none; }
-.nav-links-list li { overflow: hidden; border-bottom: 1px solid var(--border); }
-.nav-links-list li:first-child { border-top: 1px solid var(--border); }
+/* Section labels, as on the reference: a small caps label over a hairline. */
+.nav-label {
+  display: block;
+  font-family: var(--font-body); font-size: 10px; font-weight: 450;
+  text-transform: uppercase; letter-spacing: 0.18em;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 10px;
+}
+.nav-stripe {
+  display: block; width: 100%; height: 1px;
+  background: rgba(255,255,255,0.18);
+}
+
+.nav-links-list { list-style: none; padding-top: 2vh; }
+.nav-links-list li { overflow: hidden; }
 
 .nav-link {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 0;
+  display: flex; align-items: center; gap: 14px;
+  padding: 10px 0;
   font-family: var(--font-display);
-  font-size: clamp(22px, 2.8vw, 36px);
-  font-weight: 450; letter-spacing: -0.6px; line-height: 1.1;
-  color: var(--text-1); text-decoration: none;
+  font-size: clamp(21px, 2.5vw, 34px);
+  font-weight: 450; letter-spacing: -0.6px; line-height: 1.25;
+  color: var(--bg); text-decoration: none;
   transform: translateY(100%);
   transition: color 0.18s;
 }
@@ -417,47 +473,69 @@ html.nav-open #cb-tip {
 .nav-links-list li:nth-child(5) .nav-link { animation-delay: 0.15s; }
 .nav-links-list li:nth-child(6) .nav-link { animation-delay: 0.18s; }
 .nav-links-list li:nth-child(7) .nav-link { animation-delay: 0.21s; }
-.nav-link:hover { color: var(--text-3); }
+.nav-link:hover { color: rgba(255,255,255,0.55); }
 
 .nav-link-num {
   font-family: var(--font-body); font-size: 10px; font-weight: 450;
-  color: var(--text-3); letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.35); letter-spacing: 0.08em;
+  flex-shrink: 0;
 }
+/* Marks the page you are on, and follows the cursor down the list on hover —
+   only one dot is ever lit. */
 .nav-link-arrow {
-  font-size: 13px; color: var(--text-3);
-  opacity: 0; transform: translateX(-6px);
-  transition: opacity 0.18s, transform 0.18s;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--bg);
+  margin-left: auto; flex-shrink: 0;
+  /* Markup still carries a Font Awesome arrow class; suppress the glyph so
+     the element reads purely as the dot. */
+  font-size: 0;
+  opacity: 0; transform: scale(0);
+  transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
 }
-.nav-link:hover .nav-link-arrow { opacity: 1; transform: translateX(0); }
+.nav-link[aria-current="page"] .nav-link-arrow { opacity: 1; transform: scale(1); }
+.nav-links-list:hover .nav-link[aria-current="page"] .nav-link-arrow {
+  opacity: 0; transform: scale(0);
+}
+.nav-links-list .nav-link:hover .nav-link-arrow { opacity: 1; transform: scale(1); }
 
 @keyframes navSlideIn {
   from { transform: translateY(100%); }
   to   { transform: translateY(0); }
 }
 
+/* Stacked, not spread: the panel is far narrower than the old full-width
+   sheet, and a single row put the socials and the location on top of
+   each other. */
 .nav-overlay-footer {
   flex-shrink: 0;
   margin-top: 40px;
-  display: flex; justify-content: space-between; align-items: center;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 14px;
 }
+.nav-social-row { display: flex; flex-wrap: wrap; gap: 10px 20px; }
+
+/* The toggle sits over the dark panel once it is open, so it has to invert
+   with it. The bars draw in currentColor and follow. */
+html.nav-open .menu-toggle { color: rgba(255,255,255,0.75); }
+html.nav-open .menu-toggle:hover { color: #fff; }
 .nav-social-row { display: flex; gap: 24px; }
 .nav-social {
   font-family: var(--font-body); font-size: 10px; font-weight: 450;
-  color: var(--text-3); text-decoration: none;
+  color: rgba(255,255,255,0.45); text-decoration: none;
   text-transform: uppercase; letter-spacing: 0.1em;
   transition: color 0.2s;
 }
-.nav-social:hover { color: var(--text-1); }
+.nav-social:hover { color: var(--bg); }
 .nav-footer-loc {
-  font-size: 10px; color: var(--text-3);
+  font-size: 10px; color: rgba(255,255,255,0.35);
   text-transform: uppercase; letter-spacing: 0.1em;
 }
 
 /* Shorter viewports (small laptop screens, non-maximized windows) — shrink
    the nav so all 8 items + footer fit without overlapping or clipping. */
 @media (max-height: 760px) {
-  .nav-overlay { padding: 56px var(--container-padding) 32px; }
-  .nav-link { font-size: clamp(18px, 2.4vw, 26px); padding: 10px 0; }
+  .nav-overlay { padding: 9vh 6vw 6vh; }
+  .nav-link { font-size: clamp(18px, 2.2vw, 26px); padding: 7px 0; }
+  .nav-links-list { padding-top: 2vh; }
   .nav-overlay-footer { margin-top: 24px; }
 }
 
@@ -613,10 +691,20 @@ html.no-motion [data-reveal],
   .nav-social  { padding: 15px 0; }
   .nav-social-row { gap: 14px 20px; }
 
-  .nav-overlay { padding: 72px 20px 56px; }
-  .nav-link { font-size: clamp(20px, 6vw, 30px); letter-spacing: -0.4px; padding: 12px 0; }
-  .nav-overlay-footer { margin-top: 28px; flex-direction: column; align-items: flex-start; gap: 10px; }
-  .nav-social-row { flex-wrap: wrap; gap: 14px; }
+  /* Full width on a phone. A half panel on a 390px screen leaves the links
+     in a column barely wider than a thumb, and the sliver of dimmed page
+     behind it is too narrow to be worth anything. */
+  .nav-overlay {
+    width: 100%;
+    /* Trimmed so all eight links and the footer fit a 390x699 phone without
+       the menu itself becoming a scrolling surface. */
+    padding: 84px 24px 32px;
+    transform: translateX(100%);
+  }
+  .nav-curve, .nav-backdrop { display: none; }
+  /* 9px keeps each link at 49px — still clear of the 44px touch minimum. */
+  .nav-link { font-size: clamp(22px, 6.4vw, 32px); letter-spacing: -0.4px; padding: 9px 0; }
+  .nav-overlay-footer { margin-top: 28px; gap: 12px; }
   .page-header { padding: 40px 20px 20px; }
   .page-title  { letter-spacing: -0.8px; }
   #main-content { padding-top: var(--header-height); }

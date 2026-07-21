@@ -39,6 +39,26 @@
   let menuOpen = false;
 
   if (toggle && overlay) {
+    /* Built here rather than repeated in every page's markup: both are purely
+       decorative, and neither is reachable without the JS that opens the
+       panel in the first place. */
+    const curve = document.createElement('div');
+    curve.className = 'nav-curve';
+    overlay.appendChild(curve);
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'nav-backdrop';
+    document.body.appendChild(backdrop);
+
+    // Mark the current page so its dot is lit before the cursor moves.
+    const here = location.pathname.split('/').pop() || 'index.html';
+    overlay.querySelectorAll('.nav-link').forEach(link => {
+      const target = link.getAttribute('href');
+      if (target === here || (here === 'index.html' && target === 'index.html')) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+
     // The chat widget is fixed at a higher z-index than the overlay, so it
     // floats over the open menu and lands on the social links. Flag the state
     // on <html> and let CSS take the widget out of the way.
@@ -55,6 +75,9 @@
     overlay.querySelectorAll('.nav-link').forEach(link => {
       link.addEventListener('click', () => setMenu(false));
     });
+
+    // Tapping the dimmed page closes the panel.
+    backdrop.addEventListener('click', () => setMenu(false));
 
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && menuOpen) toggle.click();
