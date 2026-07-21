@@ -173,7 +173,17 @@
     }
   });
 
-  /* ── CUSTOM CONTEXT MENU ────────────────────────────────── */
+  /* ── CUSTOM CONTEXT MENU ──────────────────────────────────
+     Pointer devices only. It replaces right-click, which has no equivalent
+     on a phone — there the same event comes from a long press, and taking
+     it over costs the visitor text selection, copy, and open-in-new-tab
+     for no gain. Left native on touch.
+  ─────────────────────────────────────────────────────────── */
+  const FINE_POINTER = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  if (FINE_POINTER) buildContextMenu();
+
+  function buildContextMenu() {
   const CM_ITEMS = [
     { icon: 'fa-arrow-left',      label: 'Kembali',      action: () => history.back() },
     { icon: 'fa-rotate-right',    label: 'Muat Ulang',   action: () => location.reload() },
@@ -239,6 +249,7 @@
   document.addEventListener('scroll', hideMenu, { passive: true });
   window.addEventListener('resize',   hideMenu);
   document.addEventListener('keydown', e => { if (e.key === 'Escape') hideMenu(); });
+  }
 
   /* ── DETERRENT — blokir shortcut devtools/view-source ─────
      Catatan: ini cuma penghalang buat user awam. DevTools tetap

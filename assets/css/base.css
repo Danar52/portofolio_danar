@@ -573,6 +573,15 @@ html.no-motion [data-reveal],
 /* ── MOBILE ─────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .site-header { padding: 0 20px; }
+
+  /* Touch targets. These were 14–15px tall, well under the 44px minimum in
+     WCAG 2.5.5 — and .menu-toggle is the only way into the navigation on a
+     phone. Padding grows the hit area without moving anything: the toggle is
+     centred in the header, and the socials sit in a wrapping row. */
+  .menu-toggle { padding: 15px 0; }
+  .nav-social  { padding: 15px 0; }
+  .nav-social-row { gap: 14px 20px; }
+
   .nav-overlay { padding: 72px 20px 56px; }
   .nav-link { font-size: clamp(20px, 6vw, 30px); letter-spacing: -0.4px; padding: 12px 0; }
   .nav-overlay-footer { margin-top: 28px; flex-direction: column; align-items: flex-start; gap: 10px; }
