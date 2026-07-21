@@ -1,4 +1,4 @@
-import { supabase } from '../../supabase.js?v=20260721';
+import { supabase } from '../../supabase.js?v=a77a873f';
 
     const isMobile = () => window.innerWidth <= 768;
 

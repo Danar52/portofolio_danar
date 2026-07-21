@@ -1,4 +1,4 @@
-import { supabase } from '../../supabase.js?v=20260721';
+import { supabase } from '../../supabase.js?v=a77a873f';
 
     async function loadProfil() {
       const el = document.getElementById('profilContent');
