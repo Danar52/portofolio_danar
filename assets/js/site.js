@@ -166,7 +166,14 @@
       a.addEventListener('touchstart',  () => prefetch(href), { once: true, passive: true });
       a.addEventListener('click', e => {
         // Let the browser handle open-in-new-tab / new-window itself.
-        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+        //
+        // `e.button != null` rather than `e.button !== 0`: a click that
+        // carries no button property at all — which some touch and
+        // assistive-tech paths produce — would fail the strict test and
+        // fall straight through to a plain navigation with no transition.
+        if (e.defaultPrevented) return;
+        if (e.button != null && e.button !== 0) return;
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
         e.preventDefault();
         goTo(href, a);
       });
