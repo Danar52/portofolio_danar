@@ -52,6 +52,12 @@
   </div>
 
   <div class="card">
+    <h2>Dukungan fitur</h2>
+    <p>Setiap baris di bawah ini dipakai oleh tirai atau sapaan. Satu saja gagal, fiturnya ikut mati.</p>
+    <pre id="feat">…</pre>
+  </div>
+
+  <div class="card">
     <h2>Tes A — bisakah tirai TAMPIL?</h2>
     <p>Memasang class <code>pt-in</code> langsung, tanpa lewat klik. Layar harus tertutup hitam ±1,5 detik. Ini menguji CSS dan rendering saja.</p>
     <button class="btn" id="testA">Jalankan Tes A</button>
@@ -85,6 +91,50 @@
     'sessionStorage : ' + (function () { try { sessionStorage.setItem('_t','1'); sessionStorage.removeItem('_t'); return 'ok'; } catch (e) { return 'DIBLOKIR: ' + e.name; } })(),
     'site.js jalan  : ' + (typeof window.__siteJsLoaded)
   ].join('\n');
+
+  /* ── Feature probe ───────────────────────────────────────
+     Everything the panel and the greeting actually depend on. Safari
+     gained several of these late, and a single miss disables the effect
+     while leaving the rest of the page looking fine.
+  ─────────────────────────────────────────────────────────── */
+  (function () {
+    var sup = function (prop, val) {
+      try { return CSS.supports(prop, val); } catch (e) { return 'CSS.supports hilang'; }
+    };
+    // Does var() inside calc() inside a transform actually resolve?
+    var probe = document.createElement('div');
+    probe.style.cssText = 'position:fixed;inset:0;--x:12vh;transform:translateY(calc(100% + var(--x)));visibility:hidden';
+    document.body.appendChild(probe);
+    var resolved = getComputedStyle(probe).transform;
+    var insetWorked = getComputedStyle(probe).top;
+    probe.remove();
+
+    var panel = getComputedStyle(curtain).transform;
+    var pre = document.querySelector('.preloader');
+
+    $('feat').innerHTML = [
+      'inset: 0            : ' + mark(sup('inset', '0') === true) + '   (Safari 14.1+)',
+      '  → top ter-resolve : ' + insetWorked,
+      '100dvh              : ' + mark(sup('height', '100dvh') === true) + '   (Safari 15.4+)',
+      'flex gap            : ' + mark(sup('gap', '1px') === true) + '   (Safari 14.1+)',
+      'clamp()             : ' + mark(sup('width', 'clamp(1px, 2px, 3px)') === true),
+      'custom property     : ' + mark(sup('--x', '1px') === true),
+      '',
+      'var() dalam calc() dalam transform:',
+      '  hasil             : ' + resolved,
+      '  ter-resolve       : ' + mark(resolved !== 'none' && resolved.indexOf('matrix') === 0),
+      '',
+      'transform panel asli: ' + panel,
+      '  panel terparkir   : ' + mark(panel.indexOf('matrix') === 0 && panel !== 'matrix(1, 0, 0, 1, 0, 0)'),
+      'preloader di halaman: ' + (pre ? 'ada' : 'tidak ada (normal, hanya di homepage)'),
+      '',
+      (resolved === 'none'
+        ? 'TRANSFORM GAGAL — panel tak bisa diposisikan. Ini akar masalahnya.'
+        : (panel === 'matrix(1, 0, 0, 1, 0, 0)'
+            ? 'PANEL TIDAK TERPARKIR — seharusnya menutupi layar sekarang.'
+            : 'Semua properti dasar OK.'))
+    ].join('\n');
+  })();
 
   /* ── Test A: can the panel render at all? ────────────────── */
   $('testA').addEventListener('click', function () {
