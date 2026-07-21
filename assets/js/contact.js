@@ -1,4 +1,4 @@
-import { supabase } from '../../supabase.js';
+import { supabase } from '../../supabase.js?v=20260721';
 
 function buildWhatsAppUrl(phone) {
   let digits = String(phone).replace(/\D/g, '');

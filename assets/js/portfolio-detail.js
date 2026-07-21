@@ -1,4 +1,4 @@
-import { supabase } from '../../supabase.js';
+import { supabase } from '../../supabase.js?v=20260721';
 
 const TYPE_CONFIG = {
   web:    { label: 'Web Dev', icon: 'fas fa-code' },

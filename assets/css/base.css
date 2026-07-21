@@ -379,6 +379,20 @@ html.pt-nogreet .preloader { display: none; }
 }
 .nav-overlay.is-open { opacity: 1; pointer-events: all; }
 
+/* The chat widget lives at a higher z-index than this overlay, so while the
+   menu is open it floats over the links instead of behind them.
+
+   !important is load-bearing: the bubble runs a pop-in animation with
+   fill:forwards, and an animation's value outranks a normal declaration.
+   Only an important one wins the cascade against it. */
+html.nav-open #cb-bubble,
+html.nav-open #cb-notif,
+html.nav-open #cb-tip {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 0.2s ease;
+}
+
 .nav-links-list { list-style: none; }
 .nav-links-list li { overflow: hidden; border-bottom: 1px solid var(--border); }
 .nav-links-list li:first-child { border-top: 1px solid var(--border); }

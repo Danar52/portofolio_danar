@@ -1,4 +1,4 @@
-import { supabase } from '../../supabase.js';
+import { supabase } from '../../supabase.js?v=20260721';
 
     function isPDF(url) { return url && url.toLowerCase().includes('.pdf'); }
 

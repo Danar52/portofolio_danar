@@ -43,20 +43,21 @@
   let menuOpen = false;
 
   if (toggle && overlay) {
-    toggle.addEventListener('click', () => {
-      menuOpen = !menuOpen;
-      toggle.classList.toggle('is-open', menuOpen);
-      overlay.classList.toggle('is-open', menuOpen);
-      document.body.style.overflow = menuOpen ? 'hidden' : '';
-    });
+    // The chat widget is fixed at a higher z-index than the overlay, so it
+    // floats over the open menu and lands on the social links. Flag the state
+    // on <html> and let CSS take the widget out of the way.
+    const setMenu = open => {
+      menuOpen = open;
+      toggle.classList.toggle('is-open', open);
+      overlay.classList.toggle('is-open', open);
+      document.documentElement.classList.toggle('nav-open', open);
+      document.body.style.overflow = open ? 'hidden' : '';
+    };
+
+    toggle.addEventListener('click', () => setMenu(!menuOpen));
 
     overlay.querySelectorAll('.nav-link').forEach(link => {
-      link.addEventListener('click', () => {
-        menuOpen = false;
-        toggle.classList.remove('is-open');
-        overlay.classList.remove('is-open');
-        document.body.style.overflow = '';
-      });
+      link.addEventListener('click', () => setMenu(false));
     });
 
     document.addEventListener('keydown', e => {

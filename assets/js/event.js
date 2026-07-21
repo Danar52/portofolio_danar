@@ -1,4 +1,4 @@
-import { supabase } from '../../supabase.js';
+import { supabase } from '../../supabase.js?v=20260721';
 
     const typeLabel = { org: 'Organisasi', event: 'Event', comp: 'Kompetisi' };
     const typeBadge = { org: 'badge-org',  event: 'badge-event', comp: 'badge-comp' };
