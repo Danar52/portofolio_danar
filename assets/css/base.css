@@ -250,7 +250,9 @@ html.pt-arrive .page-transition .pt-label { opacity: 1; transform: none; }
   background: var(--text-1);
   display: grid; place-items: center;
   pointer-events: none;
-  animation: plExit 0.72s var(--ease-pt) 0.86s forwards;
+  /* The delay must match the word cycle's duration so the panel starts
+     lifting exactly as the last greeting settles. */
+  animation: plExit 0.75s var(--ease-pt) 1.3s forwards;
 }
 .preloader-mask {
   height: 1.15em;
@@ -263,20 +265,26 @@ html.pt-arrive .page-transition .pt-label { opacity: 1; transform: none; }
   display: block;
   /* No steps(): each word glides into place and holds, rather than
      teleporting. The hold segments in the keyframes do the pacing. */
-  animation: plWords 0.86s var(--ease-pt) forwards;
+  /* Symmetric easing, not the front-loaded --ease-pt used for panels: expo
+     covers most of the distance in the first half of each move, which cut
+     the first greeting's time on screen to well under the others'. */
+  animation: plWords 1.3s cubic-bezier(0.76, 0, 0.24, 1) forwards;
 }
 .preloader-words span { display: block; height: 1.15em; color: var(--bg); }
 .preloader-words i { color: var(--text-3); font-style: normal; }
 
-/* Steps are in em, matching one word's height. A percentage here would
-   resolve against the whole column (5 words tall), so -100% would jump
-   five words instead of one. */
+/* Each move is centred on a fifth of the timeline (20%, 40%, 60%, 80%), so
+   every greeting — including the first and last, which only get half a
+   transition — holds the screen for the same 20%.
+
+   Steps are in em, matching one word's height. A percentage would resolve
+   against the whole column, so -100% would jump five words instead of one. */
 @keyframes plWords {
-  0%,   11% { transform: translateY(0); }
-  20%,  31% { transform: translateY(-1.15em); }
-  40%,  51% { transform: translateY(-2.30em); }
-  60%,  71% { transform: translateY(-3.45em); }
-  80%, 100% { transform: translateY(-4.60em); }
+  0%,   16% { transform: translateY(0); }
+  24%,  36% { transform: translateY(-1.15em); }
+  44%,  56% { transform: translateY(-2.30em); }
+  64%,  76% { transform: translateY(-3.45em); }
+  84%, 100% { transform: translateY(-4.60em); }
 }
 /* Pulls off the top, matching the arrival reveal. */
 @keyframes plExit {
