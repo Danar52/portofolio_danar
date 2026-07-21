@@ -3,6 +3,10 @@
 ;(function () {
   'use strict';
 
+  // Set at the start and again at the end, so a diagnostic can tell a script
+  // that never ran from one that threw part-way through.
+  window.__siteJsLoaded = 'started';
+
   /* ── CUSTOM CURSOR ──────────────────────────────────────── */
   const dot  = document.getElementById('cursorDot');
   const ring = document.getElementById('cursorRing');
@@ -274,5 +278,7 @@
       e.preventDefault();
     }
   });
+
+  window.__siteJsLoaded = 'complete';
 
 })();

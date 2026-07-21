@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="robots" content="noindex, nofollow"/>
+  <title>Diagnostik Transisi</title>
+
+  <link rel="preload" href="./assets/fonts/GeneralSans-Variable.woff2" as="font" type="font/woff2" crossorigin/>
+  <link rel="stylesheet" href="./assets/css/base.css"/>
+
+  <style>
+    body { cursor: auto; padding: 20px 16px 60px; }
+    h1 { font-size: 20px; margin-bottom: 4px; }
+    .sub { font-size: 13px; color: var(--text-2); margin-bottom: 20px; }
+    .card {
+      border: 1px solid var(--border); border-radius: 10px;
+      padding: 14px; margin-bottom: 14px; background: var(--bg-surface);
+    }
+    .card h2 { font-size: 14px; margin-bottom: 8px; }
+    .card p { font-size: 12.5px; color: var(--text-2); margin-bottom: 10px; line-height: 1.5; }
+    .btn {
+      display: inline-block; background: var(--text-1); color: var(--bg);
+      border: none; border-radius: 40px; padding: 14px 22px;
+      font-family: var(--font-body); font-size: 13px; cursor: pointer;
+      text-decoration: none;
+    }
+    pre {
+      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px; font-size: 11.5px; line-height: 1.6;
+      white-space: pre-wrap; word-break: break-word; margin-top: 10px;
+    }
+    .ok   { color: #2f7d54; }
+    .bad  { color: #c0392b; font-weight: 450; }
+  </style>
+</head>
+<body>
+
+  <!-- Same markup the real pages use, so site.js binds to it identically. -->
+  <div class="page-transition" id="pageTransition" aria-hidden="true">
+    <div class="pt-curve top"></div>
+    <span class="pt-label" id="ptLabel"></span>
+    <div class="pt-curve bottom"></div>
+  </div>
+
+  <h1>Diagnostik Transisi</h1>
+  <div class="sub">Screenshot hasilnya dan kirim ke Claude.</div>
+
+  <div class="card">
+    <h2>Lingkungan</h2>
+    <pre id="env">…</pre>
+  </div>
+
+  <div class="card">
+    <h2>Tes A — bisakah tirai TAMPIL?</h2>
+    <p>Memasang class <code>pt-in</code> langsung, tanpa lewat klik. Layar harus tertutup hitam ±1,5 detik. Ini menguji CSS dan rendering saja.</p>
+    <button class="btn" id="testA">Jalankan Tes A</button>
+    <pre id="outA">belum dijalankan</pre>
+  </div>
+
+  <div class="card">
+    <h2>Tes B — apakah TAP di link dicegat?</h2>
+    <p>Link asli ke halaman ini juga. site.js seharusnya mencegat tap-nya, menampilkan tirai, lalu pindah setelah 860&nbsp;ms. Hasilnya tersimpan dan muncul otomatis saat halaman kembali terbuka.</p>
+    <a class="btn" href="debug-transition.html" id="testB">Jalankan Tes B (tap link ini)</a>
+    <pre id="outB">belum dijalankan</pre>
+  </div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var curtain = $('pageTransition');
+
+  function mark(v) { return v ? '<span class="ok">YA</span>' : '<span class="bad">TIDAK</span>'; }
+
+  /* ── Environment ─────────────────────────────────────────── */
+  var mq = function (q) { return window.matchMedia(q).matches; };
+  $('env').innerHTML = [
+    'UA          : ' + navigator.userAgent,
+    'layar       : ' + window.innerWidth + 'x' + window.innerHeight + ' dpr' + window.devicePixelRatio,
+    'reduced-motion : ' + mq('(prefers-reduced-motion: reduce)'),
+    'hover:hover    : ' + mq('(hover: hover)'),
+    'pointer:fine   : ' + mq('(pointer: fine)'),
+    'pointer:coarse : ' + mq('(pointer: coarse)'),
+    'PointerEvent   : ' + (typeof window.PointerEvent),
+    'sessionStorage : ' + (function () { try { sessionStorage.setItem('_t','1'); sessionStorage.removeItem('_t'); return 'ok'; } catch (e) { return 'DIBLOKIR: ' + e.name; } })(),
+    'site.js jalan  : ' + (typeof window.__siteJsLoaded)
+  ].join('\n');
+
+  /* ── Test A: can the panel render at all? ────────────────── */
+  $('testA').addEventListener('click', function () {
+    var parked = getComputedStyle(curtain).transform;
+    $('ptLabel').innerHTML = 'Tes A<i>.</i>';
+
+    // Resolve the .pt-in rule with the transition switched off. Sampling a
+    // running transition would report a false negative wherever the browser
+    // throttles animation (background tab, battery saver), which is exactly
+    // the situation being diagnosed.
+    curtain.style.transition = 'none';
+    curtain.classList.add('pt-in');
+    var target = getComputedStyle(curtain).transform;
+    var covers = (function () {
+      var r = curtain.getBoundingClientRect();
+      return r.top <= 1 && r.bottom >= window.innerHeight - 1;
+    })();
+    curtain.classList.remove('pt-in');
+    void curtain.offsetHeight;          // flush, so the replay animates
+    curtain.style.transition = '';
+
+    // Now replay it for real so the panel can be seen moving.
+    curtain.classList.add('pt-in');
+    setTimeout(function () {
+      var midway = getComputedStyle(curtain).transform;
+      curtain.classList.remove('pt-in');
+      $('outA').innerHTML = [
+        'transform parkir  : ' + parked,
+        'transform pt-in   : ' + target,
+        'aturan pt-in jalan: ' + mark(parked !== target),
+        'menutup layar     : ' + mark(covers),
+        'saat dianimasikan : ' + midway,
+        'animasi bergerak  : ' + mark(midway !== parked),
+        '',
+        (parked !== target
+          ? (covers
+              ? 'CSS OK: panel menutup layar penuh. Kalau tirai tetap tak terlihat saat tap, masalahnya di penanganan tap — lihat Tes B.'
+              : 'Aturan jalan tapi panel TIDAK menutup layar penuh — masalah ukuran viewport.')
+          : 'Aturan .pt-in TIDAK berlaku — masalahnya di CSS, bukan JavaScript.'),
+        (midway === parked && parked !== target
+          ? 'CATATAN: animasinya tidak bergerak walau aturannya benar — browser sedang membekukan animasi (hemat baterai / tab latar).'
+          : '')
+      ].join('\n');
+    }, 1200);
+  });
+
+  /* ── Test B: is the tap intercepted? ─────────────────────── */
+  // Capture phase runs before site.js's own listener, so we can see the tap
+  // arrive; a second pass after it reports whether site.js prevented it.
+  $('testB').addEventListener('click', function (e) {
+    var log = {
+      fired: true,
+      type: e.type,
+      constructor: e.constructor && e.constructor.name,
+      button: (typeof e.button === 'undefined') ? 'TIDAK ADA' : e.button,
+      pointerType: e.pointerType || '(bukan PointerEvent)',
+      isTrusted: e.isTrusted
+    };
+    setTimeout(function () {
+      log.preventedBySiteJs = e.defaultPrevented;
+      log.ptInAdded = curtain.classList.contains('pt-in');
+      log.flagSet = (function () { try { return sessionStorage.getItem('pt-nav'); } catch (x) { return 'n/a'; } })();
+      try { sessionStorage.setItem('ptdebug', JSON.stringify(log)); } catch (x) {}
+    }, 0);
+  }, true);
+
+  // Show the result of the previous run, if there was one.
+  try {
+    var saved = sessionStorage.getItem('ptdebug');
+    if (saved) {
+      var d = JSON.parse(saved);
+      $('outB').innerHTML = [
+        'handler kena tap  : ' + mark(d.fired),
+        'jenis event       : ' + d.constructor,
+        'e.button          : ' + d.button,
+        'pointerType       : ' + d.pointerType,
+        'isTrusted         : ' + d.isTrusted,
+        'dicegat site.js   : ' + mark(d.preventedBySiteJs),
+        'class pt-in masuk : ' + mark(d.ptInAdded),
+        'flag pt-nav       : ' + d.flagSet,
+        '',
+        (d.preventedBySiteJs
+          ? (d.ptInAdded ? 'Tap dicegat dan tirai dipasang — seharusnya terlihat.'
+                         : 'Tap dicegat tapi pt-in TIDAK terpasang — goTo() berhenti di tengah.')
+          : 'Tap TIDAK dicegat — inilah sebabnya browser langsung pindah tanpa tirai.')
+      ].join('\n');
+      sessionStorage.removeItem('ptdebug');
+    }
+  } catch (x) {}
+})();
+</script>
+
+<script src="./assets/js/site.js"></script>
+</body>
+</html>

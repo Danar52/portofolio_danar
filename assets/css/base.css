@@ -102,7 +102,24 @@
 
 /* ── RESET ──────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  /* iOS Safari inflates body text when the phone is rotated to landscape,
+     which breaks the type scale. */
+  -webkit-text-size-adjust: 100%;
+          text-size-adjust: 100%;
+}
+
+/* On iOS Safari 100vh means the viewport with the URL bar hidden, so it is
+   always taller than what is actually on screen — a full-height hero ends up
+   pushing its own call-to-action below the fold. dvh tracks the visible
+   height; vh stays as the fallback for browsers without it. */
+@supports (height: 100dvh) {
+  .full-height,
+  body,
+  #main-content,
+  .hero { min-height: 100dvh; }
+}
 body {
   font-family: var(--font-body);
   font-weight: 450;
