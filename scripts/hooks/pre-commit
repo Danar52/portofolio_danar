@@ -1,0 +1,35 @@
+#!/bin/sh
+#
+# Keeps the ?v= stamps on asset URLs in step with the files they point at, so a
+# stylesheet or script can never be deployed behind a URL a browser has already
+# cached. Safari in particular will serve a previously seen asset URL from cache
+# regardless of Cache-Control.
+#
+# Lives in the repo rather than .git/hooks so it survives a fresh clone. Enable
+# it with:
+#
+#     git config core.hooksPath scripts/hooks
+#
+# Only the files the stamper itself rewrote are staged — never anything else
+# that happens to be modified in the working tree.
+
+set -e
+cd "$(git rev-parse --show-toplevel)"
+
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "pre-commit: python3 tidak ditemukan — stempel aset tidak diperbarui." >&2
+  echo "            Jalankan sendiri: python3 scripts/bump-assets.py" >&2
+  exit 1
+fi
+
+changed=$(python3 scripts/bump-assets.py --print-changed)
+
+if [ -n "$changed" ]; then
+  echo "$changed" | while IFS= read -r file; do
+    [ -n "$file" ] && git add -- "$file"
+  done
+  echo "pre-commit: stempel aset diperbarui dan ikut di-commit:"
+  echo "$changed" | sed 's/^/  /'
+fi
+
+exit 0

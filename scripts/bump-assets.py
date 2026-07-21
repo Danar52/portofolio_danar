@@ -14,6 +14,11 @@ copies of everything else.
     python3 scripts/bump-assets.py            update the stamps
     python3 scripts/bump-assets.py --check    report staleness, change nothing
                                               (exit 1 if anything is stale)
+    python3 scripts/bump-assets.py --print-changed
+                                              update, then print just the paths
+                                              it rewrote, one per line, so the
+                                              pre-commit hook can stage exactly
+                                              those and nothing else
 
 Run it after editing anything under assets/css or assets/js, or chatbot.js
 or supabase.js, and commit the result alongside the change.
@@ -45,6 +50,7 @@ def digest(path: pathlib.Path) -> str:
 
 def main() -> int:
     check_only = "--check" in sys.argv
+    porcelain = "--print-changed" in sys.argv
 
     cache: dict[str, str] = {}
     missing: set[str] = set()
@@ -91,6 +97,15 @@ def main() -> int:
             v = version_for(m.group(2))
             return f'{m.group(1)}"' if v is None else f'{m.group(1)}?v={v}"'
         rewrite(page, HTML_REF, build)
+
+    if porcelain:
+        # Paths only, for the hook to stage. Warnings go to stderr so they stay
+        # out of the list being parsed.
+        for rel in sorted(missing):
+            print(f"referenced but not on disk: {rel}", file=sys.stderr)
+        for name in changed:
+            print(name)
+        return 0
 
     for rel in sorted(missing):
         print(f"  ! referenced but not on disk: {rel}")
