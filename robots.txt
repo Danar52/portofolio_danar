@@ -3,6 +3,5 @@ User-agent: *
 Allow: /
 Disallow: /admin.html
 Disallow: /admin-login.html
-Disallow: /debug-transition.html
 
 Sitemap: https://www.edanararrasyid.my.id/sitemap.xml
