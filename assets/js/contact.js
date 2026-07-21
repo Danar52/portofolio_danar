@@ -29,6 +29,15 @@ function setFormMsg(text, type) {
   el.className = `contact-form-msg ${type}`;
 }
 
+/* The message field has no box and no resize handle, so it grows to fit what
+   is typed rather than scrolling inside itself. */
+const messageField = document.getElementById('c_message');
+function fitMessage() {
+  messageField.style.height = 'auto';
+  messageField.style.height = messageField.scrollHeight + 'px';
+}
+messageField.addEventListener('input', fitMessage);
+
 const form = document.getElementById('contactForm');
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -64,5 +73,6 @@ form.addEventListener('submit', async (e) => {
   }
 
   form.reset();
+  fitMessage();          // reset() empties it but leaves the grown height
   setFormMsg('Pesan terkirim! Gw bakal balas secepatnya 🙌', 'success');
 });

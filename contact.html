@@ -36,7 +36,7 @@
 
   <link rel="preload" href="./assets/fonts/GeneralSans-Variable.woff2" as="font" type="font/woff2" crossorigin/>
   <link rel="stylesheet" href="./assets/css/base.css?v=6840b11e"/>
-  <link rel="stylesheet" href="./assets/css/contact.css?v=513832ed"/>
+  <link rel="stylesheet" href="./assets/css/contact.css?v=11ff78e3"/>
 
   <script type="application/ld+json">
   {
@@ -128,20 +128,28 @@
 
       <form id="contactForm" class="contact-form">
         <div class="contact-field">
-          <label for="c_name">Nama</label>
-          <input type="text" id="c_name" name="name" required maxlength="100"/>
+          <span class="contact-num" aria-hidden="true">01</span>
+          <label for="c_name">Nama lo siapa?</label>
+          <input type="text" id="c_name" name="name" required maxlength="100"
+                 autocomplete="name" placeholder="Eka Danar *"/>
         </div>
         <div class="contact-field">
-          <label for="c_email">Email</label>
-          <input type="email" id="c_email" name="email" required maxlength="150"/>
+          <span class="contact-num" aria-hidden="true">02</span>
+          <label for="c_email">Email lo apa?</label>
+          <input type="email" id="c_email" name="email" required maxlength="150"
+                 autocomplete="email" placeholder="nama@email.com *"/>
         </div>
         <div class="contact-field">
-          <label for="c_subject">Subjek <span class="contact-optional">(opsional)</span></label>
-          <input type="text" id="c_subject" name="subject" maxlength="150"/>
+          <span class="contact-num" aria-hidden="true">03</span>
+          <label for="c_subject">Mau bahas apa? <span class="contact-optional">(opsional)</span></label>
+          <input type="text" id="c_subject" name="subject" maxlength="150"
+                 placeholder="Kolaborasi, tawaran kerja, freelance…"/>
         </div>
         <div class="contact-field">
-          <label for="c_message">Pesan</label>
-          <textarea id="c_message" name="message" rows="5" required maxlength="2000"></textarea>
+          <span class="contact-num" aria-hidden="true">04</span>
+          <label for="c_message">Ceritain detailnya.</label>
+          <textarea id="c_message" name="message" rows="4" required maxlength="2000"
+                    placeholder="Tulis pesan lo di sini… *"></textarea>
         </div>
         <button type="submit" id="contactSubmitBtn" class="contact-submit-btn">Kirim Pesan</button>
         <p id="contactFormMsg" class="contact-form-msg" role="status"></p>
@@ -153,7 +161,7 @@
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js"></script>
   <script defer src="./assets/js/motion.js?v=1de9fdc2"></script>
-  <script type="module" src="./assets/js/contact.js?v=5a979abb"></script>
+  <script type="module" src="./assets/js/contact.js?v=3e761fb6"></script>
   <script type="module" src="chatbot.js?v=06e270b9"></script>
 </body>
 </html>

@@ -67,43 +67,81 @@
 }
 .contact-social:hover { color: var(--text-1); border-color: var(--text-1); }
 
+/* ── FORM ────────────────────────────────────────────────────────
+   Questions on a hairline rather than labels above boxes. Each row is a
+   number, the question, and an unboxed answer — the field reads as part
+   of the page instead of a control dropped onto it.
+─────────────────────────────────────────────────────────────── */
 .contact-form {
   display: flex;
   flex-direction: column;
-  gap: 18px;
 }
-.contact-field { display: flex; flex-direction: column; gap: 8px; }
-.contact-field label {
+
+.contact-field {
+  position: relative;
+  padding-left: 34px;
+  border-bottom: 1px solid var(--border);
+  transition: border-color 0.25s var(--ease);
+}
+/* Without a box there is nothing to outline, so the rule itself carries
+   the focus state. Losing that entirely would leave keyboard users with no
+   idea where they are. */
+.contact-field:focus-within { border-color: var(--text-1); }
+
+.contact-num {
+  position: absolute; left: 0; top: 1.9em;
   font-family: var(--font-body);
-  font-size: 11px;
-  font-weight: 450;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-size: 10.5px; font-weight: 450;
+  letter-spacing: 0.06em;
   color: var(--text-3);
 }
-.contact-optional { text-transform: none; letter-spacing: normal; opacity: 0.7; }
+
+/* Label and answer share a size on purpose: colour alone separates the
+   question from what you type, which is what keeps the row looking like
+   a line of prose. */
+.contact-field label {
+  display: block;
+  padding-top: 1.6em;
+  font-family: var(--font-body);
+  font-size: clamp(17px, 1.5vw, 21px);
+  font-weight: 450;
+  letter-spacing: -0.2px;
+  color: var(--text-1);
+  cursor: none;
+}
+.contact-optional { color: var(--text-3); font-size: 0.62em; }
 
 .contact-field input,
 .contact-field textarea {
+  display: block; width: 100%;
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: clamp(17px, 1.5vw, 21px);
+  font-weight: 450;
   color: var(--text-1);
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 13px 16px;
-  resize: vertical;
-  transition: border-color 0.2s;
+  background: transparent;
+  border: none;
+  padding: 0.55em 0 1.5em;
+  resize: none;          /* JS grows the textarea; a drag handle on an
+                            unboxed field has nothing to grab */
+  overflow: hidden;
 }
 .contact-field input:focus,
-.contact-field textarea:focus {
-  outline: none;
-  border-color: var(--text-1);
+.contact-field textarea:focus { outline: none; }
+
+.contact-field input::placeholder,
+.contact-field textarea::placeholder {
+  color: var(--text-3);
+  font-weight: 450;
 }
 
 .contact-submit-btn {
   align-self: flex-start;
-  padding: 13px 28px;
+  /* The rows no longer sit in a gapped stack, so the button carries its own
+     separation from the last hairline. */
+  margin-top: 28px;
+  /* 15px vertical puts it at 46px — the 13px it had left it at 42, under the
+     44px touch minimum. */
+  padding: 15px 28px;
   background: var(--text-1);
   color: var(--bg);
   border: none;
