@@ -169,9 +169,7 @@ body.cur-click .cursor-ring { width: 18px; height: 18px; }
 }
 /* Scoped to the moving states. Left on permanently it keeps a full-viewport
    compositor layer alive for the whole session. */
-.page-transition.pt-in,
-.page-transition.pt-out,
-html.pt-arrive .page-transition { will-change: transform, opacity; }
+.page-transition.pt-in { will-change: transform; }
 
 /* Curved caps on the leading and trailing edges, so the panel reads as
    a swelling shape rather than a straight bar. Sat outside the panel
@@ -217,35 +215,28 @@ html.pt-arrive .page-transition { will-change: transform, opacity; }
    the way out), so a direct hit — and a crawler, which never clicks —
    still paints its content immediately and pays no LCP cost.
 ─────────────────────────────────────────────────────────────── */
-html.pt-arrive .page-transition { transform: translateY(0); }
+/* The reveal is a CSS animation, not a JS-triggered transition. site.js sits
+   at the end of <body>, so driving it from there meant the panel sat still
+   through body parsing, the render-blocking icon stylesheet and font loading
+   before it even began to move — the pause on arrival.
+   As an animation it starts the moment the element first renders, and it
+   doubles as its own failsafe: nothing can leave the page covered. */
+html.pt-arrive .page-transition {
+  transform: translateY(0);
+  animation: ptReveal 0.9s var(--ease-pt) 0.06s forwards;
+  will-change: transform;
+}
 html.pt-arrive .page-transition .pt-label { opacity: 1; transform: none; }
 
-/* Failsafe: the covering state is applied by an inline script before paint.
-   If site.js never runs, nothing would ever take it away — so uncover on a
-   timer in CSS, which cannot fail to run. */
-html.pt-arrive .page-transition {
-  animation: ptFailsafe 0.01s linear 2.4s forwards;
-}
-@keyframes ptFailsafe {
-  to { transform: translateY(calc(100% + var(--pt-curve-h))); opacity: 0; }
+/* Carries straight on upward and pulls off the top, rather than sinking back
+   or fading out. The label travels with it. */
+@keyframes ptReveal {
+  from { transform: translateY(0); }
+  to   { transform: translateY(calc(-100% - var(--pt-curve-h))); }
 }
 
-/* Retreats the way it came — down — so the pair reads as one curtain
-   lifting and lowering rather than an endless upward conveyor. The bottom
-   cap leads the way out, the top cap trails.
-
-   Fading alongside the slide lets the page show through before the panel
-   has fully cleared, which softens the hand-off. */
-.page-transition.pt-out {
-  transform: translateY(calc(100% + var(--pt-curve-h)));
-  opacity: 0;
-  transition: transform 0.85s var(--ease-pt),
-              opacity 0.5s ease 0.22s;
-}
-.page-transition.pt-out .pt-label {
-  opacity: 0; transform: translateY(14px);
-  transition: opacity 0.28s ease, transform 0.5s var(--ease-pt);
-}
+/* The reveal now lives in @keyframes ptReveal above — the arriving page has
+   no JS-driven exit state. */
 
 /* ── PRELOADER (homepage only) ───────────────────────────────────
    Pure CSS on purpose: a JS-driven overlay that fails to tear down
@@ -287,12 +278,10 @@ html.pt-arrive .page-transition {
   60%,  71% { transform: translateY(-3.45em); }
   80%, 100% { transform: translateY(-4.60em); }
 }
-/* Leaves downward too, matching the arrival reveal — every "page opening"
-   move goes the same way. */
+/* Pulls off the top, matching the arrival reveal. */
 @keyframes plExit {
   to {
-    transform: translateY(calc(100% + var(--pt-curve-h)));
-    opacity: 0;
+    transform: translateY(calc(-100% - var(--pt-curve-h)));
     visibility: hidden;
   }
 }

@@ -112,29 +112,38 @@
     // from under the panel instead of cutting straight to content.
     try { sessionStorage.setItem('pt-nav', name); } catch (e) {}
     pauseScroll(true);
-    curtain.classList.remove('pt-out');
     curtain.classList.add('pt-in');
     setTimeout(() => { window.location.href = href; }, CURTAIN_MS);
   }
 
-  /* Arrival: the inline <head> script has already put the panel over the page
-     when this load came from a click. Slide it away as one continuous move. */
+  /* Arrival: the inline <head> script put the panel over the page and CSS is
+     already animating it away. All that is left is to fill in the label and
+     tidy up once the animation ends — none of which the motion waits on. */
   if (curtain && document.documentElement.classList.contains('pt-arrive')) {
     if (ptLabel && window.__ptLabel) {
       ptLabel.innerHTML = window.__ptLabel + '<i>.</i>';
     }
-    // Two frames, not one. The first still shares the frame with initial
-    // layout and script; starting the slide there means the animation's
-    // opening frames compete with page setup, which is the stutter. By the
-    // second frame the first paint is done.
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      curtain.classList.add('pt-out');
-      setTimeout(() => {
-        document.documentElement.classList.remove('pt-arrive');
-        curtain.classList.remove('pt-out');
-        pauseScroll(false);
-      }, 1000);   // clears the 0.85s slide plus the delayed fade
-    }));
+    // animationend bubbles, so check the target: any animation added to a
+    // child later would otherwise tear the panel down early.
+    curtain.addEventListener('animationend', function onDone(e) {
+      if (e.target !== curtain || e.animationName !== 'ptReveal') return;
+      curtain.removeEventListener('animationend', onDone);
+      document.documentElement.classList.remove('pt-arrive');
+      pauseScroll(false);
+    });
+  }
+
+  /* Warm the destination on hover. Most of the dead time on arrival is the
+     browser fetching and parsing the next document while the panel holds
+     still; by then it is usually already in the cache. */
+  const prefetched = new Set();
+  function prefetch(href) {
+    if (!href || prefetched.has(href)) return;
+    prefetched.add(href);
+    const l = document.createElement('link');
+    l.rel = 'prefetch';
+    l.href = href;
+    document.head.appendChild(l);
   }
 
   /* Restoring from bfcache replays the DOM as it was left — mid-navigation,
@@ -142,7 +151,8 @@
   if (curtain) {
     window.addEventListener('pageshow', e => {
       if (!e.persisted) return;
-      curtain.classList.remove('pt-in', 'pt-out');
+      curtain.classList.remove('pt-in');
+      document.documentElement.classList.remove('pt-arrive');
     });
   }
 
@@ -152,6 +162,8 @@
         href.startsWith('tel') || href.startsWith('http') ||
         a.target === '_blank') return;
     if (href.endsWith('.html') || href === '/' || href.endsWith('/')) {
+      a.addEventListener('mouseenter', () => prefetch(href), { once: true });
+      a.addEventListener('touchstart',  () => prefetch(href), { once: true, passive: true });
       a.addEventListener('click', e => {
         // Let the browser handle open-in-new-tab / new-window itself.
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
