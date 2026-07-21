@@ -149,10 +149,20 @@ strong, b { font-weight: 550; }
 ::-webkit-scrollbar-thumb { background: var(--border-mid); }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-3); }
 
-/* ── CUSTOM CURSOR ──────────────────────────────────────────── */
+/* ── CUSTOM CURSOR ────────────────────────────────────────────────
+   Drawn white and composited with difference, so it inverts against
+   whatever it happens to be over: near-black on the light page, near-white
+   on the dark nav panel or the transition curtain. That is one rule doing
+   the work, rather than sampling the colour under the pointer — which
+   cannot see backgrounds painted by ancestors, images, or gradients.
+
+   |backdrop − white| — over #f0f0ef it resolves to #0f0f10, over #1c1c1a
+   to #e3e3e5.
+─────────────────────────────────────────────────────────────── */
 .cursor-dot {
   position: fixed; width: 5px; height: 5px;
-  background: var(--text-1); border-radius: 50%;
+  background: #fff; border-radius: 50%;
+  mix-blend-mode: difference;
   pointer-events: none; z-index: 99999;
   transform: translate(-50%, -50%);
   will-change: left, top;
@@ -160,14 +170,15 @@ strong, b { font-weight: 550; }
 }
 .cursor-ring {
   position: fixed; width: 28px; height: 28px;
-  border: 1px solid rgba(28,28,26,0.28);
+  border: 1px solid rgba(255,255,255,0.55);
   border-radius: 50%; pointer-events: none; z-index: 99998;
+  mix-blend-mode: difference;
   transform: translate(-50%, -50%);
   will-change: left, top;
   transition: width 0.25s ease, height 0.25s ease, border-color 0.25s, opacity 0.3s;
 }
-body.cur-hover .cursor-dot  { width: 7px; height: 7px; background: var(--text-2); }
-body.cur-hover .cursor-ring { width: 44px; height: 44px; border-color: rgba(28,28,26,0.12); }
+body.cur-hover .cursor-dot  { width: 7px; height: 7px; background: rgba(255,255,255,0.75); }
+body.cur-hover .cursor-ring { width: 44px; height: 44px; border-color: rgba(255,255,255,0.3); }
 body.cur-click .cursor-dot  { width: 3px; height: 3px; }
 body.cur-click .cursor-ring { width: 18px; height: 18px; }
 @media (hover: none) { .cursor-dot, .cursor-ring { display: none; } }
@@ -745,12 +756,19 @@ html.no-motion [data-reveal],
      behind it is too narrow to be worth anything. */
   .nav-overlay {
     width: 100%;
-    transform: translateX(100%);
+    /* Keeps the curve-width offset from the desktop rule. Parking at a plain
+       translateX(100%) would leave the curve poking in at the right edge —
+       the same mistake the page-transition caps made at the bottom. */
+    transform: translateX(calc(100% + var(--nav-curve-w)));
   }
   /* Trimmed so all eight links and the footer fit a 390x699 phone without
      the menu itself becoming a scrolling surface. */
   .nav-inner { padding: 84px 24px 32px; }
-  .nav-curve, .nav-backdrop { display: none; }
+  /* The curve stays. Once the full-width panel lands the curve sits off the
+     left edge and is simply not seen, which is the flat resting state — but
+     it still leads the way in, and that is the part worth having. */
+  /* No backdrop: a full-width panel leaves no page behind it to dim. */
+  .nav-backdrop { display: none; }
   /* 9px keeps each link at 49px — still clear of the 44px touch minimum. */
   .nav-link { font-size: clamp(22px, 6.4vw, 32px); letter-spacing: -0.4px; padding: 9px 0; }
   .nav-overlay-footer { margin-top: 28px; gap: 12px; }
