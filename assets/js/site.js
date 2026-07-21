@@ -42,6 +42,15 @@
     /* Built here rather than repeated in every page's markup: both are purely
        decorative, and neither is reachable without the JS that opens the
        panel in the first place. */
+    /* The panel needs to scroll when the links do not fit, but any overflow
+       on it clips the curved edge sitting outside its box. So the scrolling
+       moves to a wrapper around the existing content, and the curve stays a
+       direct child of the unclipped panel. */
+    const inner = document.createElement('div');
+    inner.className = 'nav-inner';
+    while (overlay.firstChild) inner.appendChild(overlay.firstChild);
+    overlay.appendChild(inner);
+
     const curve = document.createElement('div');
     curve.className = 'nav-curve';
     overlay.appendChild(curve);

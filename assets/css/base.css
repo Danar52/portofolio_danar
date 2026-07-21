@@ -350,13 +350,23 @@ html.pt-nogreet .preloader { display: none; }
 .site-logo em { color: var(--text-3); font-style: normal; }
 
 /* ── MENU TOGGLE ────────────────────────────────────────────── */
+/* Sits outside <header> in the markup on purpose. The header carries a
+   z-index, which makes it a stacking context — anything inside it is
+   trapped below the header's own level, so the toggle could never rise
+   above the nav panel no matter what z-index it was given. As its own
+   fixed element it competes at the root, the way the reference does it. */
 .menu-toggle {
+  position: fixed;
+  top: calc((var(--header-height) - 48px) / 2);
+  right: var(--header-padding);
+  z-index: 1100;
+  height: 48px; padding: 0 4px;
   display: flex; align-items: center; gap: 11px;
   background: none; border: none; cursor: none;
   color: var(--text-2);
   font-family: var(--font-body); font-size: 11px; font-weight: 450;
   letter-spacing: 0.1em; text-transform: uppercase;
-  z-index: 1002; position: relative;
+  border-radius: 24px;
   transition: color 0.2s;
 }
 .menu-toggle:hover { color: var(--text-1); }
@@ -388,18 +398,28 @@ html.pt-nogreet .preloader { display: none; }
   z-index: 1001;
   background: var(--text-1);
   color: var(--bg);
-  display: flex; flex-direction: column;
-  justify-content: space-between;
-  /* Eight links plus two labels and a footer, against the reference's four —
-     the padding has to stay modest or the panel starts scrolling on an
-     ordinary laptop. */
-  padding: clamp(68px, 11vh, 120px) 6vw clamp(36px, 6vh, 72px);
-  overflow-y: auto;
+  /* Deliberately no overflow here. The curved edge is positioned outside
+     this box, and setting overflow on either axis forces the other to a
+     non-visible value too — which clipped the curve away entirely. The
+     scrolling lives on .nav-inner instead. */
   transform: translateX(calc(100% + var(--nav-curve-w)));
   transition: transform 0.8s var(--ease-nav);
   pointer-events: none;
 }
 .nav-overlay.is-open { transform: translateX(0); pointer-events: all; }
+
+/* Wrapper built by site.js. Carries the layout, the padding and the only
+   scrollbar, so the panel itself can stay unclipped for the curve.
+
+   Eight links plus two labels and a footer, against the reference's four —
+   the padding stays modest or this starts scrolling on an ordinary laptop. */
+.nav-inner {
+  height: 100%;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(68px, 11vh, 120px) 6vw clamp(36px, 6vh, 72px);
+  overflow-y: auto;
+}
 
 /* Curved leading edge. It is a slice of ellipse held against the panel's
    left side, at full width while the panel travels and collapsed to zero
@@ -515,19 +535,17 @@ html.nav-open #cb-tip {
 }
 .nav-social-row { display: flex; flex-wrap: wrap; gap: 10px 20px; }
 
-/* The toggle sits over the dark panel once it is open, so it has to invert
-   with it. The bars draw in currentColor and follow. */
 /* ── CLOSE BUTTON ────────────────────────────────────────────────
    Open, the toggle stops being a labelled hamburger and becomes a round
    close button: the label collapses away and the two bars — already
    crossed into an X — centre inside a light disc that reads against the
-   dark panel behind it.
+   dark panel behind it. Height stays 48px in both states so the disc is
+   already the right size and only has to lose its width.
 ─────────────────────────────────────────────────────────────── */
 .menu-toggle {
-  border-radius: 50%;
   transition: color 0.2s, background-color 0.35s var(--ease),
-              width 0.4s var(--ease), height 0.4s var(--ease),
-              gap 0.35s var(--ease);
+              width 0.4s var(--ease), border-radius 0.35s var(--ease),
+              padding 0.35s var(--ease), gap 0.35s var(--ease);
 }
 .menu-label {
   overflow: hidden; white-space: nowrap;
@@ -536,11 +554,12 @@ html.nav-open #cb-tip {
 }
 
 html.nav-open .menu-toggle {
-  width: 48px; height: 48px;
+  width: 48px;
   /* Overrides the mobile touch-target padding, which would otherwise stretch
      the disc out of round. 48px already clears the 44px minimum. */
   padding: 0;
   gap: 0;
+  border-radius: 50%;
   justify-content: center;
   background: var(--bg);
   color: var(--text-1);
@@ -563,7 +582,7 @@ html.nav-open .menu-toggle:hover { background: #fff; }
 /* Shorter viewports (small laptop screens, non-maximized windows) — shrink
    the nav so all 8 items + footer fit without overlapping or clipping. */
 @media (max-height: 760px) {
-  .nav-overlay { padding: 9vh 6vw 6vh; }
+  .nav-inner { padding: 9vh 6vw 6vh; }
   .nav-link { font-size: clamp(18px, 2.2vw, 26px); padding: 7px 0; }
   .nav-links-list { padding-top: 2vh; }
   .nav-overlay-footer { margin-top: 24px; }
@@ -726,11 +745,11 @@ html.no-motion [data-reveal],
      behind it is too narrow to be worth anything. */
   .nav-overlay {
     width: 100%;
-    /* Trimmed so all eight links and the footer fit a 390x699 phone without
-       the menu itself becoming a scrolling surface. */
-    padding: 84px 24px 32px;
     transform: translateX(100%);
   }
+  /* Trimmed so all eight links and the footer fit a 390x699 phone without
+     the menu itself becoming a scrolling surface. */
+  .nav-inner { padding: 84px 24px 32px; }
   .nav-curve, .nav-backdrop { display: none; }
   /* 9px keeps each link at 49px — still clear of the 44px touch minimum. */
   .nav-link { font-size: clamp(22px, 6.4vw, 32px); letter-spacing: -0.4px; padding: 9px 0; }
