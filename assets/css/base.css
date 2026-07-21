@@ -56,7 +56,9 @@
   /* The nav panel travels sideways across a shorter distance than the page
      panels, so it keeps a curve that bites harder at both ends. */
   --ease-nav:     cubic-bezier(0.7, 0, 0.2, 1);
-  --nav-curve-w:  6vw;
+  /* Deep enough that the bulge reads clearly as it travels, capped so it
+     does not swallow the panel on a wide screen. */
+  --nav-curve-w:  clamp(48px, 10vw, 150px);
   --dur-fast:     0.3s;
   --dur:          0.5s;
   --dur-smooth:   0.7s;
@@ -515,8 +517,36 @@ html.nav-open #cb-tip {
 
 /* The toggle sits over the dark panel once it is open, so it has to invert
    with it. The bars draw in currentColor and follow. */
-html.nav-open .menu-toggle { color: rgba(255,255,255,0.75); }
-html.nav-open .menu-toggle:hover { color: #fff; }
+/* ── CLOSE BUTTON ────────────────────────────────────────────────
+   Open, the toggle stops being a labelled hamburger and becomes a round
+   close button: the label collapses away and the two bars — already
+   crossed into an X — centre inside a light disc that reads against the
+   dark panel behind it.
+─────────────────────────────────────────────────────────────── */
+.menu-toggle {
+  border-radius: 50%;
+  transition: color 0.2s, background-color 0.35s var(--ease),
+              width 0.4s var(--ease), height 0.4s var(--ease),
+              gap 0.35s var(--ease);
+}
+.menu-label {
+  overflow: hidden; white-space: nowrap;
+  max-width: 6em; opacity: 1;
+  transition: max-width 0.35s var(--ease), opacity 0.2s ease;
+}
+
+html.nav-open .menu-toggle {
+  width: 48px; height: 48px;
+  /* Overrides the mobile touch-target padding, which would otherwise stretch
+     the disc out of round. 48px already clears the 44px minimum. */
+  padding: 0;
+  gap: 0;
+  justify-content: center;
+  background: var(--bg);
+  color: var(--text-1);
+}
+html.nav-open .menu-label { max-width: 0; opacity: 0; }
+html.nav-open .menu-toggle:hover { background: #fff; }
 .nav-social-row { display: flex; gap: 24px; }
 .nav-social {
   font-family: var(--font-body); font-size: 10px; font-weight: 450;

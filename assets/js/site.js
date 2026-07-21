@@ -79,6 +79,15 @@
     // Tapping the dimmed page closes the panel.
     backdrop.addEventListener('click', () => setMenu(false));
 
+    /* Anywhere outside the panel closes it too. The backdrop alone is not
+       enough: it sits below the header, and it is hidden entirely on phones
+       where the panel is full width. */
+    document.addEventListener('click', e => {
+      if (!menuOpen) return;
+      if (overlay.contains(e.target) || toggle.contains(e.target)) return;
+      setMenu(false);
+    });
+
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape' && menuOpen) toggle.click();
     });
