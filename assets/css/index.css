@@ -9,7 +9,7 @@
   min-height: 100vh;
   display: grid;
   grid-template-rows: auto 1fr auto;
-  padding: 0 72px;
+  padding: 0 var(--container-padding);
   border-bottom: 1px solid var(--border);
 }
 
@@ -23,7 +23,7 @@
 }
 .hero-status {
   display: flex; align-items: center; gap: 8px;
-  font-size: 11px; font-weight: 400; color: var(--text-3);
+  font-size: 11px; font-weight: 450; color: var(--text-3);
   text-transform: uppercase; letter-spacing: 2px;
 }
 .status-dot {
@@ -41,7 +41,7 @@
 .hero-name {
   font-family: var(--font-display);
   font-size: clamp(40px, 5.2vw, 80px);
-  font-weight: 700;
+  font-weight: 450;
   line-height: 1.0; letter-spacing: -1.8px;
   color: var(--text-1);
   user-select: none; align-self: end;
@@ -58,10 +58,10 @@
   opacity: 0;
   animation: fadeUp 0.5s ease 0.55s forwards;
 }
-.hero-role { font-size: 13.5px; font-weight: 400; color: var(--text-2); line-height: 1.7; }
+.hero-role { font-size: 13.5px; font-weight: 450; color: var(--text-2); line-height: 1.7; }
 .hero-cta {
   display: inline-flex; align-items: center; gap: 9px;
-  font-family: var(--font-body); font-size: 11px; font-weight: 500;
+  font-family: var(--font-body); font-size: 11px; font-weight: 450;
   letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--text-1); text-decoration: none;
   background: var(--text-1); color: var(--bg);
@@ -87,7 +87,7 @@
   display: inline-flex; gap: 36px;
   animation: marqueeScroll 24s linear infinite;
   font-family: var(--font-body);
-  font-size: 10px; font-weight: 500;
+  font-size: 10px; font-weight: 450;
   color: var(--text-3); text-transform: uppercase; letter-spacing: 2.5px;
 }
 @keyframes marqueeScroll {
@@ -97,14 +97,14 @@
 .marquee-inner span:nth-child(even) { color: var(--text-2); }
 
 /* ── SELECTED WORK ───────────────────────────────────────────── */
-.work-section { padding: 0 72px 80px; }
+.work-section { padding: 0 var(--container-padding) 80px; }
 
 .work-header {
   display: flex; justify-content: space-between; align-items: center;
   padding: 20px 0 0; margin-bottom: 0;
 }
 .work-label {
-  font-size: 10px; font-weight: 500; color: var(--text-3);
+  font-size: 10px; font-weight: 450; color: var(--text-3);
   text-transform: uppercase; letter-spacing: 3px;
 }
 .work-all {
@@ -134,17 +134,17 @@
 .work-item-name {
   font-family: var(--font-display);
   font-size: clamp(17px, 1.7vw, 24px);
-  font-weight: 700; letter-spacing: -0.4px; line-height: 1.2;
+  font-weight: 450; letter-spacing: -0.4px; line-height: 1.2;
   color: var(--text-1); transition: color 0.15s; padding-left: 8px;
 }
 .work-item:hover .work-item-name { color: var(--text-2); }
 .work-item-cat {
-  font-size: 10px; font-weight: 400; color: var(--text-3);
+  font-size: 10px; font-weight: 450; color: var(--text-3);
   text-transform: uppercase; letter-spacing: 1.5px;
   text-align: center;
 }
 .work-item-year {
-  font-size: 11px; font-weight: 400; color: var(--text-3);
+  font-size: 11px; font-weight: 450; color: var(--text-3);
   text-align: right; padding-right: 8px;
 }
 
@@ -171,7 +171,7 @@
 
 /* ── HOME SECTIONS — teaser tiap menu ───────────────────────── */
 .home-section {
-  padding: 56px 72px;
+  padding: 56px var(--container-padding);
   border-bottom: 1px solid var(--border);
   opacity: 0; transform: translateY(20px);
   transition: opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1);
@@ -183,7 +183,7 @@
   margin-bottom: 36px;
 }
 .hs-label {
-  font-size: 10px; font-weight: 500; color: var(--text-3);
+  font-size: 10px; font-weight: 450; color: var(--text-3);
   text-transform: uppercase; letter-spacing: 3px;
 }
 .hs-all {
@@ -199,7 +199,7 @@
 .ha-bio {
   font-family: var(--font-body);
   font-size: clamp(19px, 2.2vw, 28px);
-  font-weight: 300; line-height: 1.55;
+  font-weight: 450; line-height: 1.55;
   color: var(--text-1);
   max-width: 30em; margin-bottom: 32px;
 }
@@ -207,11 +207,11 @@
 .ha-stat { display: flex; align-items: baseline; gap: 10px; }
 .ha-stat-num {
   font-family: var(--font-display); font-size: 26px;
-  font-weight: 700; color: var(--text-1); line-height: 1;
+  font-weight: 450; color: var(--text-1); line-height: 1;
   letter-spacing: -0.5px;
 }
 .ha-stat-lbl {
-  font-size: 10.5px; font-weight: 500; color: var(--text-3);
+  font-size: 10.5px; font-weight: 450; color: var(--text-3);
   text-transform: uppercase; letter-spacing: 1.5px;
 }
 
@@ -230,7 +230,7 @@
 .he-title {
   font-family: var(--font-display);
   font-size: clamp(16px, 1.6vw, 21px);
-  font-weight: 700; letter-spacing: -0.3px;
+  font-weight: 450; letter-spacing: -0.3px;
   color: var(--text-1); transition: color 0.15s;
 }
 .he-row:hover .he-title { color: var(--text-2); }
@@ -249,7 +249,7 @@
   gap: 36px 40px;
 }
 .hk-cat {
-  font-size: 10.5px; font-weight: 500; color: var(--text-3);
+  font-size: 10.5px; font-weight: 450; color: var(--text-3);
   text-transform: uppercase; letter-spacing: 2px;
   display: block; margin-bottom: 16px;
   padding-bottom: 12px;
@@ -257,7 +257,7 @@
 }
 .hk-names { list-style: none; display: flex; flex-direction: column; gap: 9px; }
 .hk-names li {
-  font-family: var(--font-body); font-size: 14px; font-weight: 400;
+  font-family: var(--font-body); font-size: 14px; font-weight: 450;
   color: var(--text-2);
 }
 
@@ -272,7 +272,7 @@
   border-bottom: 1px solid var(--border);
 }
 .hc-col-title {
-  font-size: 10.5px; font-weight: 500; color: var(--text-3);
+  font-size: 10.5px; font-weight: 450; color: var(--text-3);
   text-transform: uppercase; letter-spacing: 2px;
   transition: color 0.18s;
 }
@@ -287,7 +287,7 @@
 .hc-row:last-child { border-bottom: none; }
 .hc-name {
   font-family: var(--font-display); font-size: 15px;
-  font-weight: 700; letter-spacing: -0.2px; line-height: 1.35;
+  font-weight: 450; letter-spacing: -0.2px; line-height: 1.35;
   color: var(--text-1); transition: color 0.15s;
 }
 .hc-row:hover .hc-name { color: var(--text-2); }
@@ -296,19 +296,19 @@
 /* ── FOOTER ──────────────────────────────────────────────────── */
 .home-footer {
   border-top: 1px solid var(--border);
-  padding: 56px 72px 44px;
+  padding: 56px var(--container-padding) 44px;
   background: var(--bg-surface);
 }
 .footer-cta { margin-bottom: 48px; }
 .footer-big {
   font-family: var(--font-display);
   font-size: clamp(26px, 3.2vw, 48px);
-  font-weight: 700; letter-spacing: -1px; line-height: 1.05;
+  font-weight: 450; letter-spacing: -1px; line-height: 1.05;
   color: var(--text-1); margin-bottom: 24px;
 }
 .footer-email {
   display: inline-flex; align-items: center; gap: 8px;
-  font-size: 14px; font-weight: 400; color: var(--text-2);
+  font-size: 14px; font-weight: 450; color: var(--text-2);
   text-decoration: none; transition: color 0.18s;
   border-bottom: 1px solid var(--border-mid); padding-bottom: 3px;
 }

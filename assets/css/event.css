@@ -3,7 +3,7 @@
    Editorial rows — foto kiri, detail kanan, zero cards
 ═══════════════════════════════════════════════════════════════ */
 
-.filter-tabs, .event-grid { padding-left: 72px; padding-right: 72px; }
+.filter-tabs, .event-grid { padding-left: var(--container-padding); padding-right: var(--container-padding); }
 .event-grid { padding-bottom: 96px; display: block; }
 
 /* ── FILTER — pill, sama kayak portfolio ────────────────────── */
@@ -16,7 +16,7 @@
 .filter-tab {
   display: inline-flex; align-items: center;
   padding: 9px 20px; border-radius: 40px;
-  font-family: var(--font-body); font-size: 11px; font-weight: 500;
+  font-family: var(--font-body); font-size: 11px; font-weight: 450;
   letter-spacing: 0.06em; text-transform: uppercase;
   border: 1px solid var(--border); background: transparent; color: var(--text-2);
   cursor: pointer; transition: border-color 0.2s, color 0.2s, background 0.2s;
@@ -66,18 +66,18 @@
 /* ── BODY ───────────────────────────────────────────────────── */
 .event-body { min-width: 0; padding-top: 4px; }
 .event-type {
-  font-family: var(--font-body); font-size: 10.5px; font-weight: 500;
+  font-family: var(--font-body); font-size: 10.5px; font-weight: 450;
   color: var(--text-3); text-transform: uppercase; letter-spacing: 2px;
   display: block; margin-bottom: 12px;
 }
 .event-name {
   font-family: var(--font-display);
   font-size: clamp(18px, 1.9vw, 24px);
-  font-weight: 700; letter-spacing: -0.4px; line-height: 1.25;
+  font-weight: 450; letter-spacing: -0.4px; line-height: 1.25;
   color: var(--text-1); margin-bottom: 6px;
 }
 .event-role {
-  font-family: var(--font-body); font-size: 13px; font-weight: 400;
+  font-family: var(--font-body); font-size: 13px; font-weight: 450;
   color: var(--text-2); margin-bottom: 14px;
 }
 .event-meta {

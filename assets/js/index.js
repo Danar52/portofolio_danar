@@ -180,13 +180,40 @@ function renderCreds(certs, events) {
     </a>`).join('');
 }
 
+/* Position sweep, not IntersectionObserver: IO only reports *changes* in
+   intersection, so a section that goes from below the viewport to above it
+   in one jump (anchor link, restored scroll position) never fires and stays
+   at opacity 0 permanently. Testing absolute position covers both cases. */
 function revealSections() {
-  const obs = new IntersectionObserver(entries => {
-    entries.forEach(en => {
-      if (en.isIntersecting) { en.target.classList.add('visible'); obs.unobserve(en.target); }
+  const pending = new Set(document.querySelectorAll('.home-section'));
+  let queued = false;
+
+  function sweep() {
+    queued = false;
+    const limit = window.innerHeight * 0.88;
+    pending.forEach(s => {
+      const r = s.getBoundingClientRect();
+      if (r.top < limit || r.bottom < 0) { s.classList.add('visible'); pending.delete(s); }
     });
-  }, { threshold: 0.12 });
-  document.querySelectorAll('.home-section').forEach(s => obs.observe(s));
+    if (pending.size === 0) {
+      window.removeEventListener('scroll', queueSweep);
+      window.removeEventListener('resize', queueSweep);
+    }
+  }
+  function queueSweep() {
+    // rAF never fires while the tab is hidden, and scroll events still can
+    // (restored position, programmatic scrollTo) — sweep inline in that case.
+    if (document.hidden) { sweep(); return; }
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(sweep);
+  }
+
+  window.addEventListener('scroll', queueSweep, { passive: true });
+  window.addEventListener('resize', queueSweep, { passive: true });
+  // Synchronous first pass — rAF is paused in a background tab, so a queued
+  // one would leave the page blank until it gains focus.
+  sweep();
 }
 
 loadTeasers();

@@ -3,6 +3,25 @@
    Inspired by dennissnellenberg.com — Clean · Grey · Refined
 ═══════════════════════════════════════════════════════════════ */
 
+/* ── FONT ───────────────────────────────────────────────────────
+   General Sans (Indian Type Foundry, ITF Free Font License — free for
+   commercial use, self-hosting permitted). Variable roman, 200–700 axis
+   in one 38KB file.
+
+   Self-hosted rather than loaded from api.fontshare.com: their @font-face
+   uses a protocol-relative src (//cdn.fontshare.com/...), which resolves
+   to plain http on an http origin and fails the font's CORS fetch. Local
+   hosting also drops two third-party origins from the CSP and removes a
+   render-blocking cross-origin stylesheet from the critical path.
+─────────────────────────────────────────────────────────────── */
+@font-face {
+  font-family: "General Sans";
+  src: url("../fonts/GeneralSans-Variable.woff2") format("woff2");
+  font-weight: 200 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ── ACCESSIBILITY: SKIP LINK ──────────────────────────────── */
 .skip-link {
   position: absolute;
@@ -12,7 +31,7 @@
   background: #1c1c1a;
   color: #fff;
   padding: 12px 20px;
-  font-family: "Outfit", sans-serif;
+  font-family: var(--font-body);
   font-size: 14px;
   text-decoration: none;
   border-radius: 0 0 6px 0;
@@ -23,9 +42,27 @@
 
 /* ── VARIABLES ─────────────────────────────────────────────── */
 :root {
-  /* Fonts */
-  --font-display: "Syne", sans-serif;
-  --font-body:    "Outfit", sans-serif;
+  /* Fonts — single grotesk family, weight does the hierarchy */
+  --font-display: "General Sans", system-ui, sans-serif;
+  --font-body:    "General Sans", system-ui, sans-serif;
+
+  /* Motion — one easing curve for the whole site */
+  --ease:         cubic-bezier(0.7, 0, 0.3, 1);
+  /* Panels travel a whole viewport, where the symmetric --ease snaps at both
+     ends. Ease-out-expo launches quickly and settles, which reads smoother
+     over that distance. */
+  --ease-pt:      cubic-bezier(0.16, 1, 0.3, 1);
+  --pt-curve-h:   12vh;
+  --dur-fast:     0.3s;
+  --dur:          0.5s;
+  --dur-smooth:   0.7s;
+  --dur-slow:     0.9s;
+
+  /* Fluid spacing — endpoints match the previous fixed values,
+     so desktop (72px) and mobile (20px) render identically. */
+  --container-padding: clamp(20px, 5vw, 72px);
+  --header-padding:    clamp(20px, 3.4vw, 48px);
+  --section-padding:   clamp(56px, 9vh, 96px);
 
   /* Grey Palette */
   --bg:           #f0f0ef;
@@ -68,12 +105,19 @@
 html { scroll-behavior: smooth; }
 body {
   font-family: var(--font-body);
+  font-weight: 450;
   background: var(--bg);
   color: var(--text-1);
   min-height: 100vh;
   overflow-x: hidden;
   cursor: none;
 }
+
+/* One weight everywhere — hierarchy comes from size and colour, not boldness.
+   Headings and <strong> default to 700 in the UA stylesheet, which breaks that
+   the moment CMS content ships bold text, so pin them back. */
+h1, h2, h3, h4, h5, h6 { font-weight: 450; }
+strong, b { font-weight: 550; }
 @media (hover: none) { body { cursor: auto; } }
 
 /* ── SCROLLBAR ──────────────────────────────────────────────── */
@@ -105,21 +149,161 @@ body.cur-click .cursor-dot  { width: 3px; height: 3px; }
 body.cur-click .cursor-ring { width: 18px; height: 18px; }
 @media (hover: none) { .cursor-dot, .cursor-ring { display: none; } }
 
-/* ── PAGE TRANSITION ────────────────────────────────────────── */
+/* ── PAGE TRANSITION ─────────────────────────────────────────────
+   Slides on click-navigation and names the destination. Translated,
+   not scaled: scaleY would squash the label and the curved caps.
+
+   It never covers the page on a fresh load — that would put an opaque
+   overlay in front of the hero on every page and push LCP out by the
+   length of the animation.
+─────────────────────────────────────────────────────────────── */
 .page-transition {
   position: fixed; inset: 0; z-index: 99000;
   background: var(--text-1);
-  transform: scaleY(0); transform-origin: bottom;
+  /* Parked a full curve-height clear of the viewport. The caps sit outside
+     the panel, so parking at plain translateY(100%) leaves the top cap
+     poking up over the bottom edge of the screen. */
+  transform: translateY(calc(100% + var(--pt-curve-h)));
+  pointer-events: none;
+  display: grid; place-items: center;
+}
+/* Scoped to the moving states. Left on permanently it keeps a full-viewport
+   compositor layer alive for the whole session. */
+.page-transition.pt-in,
+.page-transition.pt-out,
+html.pt-arrive .page-transition { will-change: transform, opacity; }
+
+/* Curved caps on the leading and trailing edges, so the panel reads as
+   a swelling shape rather than a straight bar. Sat outside the panel
+   and pulled flush by translate. */
+.pt-curve {
+  position: absolute; left: 50%;
+  width: 150%; height: var(--pt-curve-h);
+  background: var(--text-1);
   pointer-events: none;
 }
+.pt-curve.top {
+  top: 0; transform: translate(-50%, -99%);
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+}
+.pt-curve.bottom {
+  bottom: 0; transform: translate(-50%, 99%);
+  border-radius: 0 0 50% 50% / 0 0 100% 100%;
+}
+
+.pt-label {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 5.4vw, 68px);
+  font-weight: 450; letter-spacing: -1.4px; line-height: 1;
+  color: var(--bg);
+  opacity: 0; transform: translateY(16px);
+}
+.pt-label i { color: var(--text-3); font-style: normal; }
+
 .page-transition.pt-in {
-  transform: scaleY(1);
-  transition: transform 0.5s cubic-bezier(0.77,0,0.18,1);
+  transform: translateY(0);
+  transition: transform 0.78s var(--ease-pt);
   pointer-events: all;
 }
+.page-transition.pt-in .pt-label {
+  opacity: 1; transform: translateY(0);
+  transition: opacity 0.34s ease 0.3s, transform 0.5s var(--ease-pt) 0.3s;
+}
+
+/* ── ARRIVAL REVEAL ──────────────────────────────────────────────
+   Without this the outgoing dark panel cuts straight to a light page
+   and the motion reads as a jump. The panel only starts covering when
+   the visitor actually clicked through (a sessionStorage flag set on
+   the way out), so a direct hit — and a crawler, which never clicks —
+   still paints its content immediately and pays no LCP cost.
+─────────────────────────────────────────────────────────────── */
+html.pt-arrive .page-transition { transform: translateY(0); }
+html.pt-arrive .page-transition .pt-label { opacity: 1; transform: none; }
+
+/* Failsafe: the covering state is applied by an inline script before paint.
+   If site.js never runs, nothing would ever take it away — so uncover on a
+   timer in CSS, which cannot fail to run. */
+html.pt-arrive .page-transition {
+  animation: ptFailsafe 0.01s linear 2.4s forwards;
+}
+@keyframes ptFailsafe {
+  to { transform: translateY(calc(100% + var(--pt-curve-h))); opacity: 0; }
+}
+
+/* Retreats the way it came — down — so the pair reads as one curtain
+   lifting and lowering rather than an endless upward conveyor. The bottom
+   cap leads the way out, the top cap trails.
+
+   Fading alongside the slide lets the page show through before the panel
+   has fully cleared, which softens the hand-off. */
 .page-transition.pt-out {
-  transform-origin: top; transform: scaleY(0);
-  transition: transform 0.5s cubic-bezier(0.77,0,0.18,1) 0.05s;
+  transform: translateY(calc(100% + var(--pt-curve-h)));
+  opacity: 0;
+  transition: transform 0.85s var(--ease-pt),
+              opacity 0.5s ease 0.22s;
+}
+.page-transition.pt-out .pt-label {
+  opacity: 0; transform: translateY(14px);
+  transition: opacity 0.28s ease, transform 0.5s var(--ease-pt);
+}
+
+/* ── PRELOADER (homepage only) ───────────────────────────────────
+   Pure CSS on purpose: a JS-driven overlay that fails to tear down
+   leaves the page permanently covered. Keyframes always finish, so
+   the worst case is still a visible page.
+
+   Kept short — it sits in front of the LCP element while it runs.
+─────────────────────────────────────────────────────────────── */
+.preloader {
+  position: fixed; inset: 0; z-index: 99500;
+  background: var(--text-1);
+  display: grid; place-items: center;
+  pointer-events: none;
+  animation: plExit 0.72s var(--ease-pt) 0.86s forwards;
+}
+.preloader-mask {
+  height: 1.15em;
+  overflow: hidden;
+  font-family: var(--font-display);
+  font-size: clamp(34px, 6vw, 76px);
+  font-weight: 450; letter-spacing: -1.6px; line-height: 1.15;
+}
+.preloader-words {
+  display: block;
+  /* No steps(): each word glides into place and holds, rather than
+     teleporting. The hold segments in the keyframes do the pacing. */
+  animation: plWords 0.86s var(--ease-pt) forwards;
+}
+.preloader-words span { display: block; height: 1.15em; color: var(--bg); }
+.preloader-words i { color: var(--text-3); font-style: normal; }
+
+/* Steps are in em, matching one word's height. A percentage here would
+   resolve against the whole column (5 words tall), so -100% would jump
+   five words instead of one. */
+@keyframes plWords {
+  0%,   11% { transform: translateY(0); }
+  20%,  31% { transform: translateY(-1.15em); }
+  40%,  51% { transform: translateY(-2.30em); }
+  60%,  71% { transform: translateY(-3.45em); }
+  80%, 100% { transform: translateY(-4.60em); }
+}
+/* Leaves downward too, matching the arrival reveal — every "page opening"
+   move goes the same way. */
+@keyframes plExit {
+  to {
+    transform: translateY(calc(100% + var(--pt-curve-h)));
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* Arriving home by click already has the transition panel over the page —
+   greeting the visitor again on top of it would stack two overlays. */
+html.pt-arrive .preloader { display: none; }
+
+/* No motion: never show the overlay at all rather than flash it. */
+@media (prefers-reduced-motion: reduce) {
+  .preloader { display: none; }
 }
 
 /* ── SITE HEADER ────────────────────────────────────────────── */
@@ -127,13 +311,13 @@ body.cur-click .cursor-ring { width: 18px; height: 18px; }
   position: fixed; top: 0; left: 0; right: 0;
   height: var(--header-height);
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 48px;
+  padding: 0 var(--header-padding);
   z-index: 1000;
   background: var(--bg);
   border-bottom: 1px solid var(--border);
 }
 .site-logo {
-  font-family: var(--font-display); font-size: 16px; font-weight: 800;
+  font-family: var(--font-display); font-size: 16px; font-weight: 450;
   color: var(--text-1); text-decoration: none; letter-spacing: -0.4px;
   z-index: 1002; position: relative;
 }
@@ -144,7 +328,7 @@ body.cur-click .cursor-ring { width: 18px; height: 18px; }
   display: flex; align-items: center; gap: 11px;
   background: none; border: none; cursor: none;
   color: var(--text-2);
-  font-family: var(--font-body); font-size: 11px; font-weight: 500;
+  font-family: var(--font-body); font-size: 11px; font-weight: 450;
   letter-spacing: 0.1em; text-transform: uppercase;
   z-index: 1002; position: relative;
   transition: color 0.2s;
@@ -168,7 +352,7 @@ body.cur-click .cursor-ring { width: 18px; height: 18px; }
   background: var(--bg-surface);
   display: flex; flex-direction: column;
   justify-content: center;
-  padding: 80px 72px 64px;
+  padding: 80px var(--container-padding) 64px;
   overflow-y: auto;
   pointer-events: none; opacity: 0;
   transition: opacity 0.3s ease;
@@ -184,7 +368,7 @@ body.cur-click .cursor-ring { width: 18px; height: 18px; }
   padding: 16px 0;
   font-family: var(--font-display);
   font-size: clamp(22px, 2.8vw, 36px);
-  font-weight: 700; letter-spacing: -0.6px; line-height: 1.1;
+  font-weight: 450; letter-spacing: -0.6px; line-height: 1.1;
   color: var(--text-1); text-decoration: none;
   transform: translateY(100%);
   transition: color 0.18s;
@@ -202,7 +386,7 @@ body.cur-click .cursor-ring { width: 18px; height: 18px; }
 .nav-link:hover { color: var(--text-3); }
 
 .nav-link-num {
-  font-family: var(--font-body); font-size: 10px; font-weight: 400;
+  font-family: var(--font-body); font-size: 10px; font-weight: 450;
   color: var(--text-3); letter-spacing: 0.08em;
 }
 .nav-link-arrow {
@@ -224,7 +408,7 @@ body.cur-click .cursor-ring { width: 18px; height: 18px; }
 }
 .nav-social-row { display: flex; gap: 24px; }
 .nav-social {
-  font-family: var(--font-body); font-size: 10px; font-weight: 400;
+  font-family: var(--font-body); font-size: 10px; font-weight: 450;
   color: var(--text-3); text-decoration: none;
   text-transform: uppercase; letter-spacing: 0.1em;
   transition: color 0.2s;
@@ -238,7 +422,7 @@ body.cur-click .cursor-ring { width: 18px; height: 18px; }
 /* Shorter viewports (small laptop screens, non-maximized windows) — shrink
    the nav so all 8 items + footer fit without overlapping or clipping. */
 @media (max-height: 760px) {
-  .nav-overlay { padding: 56px 72px 32px; }
+  .nav-overlay { padding: 56px var(--container-padding) 32px; }
   .nav-link { font-size: clamp(18px, 2.4vw, 26px); padding: 10px 0; }
   .nav-overlay-footer { margin-top: 24px; }
 }
@@ -251,7 +435,7 @@ body.cur-click .cursor-ring { width: 18px; height: 18px; }
 
 /* ── PAGE HEADER ────────────────────────────────────────────── */
 .page-header {
-  padding: 44px 72px 26px;
+  padding: 44px var(--container-padding) 26px;
   border-bottom: 1px solid var(--border);
   margin-bottom: 0;
   opacity: 0; transform: translateY(14px);
@@ -260,12 +444,12 @@ body.cur-click .cursor-ring { width: 18px; height: 18px; }
 .page-title {
   font-family: var(--font-display);
   font-size: clamp(28px, 3.4vw, 44px);
-  font-weight: 700; line-height: 1.05; letter-spacing: -1px;
+  font-weight: 450; line-height: 1.05; letter-spacing: -1px;
   color: var(--text-1); margin-bottom: 10px;
 }
 .page-title span { color: var(--text-3); }
 .page-subtitle {
-  font-family: var(--font-body); font-size: 12.5px; font-weight: 400;
+  font-family: var(--font-body); font-size: 12.5px; font-weight: 450;
   color: var(--text-2); letter-spacing: 0.3px;
 }
 
@@ -291,7 +475,7 @@ body.cur-click .cursor-ring { width: 18px; height: 18px; }
   display: flex; align-items: center; gap: 12px;
   width: 100%; padding: 10px 12px;
   background: none; border: none; border-radius: 5px;
-  font-family: var(--font-body); font-size: 12.5px; font-weight: 400;
+  font-family: var(--font-body); font-size: 12.5px; font-weight: 450;
   color: var(--text-2); text-align: left;
   cursor: none; transition: background 0.15s, color 0.15s;
 }
@@ -321,6 +505,66 @@ body.cur-click .cursor-ring { width: 18px; height: 18px; }
 @keyframes pulseDot {
   0%, 100% { opacity: 1; transform: scale(1); }
   50%       { opacity: 0.3; transform: scale(1.5); }
+}
+
+/* ── LENIS SMOOTH SCROLL ────────────────────────────────────────
+   Inlined instead of pulling lenis.css — one less request, one less
+   CSP origin. Lenis adds these classes to <html> itself.
+─────────────────────────────────────────────────────────────── */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: hidden; }
+
+/* ── SCROLL REVEAL ──────────────────────────────────────────────
+   Opt-in via [data-reveal]. Driven by motion.js (GSAP ScrollTrigger)
+   with an IntersectionObserver fallback. The starting state is set
+   here so nothing flashes before the JS boots. Elements stay visible
+   if JS never runs — .no-motion is set on <html> in that case.
+─────────────────────────────────────────────────────────────── */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+  will-change: opacity, transform;
+}
+[data-reveal="fade"]  { transform: none; }
+[data-reveal="left"]  { transform: translateX(-28px); }
+[data-reveal="right"] { transform: translateX(28px); }
+[data-reveal].is-revealed {
+  opacity: 1;
+  transform: none;
+  transition: opacity var(--dur-smooth) var(--ease),
+              transform var(--dur-smooth) var(--ease);
+}
+
+/* Line-by-line mask reveal for headings. motion.js wraps each
+   .hero-line in a .line-mask so the text slides out from behind it. */
+.line-mask { display: block; overflow: hidden; }
+
+/* ── MAGNETIC BUTTONS ───────────────────────────────────────────
+   motion.js translates [data-magnetic] toward the cursor on hover.
+   Touch devices skip it entirely.
+─────────────────────────────────────────────────────────────── */
+[data-magnetic] { will-change: transform; }
+
+/* ── REDUCED MOTION / NO-JS ─────────────────────────────────────
+   Honour the OS setting and never trap content in a hidden state.
+─────────────────────────────────────────────────────────────── */
+html.no-motion [data-reveal],
+[data-reveal].is-revealed {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  [data-reveal] { opacity: 1 !important; transform: none !important; }
+  [data-magnetic] { transform: none !important; }
+  .marquee-inner { animation: none; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ── MOBILE ─────────────────────────────────────────────────── */

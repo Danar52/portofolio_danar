@@ -3,7 +3,7 @@
    Editorial rows — periode kiri, detail kanan, zero cards
 ═══════════════════════════════════════════════════════════════ */
 
-.exp-stats, .exp-grid { padding-left: 72px; padding-right: 72px; }
+.exp-stats, .exp-grid { padding-left: var(--container-padding); padding-right: var(--container-padding); }
 .exp-grid { padding-bottom: 96px; display: block; }
 
 @keyframes cardIn {
@@ -21,11 +21,11 @@
 .stat-item { display: flex; align-items: baseline; gap: 10px; }
 .stat-number {
   font-family: var(--font-display); font-size: 26px;
-  font-weight: 700; color: var(--text-1); line-height: 1;
+  font-weight: 450; color: var(--text-1); line-height: 1;
   letter-spacing: -0.5px;
 }
 .stat-label {
-  font-family: var(--font-body); font-size: 10.5px; font-weight: 500;
+  font-family: var(--font-body); font-size: 10.5px; font-weight: 450;
   color: var(--text-3); text-transform: uppercase; letter-spacing: 1.5px;
 }
 .stat-divider { display: none; }
@@ -45,13 +45,13 @@
   padding-top: 6px;
 }
 .exp-period {
-  font-family: var(--font-body); font-size: 12px; font-weight: 400;
+  font-family: var(--font-body); font-size: 12px; font-weight: 450;
   color: var(--text-1); letter-spacing: 0.3px;
 }
 .exp-duration { font-size: 11px; color: var(--text-3); }
 .exp-badge {
   display: inline-flex; align-items: center; gap: 6px;
-  font-family: var(--font-body); font-size: 10px; font-weight: 500;
+  font-family: var(--font-body); font-size: 10px; font-weight: 450;
   text-transform: uppercase; letter-spacing: 1px;
   margin-top: 6px; width: fit-content;
 }
@@ -67,11 +67,11 @@
 .exp-title {
   font-family: var(--font-display);
   font-size: clamp(19px, 2vw, 26px);
-  font-weight: 700; letter-spacing: -0.5px; line-height: 1.2;
+  font-weight: 450; letter-spacing: -0.5px; line-height: 1.2;
   color: var(--text-1); margin-bottom: 6px;
 }
 .exp-company {
-  font-family: var(--font-body); font-size: 13px; font-weight: 400;
+  font-family: var(--font-body); font-size: 13px; font-weight: 450;
   color: var(--text-2); margin-bottom: 20px;
 }
 
@@ -97,7 +97,7 @@
 /* ── TAGS ───────────────────────────────────────────────────── */
 .exp-tags { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 4px; }
 .exp-tag {
-  font-family: var(--font-body); font-size: 10.5px; font-weight: 400;
+  font-family: var(--font-body); font-size: 10.5px; font-weight: 450;
   color: var(--text-3); letter-spacing: 0.3px;
   padding: 5px 13px; border-radius: 40px;
   border: 1px solid var(--border);
@@ -132,7 +132,7 @@
     background: linear-gradient(to bottom, transparent, var(--bg));
   }
   .exp-toggle {
-    font-family: var(--font-body); font-size: 11px; font-weight: 500;
+    font-family: var(--font-body); font-size: 11px; font-weight: 450;
     color: var(--text-1); background: none; border: none;
     cursor: pointer; padding: 0; margin-bottom: 14px;
     display: flex; align-items: center; gap: 5px;

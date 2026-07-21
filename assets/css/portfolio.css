@@ -3,7 +3,7 @@
    Editorial rows — thumbnail kiri, detail kanan, zero cards
 ═══════════════════════════════════════════════════════════════ */
 
-.filter-bar, #portfolioContent { padding-left: 72px; padding-right: 72px; }
+.filter-bar, #portfolioContent { padding-left: var(--container-padding); padding-right: var(--container-padding); }
 #portfolioContent { padding-bottom: 96px; }
 
 /* ── FILTER — pill ──────────────────────────────────────────── */
@@ -16,7 +16,7 @@
 .filter-btn {
   display: inline-flex; align-items: center; gap: 7px;
   padding: 9px 20px; border-radius: 40px;
-  font-family: var(--font-body); font-size: 11px; font-weight: 500;
+  font-family: var(--font-body); font-size: 11px; font-weight: 450;
   letter-spacing: 0.06em; text-transform: uppercase;
   border: 1px solid var(--border); background: transparent; color: var(--text-2);
   cursor: pointer; transition: border-color 0.2s, color 0.2s, background 0.2s;
@@ -62,7 +62,7 @@
 }
 .thumb-placeholder i { font-size: 24px; color: var(--text-3); opacity: 0.4; }
 .thumb-placeholder span {
-  font-family: var(--font-body); font-size: 10px; font-weight: 500;
+  font-family: var(--font-body); font-size: 10px; font-weight: 450;
   color: var(--text-3); opacity: 0.5;
   text-transform: uppercase; letter-spacing: 1.5px;
 }
@@ -77,14 +77,14 @@
 /* ── BODY ───────────────────────────────────────────────────── */
 .pf-body { min-width: 0; padding-top: 4px; }
 .pf-meta {
-  font-family: var(--font-body); font-size: 10.5px; font-weight: 500;
+  font-family: var(--font-body); font-size: 10.5px; font-weight: 450;
   color: var(--text-3); text-transform: uppercase; letter-spacing: 2px;
   display: block; margin-bottom: 12px;
 }
 .pf-title {
   font-family: var(--font-display);
   font-size: clamp(18px, 1.9vw, 25px);
-  font-weight: 700; letter-spacing: -0.4px; line-height: 1.25;
+  font-weight: 450; letter-spacing: -0.4px; line-height: 1.25;
   color: var(--text-1); margin-bottom: 10px;
   transition: color 0.18s;
 }
@@ -97,14 +97,14 @@
 }
 .pf-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
 .pf-tag {
-  font-family: var(--font-body); font-size: 10.5px; font-weight: 400;
+  font-family: var(--font-body); font-size: 10.5px; font-weight: 450;
   color: var(--text-3); letter-spacing: 0.3px;
   padding: 5px 13px; border-radius: 40px;
   border: 1px solid var(--border);
 }
 .pf-link {
   display: inline-flex; align-items: center; gap: 7px;
-  font-family: var(--font-body); font-size: 10.5px; font-weight: 500;
+  font-family: var(--font-body); font-size: 10.5px; font-weight: 450;
   letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--text-1);
   opacity: 0; transform: translateX(-6px);

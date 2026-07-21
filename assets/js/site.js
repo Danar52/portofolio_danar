@@ -60,22 +60,89 @@
     });
   }
 
-  /* ── PAGE TRANSITIONS ───────────────────────────────────── */
+  /* ── PAGE TRANSITIONS ─────────────────────────────────────
+     The curtain rises on click and names where you are going.
+     It is never shown on arrival: covering a freshly loaded page
+     would delay LCP on every navigation.
+  ─────────────────────────────────────────────────────────── */
   const curtain = document.getElementById('pageTransition');
+  const ptLabel = document.getElementById('ptLabel');
+  const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  /* Must outlast the CSS transition (0.78s). At 760ms the navigation used to
+     start 20ms before the panel finished arriving, so the browser began
+     tearing down the document mid-animation — a visible hitch right at the
+     end of every transition. */
+  const CURTAIN_MS = 860;
 
-  function goTo(href) {
-    if (!curtain) { window.location.href = href; return; }
-    curtain.classList.remove('pt-out');
-    curtain.classList.add('pt-in');
-    setTimeout(() => { window.location.href = href; }, 580);
+  /* Lenis drives its rAF loop through gsap.ticker and keeps interpolating
+     while the panel moves. Nothing is scrollable behind a full-screen cover,
+     so stop it for the duration and give the frames back. */
+  function pauseScroll(stop) {
+    const lenis = window.Motion && window.Motion.lenis && window.Motion.lenis();
+    if (!lenis) return;
+    stop ? lenis.stop() : lenis.start();
   }
 
-  if (curtain) {
-    window.addEventListener('load', () => {
-      curtain.classList.remove('pt-in');
-      void curtain.offsetWidth;
+  const PAGE_NAMES = {
+    'index.html':         'Home',
+    'profil.html':        'About',
+    'skills.html':        'Skills',
+    'experience.html':    'Experience',
+    'portfolio.html':     'Portfolio',
+    'portfolio-detail.html': 'Project',
+    'certification.html': 'Certification',
+    'event.html':         'Events',
+    'contact.html':       'Contact',
+  };
+
+  function labelFor(href, linkEl) {
+    const file = href.split('/').pop().split('?')[0].split('#')[0];
+    if (PAGE_NAMES[file]) return PAGE_NAMES[file];
+    if (file === '' ) return PAGE_NAMES['index.html'];
+    // Fall back to the link's own text so a new page still gets a name
+    // without anyone remembering to update the map.
+    return (linkEl && linkEl.textContent.trim().replace(/\s+/g, ' ')) || '';
+  }
+
+  function goTo(href, linkEl) {
+    if (!curtain || REDUCED) { window.location.href = href; return; }
+    const name = labelFor(href, linkEl);
+    if (ptLabel) ptLabel.innerHTML = name + '<i>.</i>';
+    // Tells the next page it was reached by a click, so it knows to reveal
+    // from under the panel instead of cutting straight to content.
+    try { sessionStorage.setItem('pt-nav', name); } catch (e) {}
+    pauseScroll(true);
+    curtain.classList.remove('pt-out');
+    curtain.classList.add('pt-in');
+    setTimeout(() => { window.location.href = href; }, CURTAIN_MS);
+  }
+
+  /* Arrival: the inline <head> script has already put the panel over the page
+     when this load came from a click. Slide it away as one continuous move. */
+  if (curtain && document.documentElement.classList.contains('pt-arrive')) {
+    if (ptLabel && window.__ptLabel) {
+      ptLabel.innerHTML = window.__ptLabel + '<i>.</i>';
+    }
+    // Two frames, not one. The first still shares the frame with initial
+    // layout and script; starting the slide there means the animation's
+    // opening frames compete with page setup, which is the stutter. By the
+    // second frame the first paint is done.
+    requestAnimationFrame(() => requestAnimationFrame(() => {
       curtain.classList.add('pt-out');
-      setTimeout(() => curtain.classList.remove('pt-out'), 650);
+      setTimeout(() => {
+        document.documentElement.classList.remove('pt-arrive');
+        curtain.classList.remove('pt-out');
+        pauseScroll(false);
+      }, 1000);   // clears the 0.85s slide plus the delayed fade
+    }));
+  }
+
+  /* Restoring from bfcache replays the DOM as it was left — mid-navigation,
+     that means the curtain is still covering the page. Clear it. */
+  if (curtain) {
+    window.addEventListener('pageshow', e => {
+      if (!e.persisted) return;
+      curtain.classList.remove('pt-in', 'pt-out');
     });
   }
 
@@ -85,7 +152,12 @@
         href.startsWith('tel') || href.startsWith('http') ||
         a.target === '_blank') return;
     if (href.endsWith('.html') || href === '/' || href.endsWith('/')) {
-      a.addEventListener('click', e => { e.preventDefault(); goTo(href); });
+      a.addEventListener('click', e => {
+        // Let the browser handle open-in-new-tab / new-window itself.
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+        e.preventDefault();
+        goTo(href, a);
+      });
     }
   });
 

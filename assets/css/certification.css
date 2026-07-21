@@ -3,7 +3,7 @@
    Editorial rows — thumbnail kiri, detail kanan, zero cards
 ═══════════════════════════════════════════════════════════════ */
 
-.cert-stats, .cert-grid { padding-left: 72px; padding-right: 72px; }
+.cert-stats, .cert-grid { padding-left: var(--container-padding); padding-right: var(--container-padding); }
 .cert-grid { padding-bottom: 96px; display: block; }
 
 /* ── STATS — inline meta ────────────────────────────────────── */
@@ -16,11 +16,11 @@
 .stat-item { display: flex; align-items: baseline; gap: 10px; }
 .stat-number {
   font-family: var(--font-display); font-size: 26px;
-  font-weight: 700; color: var(--text-1); line-height: 1;
+  font-weight: 450; color: var(--text-1); line-height: 1;
   letter-spacing: -0.5px;
 }
 .stat-label {
-  font-family: var(--font-body); font-size: 10.5px; font-weight: 500;
+  font-family: var(--font-body); font-size: 10.5px; font-weight: 450;
   color: var(--text-3); text-transform: uppercase; letter-spacing: 1.5px;
 }
 .stat-divider { display: none; }
@@ -54,7 +54,7 @@
   position: absolute; top: 10px; left: 10px; z-index: 2;
   display: inline-flex; align-items: center; gap: 5px;
   padding: 4px 10px; border-radius: 40px;
-  font-family: var(--font-body); font-size: 9px; font-weight: 500;
+  font-family: var(--font-body); font-size: 9px; font-weight: 450;
   text-transform: uppercase; letter-spacing: 0.8px;
   background: rgba(240,240,239,0.92); color: var(--text-1);
 }
@@ -67,7 +67,7 @@
 }
 .cert-zoom-overlay i { font-size: 16px; }
 .cert-zoom-overlay span {
-  font-family: var(--font-body); font-size: 10px; font-weight: 500;
+  font-family: var(--font-body); font-size: 10px; font-weight: 450;
   text-transform: uppercase; letter-spacing: 1px;
 }
 .cert-img-wrap:hover .cert-zoom-overlay { opacity: 1; }
@@ -87,14 +87,14 @@
 /* ── BODY ───────────────────────────────────────────────────── */
 .cert-body { min-width: 0; padding-top: 4px; }
 .cert-issuer {
-  font-family: var(--font-body); font-size: 10.5px; font-weight: 500;
+  font-family: var(--font-body); font-size: 10.5px; font-weight: 450;
   color: var(--text-3); text-transform: uppercase; letter-spacing: 2px;
   display: block; margin-bottom: 12px;
 }
 .cert-name {
   font-family: var(--font-display);
   font-size: clamp(17px, 1.8vw, 23px);
-  font-weight: 700; letter-spacing: -0.4px; line-height: 1.3;
+  font-weight: 450; letter-spacing: -0.4px; line-height: 1.3;
   color: var(--text-1); margin-bottom: 18px;
   max-width: 26em;
 }
@@ -107,7 +107,7 @@
 .cert-date { font-size: 12px; color: var(--text-3); letter-spacing: 0.3px; }
 .cert-link {
   display: inline-flex; align-items: center; gap: 6px;
-  font-family: var(--font-body); font-size: 10.5px; font-weight: 500;
+  font-family: var(--font-body); font-size: 10.5px; font-weight: 450;
   letter-spacing: 0.08em; text-transform: uppercase;
   color: var(--text-1); text-decoration: none;
   transition: color 0.18s;
@@ -146,7 +146,7 @@
   font-family: var(--font-body); font-size: 12px; color: rgba(240,240,239,0.8);
 }
 #lightboxPdfLabel a {
-  color: #fff; font-weight: 500;
+  color: #fff; font-weight: 450;
   text-decoration: underline; text-underline-offset: 3px;
 }
 

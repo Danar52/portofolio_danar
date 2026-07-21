@@ -31,12 +31,10 @@
   <link rel="apple-touch-icon" href="./assets/bot_avatar.png"/>
   <link rel="manifest" href="./manifest.json"/>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
+  <link rel="preload" href="./assets/fonts/GeneralSans-Variable.woff2" as="font" type="font/woff2" crossorigin/>
   <link rel="stylesheet" href="./assets/css/base.css"/>
   <link rel="stylesheet" href="./assets/css/index.css"/>
 
@@ -91,13 +89,32 @@
     ]
   }
   </script>
+  <!-- Runs before first paint: if this load came from an in-site click, put the
+       transition panel over the page so the arrival reads as one motion. -->
+  <script>try{var n=sessionStorage.getItem('pt-nav');if(n){document.documentElement.classList.add('pt-arrive');window.__ptLabel=n;sessionStorage.removeItem('pt-nav');}}catch(e){}</script>
 </head>
 <body>
   <a href="#main-content" class="skip-link">Skip to main content</a>
 
+  <div class="preloader" id="preloader" aria-hidden="true">
+    <div class="preloader-mask">
+      <div class="preloader-words">
+        <span>Halo<i>.</i></span>
+        <span>Hello<i>.</i></span>
+        <span lang="ja">こんにちは<i>.</i></span>
+        <span lang="fr">Bonjour<i>.</i></span>
+        <span lang="es">Hola<i>.</i></span>
+      </div>
+    </div>
+    <div class="pt-curve bottom"></div>
+  </div>
   <div class="cursor-dot" id="cursorDot"></div>
   <div class="cursor-ring" id="cursorRing"></div>
-  <div class="page-transition" id="pageTransition"></div>
+  <div class="page-transition" id="pageTransition" aria-hidden="true">
+    <div class="pt-curve top"></div>
+    <span class="pt-label" id="ptLabel"></span>
+    <div class="pt-curve bottom"></div>
+  </div>
 
   <header class="site-header">
     <a href="index.html" class="site-logo">Danar<em>.</em></a>
@@ -151,10 +168,10 @@
       <div class="hero-bottom">
         <p class="hero-role">Information Engineering<br>Student &amp; Developer</p>
         <div class="hero-ctas">
-          <a href="portfolio.html" class="hero-cta">
+          <a href="portfolio.html" class="hero-cta" data-magnetic="0.3">
             View my work <i class="fas fa-arrow-right"></i>
           </a>
-          <a id="heroCvBtn" class="hero-cta hero-cta-outline" download style="display:none">
+          <a id="heroCvBtn" class="hero-cta hero-cta-outline" data-magnetic="0.3" download style="display:none">
             Download CV <i class="fas fa-arrow-down"></i>
           </a>
         </div>
@@ -200,7 +217,7 @@
     </section>
 
     <section class="work-section">
-      <div class="work-header">
+      <div class="work-header" data-reveal>
         <span class="work-label">Selected Work</span>
         <a href="portfolio.html" class="work-all">View all <i class="fas fa-arrow-right"></i></a>
       </div>
@@ -248,13 +265,13 @@
     </section>
 
     <footer class="home-footer">
-      <div class="footer-cta">
+      <div class="footer-cta" data-reveal>
         <p class="footer-big">Let's build<br>something.</p>
-        <a href="mailto:edanararrasyid@gmail.com" class="footer-email">
+        <a href="mailto:edanararrasyid@gmail.com" class="footer-email" data-magnetic="0.25">
           edanararrasyid@gmail.com <i class="fas fa-arrow-up-right"></i>
         </a>
       </div>
-      <div class="footer-meta">
+      <div class="footer-meta" data-reveal data-reveal-delay="0.12">
         <div class="footer-socials">
           <a href="https://x.com/DanarrArrsyd"                   target="_blank">Twitter</a>
           <a href="https://www.instagram.com/danar_arrsyd/"       target="_blank">Instagram</a>
@@ -272,6 +289,9 @@
   <img class="work-hover-img" id="workHoverImg" src="" alt=""/>
 
   <script src="./assets/js/site.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js"></script>
+  <script defer src="./assets/js/motion.js"></script>
   <script type="module" src="./assets/js/index.js"></script>
   <script type="module" src="chatbot.js"></script>
 

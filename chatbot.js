@@ -73,9 +73,9 @@ const STYLES = `
     --cb-surface:#e8e8e7; --cb-border:#d4d4d3; --cb-text:#1c1c1a;
     --cb-muted:#6e6e6c; --cb-radius:10px;
     --cb-shadow:0 12px 44px rgba(28,28,26,0.16);
-    --cb-font:"Outfit",system-ui,sans-serif;
-    --cb-body:"Outfit",system-ui,sans-serif;
-    --cb-display:"Syne",sans-serif;
+    --cb-font:"General Sans",system-ui,sans-serif;
+    --cb-body:"General Sans",system-ui,sans-serif;
+    --cb-display:"General Sans",system-ui,sans-serif;
   }
   #cb-bubble{position:fixed;bottom:28px;right:28px;width:54px;height:54px;border-radius:50%;background:var(--cb-accent);color:var(--cb-bg);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 6px 24px rgba(28,28,26,0.28);z-index:9999;transition:transform .25s,background .2s;animation:cb-popIn .4s cubic-bezier(.34,1.56,.64,1) forwards}
   #cb-bubble:hover{background:var(--cb-accent-dark);transform:scale(1.08)}
@@ -86,16 +86,16 @@ const STYLES = `
   #cb-bubble.open .cb-ix{opacity:1;transform:rotate(0)}
   #cb-notif{position:fixed;bottom:70px;right:26px;width:11px;height:11px;border-radius:50%;background:#3d9e6e;border:2px solid var(--cb-bg);z-index:10000;animation:cb-pulse 1.6s ease-in-out infinite;transition:opacity .3s}
   #cb-notif.hidden{opacity:0;pointer-events:none}
-  #cb-tip{position:fixed;bottom:38px;right:92px;background:var(--cb-accent);color:var(--cb-bg);padding:8px 14px;border-radius:6px;font-family:var(--cb-font);font-size:12px;font-weight:400;white-space:nowrap;z-index:9998;opacity:0;pointer-events:none;transition:opacity .25s}
+  #cb-tip{position:fixed;bottom:38px;right:92px;background:var(--cb-accent);color:var(--cb-bg);padding:8px 14px;border-radius:6px;font-family:var(--cb-font);font-size:12px;font-weight:450;white-space:nowrap;z-index:9998;opacity:0;pointer-events:none;transition:opacity .25s}
   #cb-tip::after{content:'';position:absolute;right:-8px;top:50%;transform:translateY(-50%);border:5px solid transparent;border-left-color:var(--cb-accent)}
   #cb-tip.show{opacity:1}
   #cb-win{position:fixed;bottom:94px;right:28px;width:360px;max-height:580px;border-radius:var(--cb-radius);background:var(--cb-bg);border:1px solid var(--cb-border);box-shadow:var(--cb-shadow);display:flex;flex-direction:column;z-index:9998;overflow:hidden;opacity:0;transform:translateY(20px) scale(.95);pointer-events:none;transition:opacity .28s,transform .28s cubic-bezier(.34,1.2,.64,1)}
   #cb-win.open{opacity:1;transform:translateY(0) scale(1);pointer-events:all}
   .cb-hdr{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--cb-accent);color:var(--cb-bg);flex-shrink:0}
-  .cb-av{width:36px;height:36px;border-radius:50%;background:rgba(240,240,239,.16);display:flex;align-items:center;justify-content:center;font-family:var(--cb-display);font-weight:700;font-size:14px;flex-shrink:0;overflow:hidden}
+  .cb-av{width:36px;height:36px;border-radius:50%;background:rgba(240,240,239,.16);display:flex;align-items:center;justify-content:center;font-family:var(--cb-display);font-weight:450;font-size:14px;flex-shrink:0;overflow:hidden}
   .cb-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
   .cb-hi{flex:1}
-  .cb-hn{font-family:var(--cb-display);font-size:13px;font-weight:700;line-height:1.2;letter-spacing:.2px}
+  .cb-hn{font-family:var(--cb-display);font-size:13px;font-weight:450;line-height:1.2;letter-spacing:.2px}
   .cb-hs{font-family:var(--cb-font);font-size:10px;opacity:.75;display:flex;align-items:center;gap:5px}
   .cb-dot{width:6px;height:6px;border-radius:50%;background:#5fc492;display:inline-block;animation:cb-pulse 1.8s ease-in-out infinite}
   .cb-acts{display:flex;gap:6px}
@@ -118,9 +118,9 @@ const STYLES = `
   .cb-msg.user .cb-bbl{background:var(--cb-accent);color:var(--cb-bg);border-color:var(--cb-accent);border-bottom-right-radius:3px}
   .cb-msg.bot  .cb-bbl{border-bottom-left-radius:3px}
   .cb-cursor{display:inline-block;width:2px;height:14px;background:var(--cb-accent);margin-left:2px;vertical-align:middle;animation:cb-blink .7s step-end infinite}
-  .cb-bbl a{color:var(--cb-text);font-weight:500;text-decoration:underline;word-break:break-all}
+  .cb-bbl a{color:var(--cb-text);font-weight:450;text-decoration:underline;word-break:break-all}
   .cb-msg.user .cb-bbl a{color:var(--cb-bg)}
-  .cb-bbl strong{font-weight:600}
+  .cb-bbl strong{font-weight:450}
   .cb-bbl em{font-style:italic}
   .cb-bbl code{background:rgba(28,28,26,.07);color:var(--cb-text);padding:1px 5px;border-radius:3px;font-family:"Courier New",monospace;font-size:12px}
   .cb-msg.user .cb-bbl code{background:rgba(240,240,239,.2);color:var(--cb-bg)}
@@ -140,7 +140,7 @@ const STYLES = `
   .cb-dots span:nth-child(2){animation-delay:.2s}
   .cb-dots span:nth-child(3){animation-delay:.4s}
   .cb-sugg{padding:0 14px 10px;display:flex;flex-wrap:wrap;gap:6px;flex-shrink:0}
-  .cb-sbtn{padding:6px 13px;border-radius:20px;border:1px solid var(--cb-border);background:transparent;color:var(--cb-muted);font-family:var(--cb-font);font-size:11.5px;font-weight:400;cursor:pointer;transition:all .2s;white-space:nowrap;animation:cb-in .3s ease forwards}
+  .cb-sbtn{padding:6px 13px;border-radius:20px;border:1px solid var(--cb-border);background:transparent;color:var(--cb-muted);font-family:var(--cb-font);font-size:11.5px;font-weight:450;cursor:pointer;transition:all .2s;white-space:nowrap;animation:cb-in .3s ease forwards}
   .cb-sbtn:hover{background:var(--cb-accent);border-color:var(--cb-accent);color:var(--cb-bg)}
   .cb-iarea{padding:10px 14px 6px;border-top:1px solid var(--cb-border);display:flex;gap:8px;align-items:flex-end;flex-shrink:0;background:var(--cb-bg)}
   #cb-inp{flex:1;border:1px solid var(--cb-border);border-radius:8px;padding:9px 13px;font-family:var(--cb-body);font-size:13.5px;color:var(--cb-text);background:var(--cb-surface);resize:none;outline:none;max-height:100px;min-height:38px;line-height:1.5;transition:border-color .2s,box-shadow .2s}
@@ -229,7 +229,6 @@ class EkaChatbot {
         this._css();
         this._html();
         this._events();
-        this._syncTheme();
         this._loadCtx();
         setTimeout(() => this._tooltip(), 3000);
     }
@@ -630,25 +629,6 @@ class EkaChatbot {
         const m = document.getElementById('cb-msgs');
         if (m) setTimeout(() => m.scrollTop = m.scrollHeight, 50);
     }
-
-    // ── DARK MODE SYNC ────────────────────────────────────────────────────────
-    _syncTheme() {
-        const root = document.getElementById('cb-root');
-        if (!root) return;
-
-        const apply = () => {
-            const isDark = document.body.classList.contains('dark-mode');
-            root.classList.toggle('dark', isDark);
-        };
-
-        // Initial sync
-        apply();
-
-        // Watch body for class changes (triggered by theme.js toggle)
-        const observer = new MutationObserver(apply);
-        observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
-    }
-    // ─────────────────────────────────────────────────────────────────────────
 
     _tooltip() {
         if (this.open) return;
