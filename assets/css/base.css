@@ -191,6 +191,19 @@ strong, b { font-weight: 550; }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .cursor-ring { background: transparent; }
 }
+/* Static — not tracked to the cursor's direction of travel or any external
+   light source. A moving highlight would need a second per-frame
+   computation for a detail nobody consciously looks at; a fixed one reads
+   just as convincingly as "a lit curved surface" at this size. */
+.cursor-ring::before {
+  content: '';
+  position: absolute;
+  top: 15%; left: 15%;
+  width: 35%; height: 35%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.9), rgba(255,255,255,0) 70%);
+  pointer-events: none;
+}
 body.cur-hover .cursor-dot  { width: 7px; height: 7px; background: rgba(255,255,255,0.75); }
 body.cur-hover .cursor-ring { width: 44px; height: 44px; border-color: rgba(28,28,26,0.4); }
 body.cur-click .cursor-dot  { width: 3px; height: 3px; }
