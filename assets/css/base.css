@@ -168,17 +168,31 @@ strong, b { font-weight: 550; }
   will-change: left, top;
   transition: width 0.2s, height 0.2s, opacity 0.3s;
 }
+/* Frosted glass, not blend-mode inversion: backdrop-filter can't be combined
+   reliably with mix-blend-mode across browsers, and this project has already
+   spent real effort chasing silent Safari-only failures. Dark surfaces (nav
+   panel, transition curtain) get an explicit override below instead of an
+   automatic colour-inversion trick. */
 .cursor-ring {
   position: fixed; width: 28px; height: 28px;
-  border: 1px solid rgba(255,255,255,0.55);
+  background: rgba(255,255,255,0.35);
+  backdrop-filter: blur(6px) saturate(1.5) brightness(1.05);
+  -webkit-backdrop-filter: blur(6px) saturate(1.5) brightness(1.05);
+  border: 1px solid rgba(28,28,26,0.28);
   border-radius: 50%; pointer-events: none; z-index: 99998;
-  mix-blend-mode: difference;
   transform: translate(-50%, -50%);
   will-change: left, top;
-  transition: width 0.25s ease, height 0.25s ease, border-color 0.25s, opacity 0.3s;
+  transition: width 0.25s ease, height 0.25s ease, border-color 0.25s,
+              background-color 0.25s, opacity 0.3s;
+}
+/* No backdrop-filter support: fall back to a plain translucent ring rather
+   than an invisible one (a solid-colour background would look wrong; no
+   background at all reproduces today's outline-only look). */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .cursor-ring { background: transparent; }
 }
 body.cur-hover .cursor-dot  { width: 7px; height: 7px; background: rgba(255,255,255,0.75); }
-body.cur-hover .cursor-ring { width: 44px; height: 44px; border-color: rgba(255,255,255,0.3); }
+body.cur-hover .cursor-ring { width: 44px; height: 44px; border-color: rgba(28,28,26,0.4); }
 body.cur-click .cursor-dot  { width: 3px; height: 3px; }
 body.cur-click .cursor-ring { width: 18px; height: 18px; }
 @media (hover: none) { .cursor-dot, .cursor-ring { display: none; } }
