@@ -9,15 +9,37 @@
   let mx = 0, my = 0, rx = 0, ry = 0, raf;
 
   if (dot && ring && window.matchMedia('(hover: hover)').matches) {
+    // Local to this block rather than a shared module-scope constant: the
+    // transition section further down declares its own REDUCED the same
+    // way, and referencing that one from here would hit its temporal-dead-
+    // zone, since this code runs immediately, before that later line does.
+    const cursorReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
     document.addEventListener('mousemove', e => {
       mx = e.clientX; my = e.clientY;
       dot.style.left = mx + 'px'; dot.style.top = my + 'px';
     });
 
     (function loop() {
-      rx += (mx - rx) * 0.11;
-      ry += (my - ry) * 0.11;
+      const dx = mx - rx, dy = my - ry;
+      rx += dx * 0.11;
+      ry += dy * 0.11;
       ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+
+      if (cursorReduced) {
+        ring.style.transform = 'translate(-50%,-50%)';
+      } else {
+        // Derived from the same chase-lerp gap already computed above — no
+        // separate spring simulation. Stretch decays to 0 on its own as
+        // rx/ry catch up to mx/my, which is what relaxes the ring back to a
+        // circle without any extra easing code.
+        const magnitude = Math.hypot(dx, dy);
+        const stretch = Math.min(magnitude / 60, 1) * 0.35;
+        const angle = Math.atan2(dy, dx);
+        ring.style.transform =
+          `translate(-50%,-50%) rotate(${angle}rad) scale(${1 + stretch}, ${1 - stretch * 0.6}) rotate(${-angle}rad)`;
+      }
+
       raf = requestAnimationFrame(loop);
     })();
 
