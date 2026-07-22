@@ -261,15 +261,23 @@ node --check assets/js/site.js
 
 Expected: no output (clean syntax).
 
-- [ ] **Step 5: Add the CSS override**
+- [ ] **Step 5: Add the CSS override — after the hover/click block, not after the highlight**
 
-Insert after Task 2's `.cursor-ring::before` rule:
+Insertion point matters here and isn't interchangeable with "anywhere near the ring's rules." `html.nav-open .cursor-ring` and `body.cur-hover .cursor-ring` compute to the *same* CSS specificity (one type selector + two classes each), and hovering a nav link while the panel is open triggers both at once (the nav panel's links are plain `<a>` tags already present when `site.js` runs, so they're in the set `document.querySelectorAll('a, button, [role="button"]')` wires up hover listeners for). On a specificity tie, CSS resolves by source order — whichever rule is physically later in the file wins. This rule must therefore land **after** `body.cur-hover .cursor-ring` / `body.cur-click .cursor-ring` (which Task 1 Step 2 already rewrote), not merely after Task 2's highlight rule, or a link hovered inside the open panel would incorrectly show the light-page hover border (`rgba(28,28,26,0.4)`) — barely visible against the dark panel behind it — instead of this override's light-on-dark one.
+
+Insert this block immediately after the `body.cur-hover .cursor-ring, body.cur-click .cursor-ring` lines (the ones Task 1 Step 2 left reading `border-color: rgba(28,28,26,0.4);` and `{ width: 18px; height: 18px; }`), and immediately before the `@media (hover: none) { .cursor-dot, .cursor-ring { display: none; } }` line that already follows them:
 
 ```css
 /* The page is light almost everywhere; these are the two exceptions. Each
    is already flagged on <html> — nav-open and pt-arrive existed before this
    feature, pt-in was added to site.js above specifically so this selector
-   list is exhaustive without :has() or DOM-order assumptions. */
+   list is exhaustive without :has() or DOM-order assumptions.
+
+   Placed after the cur-hover/cur-click block on purpose: those rules tie
+   this one's specificity exactly (one type selector + two classes each), so
+   whichever comes later in the file wins when both are true at once — e.g.
+   hovering a nav-link while the panel is open. Source order, not
+   specificity, is what makes the dark-surface treatment win that case. */
 html.nav-open .cursor-ring,
 html.pt-arrive .cursor-ring,
 html.pt-in .cursor-ring {
@@ -299,7 +307,24 @@ html.pt-in .cursor-ring {
 
 Expected: `light.bg` is `rgba(255, 255, 255, 0.35)` (Task 1's default); `navOpen.bg` and `ptIn.bg` are both `rgba(255, 255, 255, 0.16)` (this task's override) — `navOpen` and `ptIn` should be identical to each other and different from `light`.
 
-- [ ] **Step 7: Verify the `pt-in` class actually appears during a real navigation**
+- [ ] **Step 7: Verify the combined `nav-open` + `cur-hover` case — this is what Step 5's ordering note exists for**
+
+```js
+(() => {
+  const ring = document.getElementById('cursorRing');
+  const html = document.documentElement;
+  html.classList.add('nav-open');
+  document.body.classList.add('cur-hover');
+  const combined = { border: getComputedStyle(ring).borderColor };
+  document.body.classList.remove('cur-hover');
+  html.classList.remove('nav-open');
+  return JSON.stringify(combined, null, 1);
+})()
+```
+
+Expected: `border` is `rgba(255, 255, 255, 0.45)` (the dark-surface override from this task) — **not** `rgba(28, 28, 26, 0.4)` (the light-page hover border from Task 1 Step 2). If it comes back as the latter, the override rule landed before the `cur-hover`/`cur-click` block instead of after it; move it and re-run this check.
+
+- [ ] **Step 8: Verify the `pt-in` class actually appears during a real navigation**
 
 Click any internal nav link (e.g. from the homepage, click "Portfolio" in the nav panel) and, in the moment before the page unloads, run:
 
@@ -309,7 +334,7 @@ document.documentElement.classList.contains('pt-in')
 
 Expected: `true`. (This has a short window — the page navigates away after `CURTAIN_MS` = 860ms, so run this immediately after clicking.)
 
-- [ ] **Step 8: Commit**
+- [ ] **Step 9: Commit**
 
 ```bash
 python3 scripts/bump-assets.py
