@@ -208,6 +208,22 @@ body.cur-hover .cursor-dot  { width: 7px; height: 7px; background: rgba(255,255,
 body.cur-hover .cursor-ring { width: 44px; height: 44px; border-color: rgba(28,28,26,0.4); }
 body.cur-click .cursor-dot  { width: 3px; height: 3px; }
 body.cur-click .cursor-ring { width: 18px; height: 18px; }
+/* The page is light almost everywhere; these are the two exceptions. Each
+   is already flagged on <html> — nav-open and pt-arrive existed before this
+   feature, pt-in was added to site.js above specifically so this selector
+   list is exhaustive without :has() or DOM-order assumptions.
+
+   Placed after the cur-hover/cur-click block on purpose: those rules tie
+   this one's specificity exactly (one type selector + two classes each), so
+   whichever comes later in the file wins when both are true at once — e.g.
+   hovering a nav-link while the panel is open. Source order, not
+   specificity, is what makes the dark-surface treatment win that case. */
+html.nav-open .cursor-ring,
+html.pt-arrive .cursor-ring,
+html.pt-in .cursor-ring {
+  background: rgba(255,255,255,0.16);
+  border-color: rgba(255,255,255,0.45);
+}
 @media (hover: none) { .cursor-dot, .cursor-ring { display: none; } }
 
 /* ── PAGE TRANSITION ─────────────────────────────────────────────

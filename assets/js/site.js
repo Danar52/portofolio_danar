@@ -155,6 +155,9 @@
     try { sessionStorage.setItem('pt-nav', name); } catch (e) {}
     pauseScroll(true);
     curtain.classList.add('pt-in');
+    // Mirrored onto <html> alongside nav-open/pt-arrive so the cursor ring's
+    // dark-surface CSS can select against it without a new mechanism.
+    document.documentElement.classList.add('pt-in');
     setTimeout(() => { window.location.href = href; }, CURTAIN_MS);
   }
 
@@ -194,6 +197,7 @@
     window.addEventListener('pageshow', e => {
       if (!e.persisted) return;
       curtain.classList.remove('pt-in');
+      document.documentElement.classList.remove('pt-in');
       document.documentElement.classList.remove('pt-arrive');
     });
   }
