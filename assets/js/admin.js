@@ -745,8 +745,13 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
           </div></td></tr>`).join('')}
         </tbody></table></div>`:'<div class="empty-state"><i class="fas fa-award"></i><p>Belum ada sertifikasi.</p></div>';
     }
-    function openCertForm(data=null){
+    async function openCertForm(data=null){
       const isEdit=!!data?.id;
+      let nextSort=0;
+      if(!isEdit){
+        const{data:last}=await db.from('certifications').select('sort_order').order('sort_order',{ascending:false}).limit(1).maybeSingle();
+        nextSort=(last?.sort_order??-1)+1;
+      }
       openModal(isEdit?'Edit Certification':'Tambah Certification',`
         <div class="form-group"><label class="form-label">Nama Sertifikat</label><input class="form-input" id="f_name" value="${data?.cert_name||''}" placeholder="cth: Belajar Dasar Pemrograman Web"/></div>
         <div class="form-row">
@@ -755,7 +760,7 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
         </div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Tanggal Terbit</label><input class="form-input" id="f_date" value="${data?.issued_date||''}" placeholder="cth: Oktober 2024"/></div>
-          <div class="form-group"><label class="form-label">Sort Order</label><input class="form-input" id="f_sort" type="number" value="${data?.sort_order||0}"/></div>
+          <div class="form-group"><label class="form-label">Sort Order</label><input class="form-input" id="f_sort" type="number" value="${data?.sort_order??nextSort}"/></div>
         </div>
         <div class="form-group"><label class="form-label">Link Verifikasi <span style="opacity:.4">(opsional)</span></label><input class="form-input" id="f_url" value="${data?.cert_url||''}" placeholder="https://..."/></div>
         <div class="form-group">
