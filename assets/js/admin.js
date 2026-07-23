@@ -196,8 +196,13 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
         : '<div class="empty-state"><i class="fas fa-briefcase-clock"></i><p>Belum ada portfolio.</p></div>';
     }
 
-    function openPortfolioForm(data=null) {
+    async function openPortfolioForm(data=null) {
       const isEdit = !!data?.id;
+      let nextSort = 0;
+      if (!isEdit) {
+        const{data:last}=await db.from('portfolio').select('sort_order').order('sort_order',{ascending:false}).limit(1).maybeSingle();
+        nextSort=(last?.sort_order??-1)+1;
+      }
       const tagsArr = data?.tags || [];
       const typeOptions = PORTFOLIO_TYPES.map(t =>
         `<option value="${t.val}" ${data?.type===t.val?'selected':''}>${t.label}</option>`
@@ -289,7 +294,7 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
 
         <div class="form-row">
           <div class="form-group"><label class="form-label">Sort Order</label>
-            <input class="form-input" id="f_sort" type="number" value="${data?.sort_order||0}"/>
+            <input class="form-input" id="f_sort" type="number" value="${data?.sort_order??nextSort}"/>
             <p class="form-hint">Urutan tampil (kecil = duluan)</p></div>
         </div>
         <div style="display:flex;flex-direction:column;gap:12px;margin-top:4px">
@@ -584,8 +589,13 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
       }
       el.innerHTML = html || '<div class="empty-state"><i class="fas fa-list-check"></i><p>Belum ada skill.</p></div>';
     }
-    function openSkillForm(data=null) {
+    async function openSkillForm(data=null) {
       const isEdit = !!data?.id;
+      let nextSort = 0;
+      if (!isEdit) {
+        const{data:last}=await db.from('skills').select('sort_order').order('sort_order',{ascending:false}).limit(1).maybeSingle();
+        nextSort=(last?.sort_order??-1)+1;
+      }
       const datalistOptions = existingCategories.map(c=>`<option value="${c}">`).join('');
       openModal(isEdit?'Edit Skill':'Tambah Skill', `
         <datalist id="categoryList">${datalistOptions}</datalist>
@@ -595,7 +605,7 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
         <div class="form-group"><label class="form-label">Nama Skill</label>
           <input class="form-input" id="f_name" placeholder="cth: PHP" value="${data?.skill_name||''}"/></div>
         <div class="form-group"><label class="form-label">Sort Order</label>
-          <input class="form-input" id="f_sort" type="number" value="${data?.sort_order||0}"/>
+          <input class="form-input" id="f_sort" type="number" value="${data?.sort_order??nextSort}"/>
           <p class="form-hint">Urutan dalam kategori (kecil = duluan)</p></div>
       `, async () => {
         const catVal = document.getElementById('f_cat').value.trim();
@@ -634,8 +644,13 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
           </div></td></tr>`).join('')}
         </tbody></table></div>` : '<div class="empty-state"><i class="fas fa-briefcase"></i><p>Belum ada experience.</p></div>';
     }
-    function openExpForm(data=null) {
+    async function openExpForm(data=null) {
       const isEdit=!!data?.id, tagsArr=data?.tags||[];
+      let nextSort=0;
+      if(!isEdit){
+        const{data:last}=await db.from('experience').select('sort_order').order('sort_order',{ascending:false}).limit(1).maybeSingle();
+        nextSort=(last?.sort_order??-1)+1;
+      }
       openModal(isEdit?'Edit Experience':'Tambah Experience', `
         <div class="form-group"><label class="form-label">Nama Jabatan / Posisi</label><input class="form-input" id="f_title" value="${data?.job_title||''}" placeholder="cth: Web Developer Intern"/></div>
         <div class="form-group"><label class="form-label">Perusahaan / Instansi</label><input class="form-input" id="f_company" value="${data?.company||''}" placeholder="cth: PT. ABC"/></div>
@@ -645,7 +660,7 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
         </div>
         <div class="form-row">
           <div class="form-group"><label class="form-label">Durasi</label><input class="form-input" id="f_dur" value="${data?.duration||''}" placeholder="cth: 6 bln"/></div>
-          <div class="form-group"><label class="form-label">Sort Order</label><input class="form-input" id="f_sort" type="number" value="${data?.sort_order||0}"/></div>
+          <div class="form-group"><label class="form-label">Sort Order</label><input class="form-input" id="f_sort" type="number" value="${data?.sort_order??nextSort}"/></div>
         </div>
         <div class="form-group"><label class="form-label">Deskripsi</label>
           <textarea class="form-textarea" id="f_desc">${data?.description||''}</textarea>
@@ -697,8 +712,13 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
           </div></td></tr>`).join('')}
         </tbody></table></div>`:'<div class="empty-state"><i class="fas fa-calendar-days"></i><p>Belum ada event.</p></div>';
     }
-    function openEventForm(data=null){
+    async function openEventForm(data=null){
       const isEdit=!!data?.id;
+      let nextSort=0;
+      if(!isEdit){
+        const{data:last}=await db.from('events').select('sort_order').order('sort_order',{ascending:false}).limit(1).maybeSingle();
+        nextSort=(last?.sort_order??-1)+1;
+      }
       openModal(isEdit?'Edit Event / Org':'Tambah Event / Org',`
         <div class="form-group"><label class="form-label">Tipe</label>
           <select class="form-select" id="f_type"><option value="org" ${data?.type==='org'?'selected':''}>Organisasi</option><option value="event" ${data?.type==='event'?'selected':''}>Event</option><option value="comp" ${data?.type==='comp'?'selected':''}>Kompetisi</option></select></div>
@@ -712,7 +732,7 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
         <div class="form-group"><label class="form-label">Foto Kegiatan</label>
           ${data?.image_url?`<img src="${data.image_url}" style="width:100%;border-radius:8px;max-height:140px;object-fit:cover;margin-bottom:8px"><p class="form-hint" style="margin-bottom:8px">Upload baru untuk mengganti</p>`:''}
           <div class="file-upload-area"><input type="file" id="f_img" accept="image/*"/><i class="fas fa-cloud-upload-alt"></i><p>Klik untuk upload foto</p><p class="file-type-hint">JPG, PNG, WEBP</p></div></div>
-        <div class="form-group"><label class="form-label">Sort Order</label><input class="form-input" id="f_sort" type="number" value="${data?.sort_order||0}"/></div>
+        <div class="form-group"><label class="form-label">Sort Order</label><input class="form-input" id="f_sort" type="number" value="${data?.sort_order??nextSort}"/></div>
       `,async()=>{
         let imageUrl=data?.image_url||null;
         const imgFile=document.getElementById('f_img').files[0];
