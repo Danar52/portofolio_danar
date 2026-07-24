@@ -58,6 +58,51 @@
     }
     document.querySelectorAll('a, button, [role="button"]').forEach(addHover);
 
+    /* ── TEXT LENS MAGNIFY ────────────────────────────────────
+       Real magnification (a live clone, not a filter) so hovered
+       body copy reads larger under the ring. Scoped to body text
+       only — links/buttons already get the magnetic + glass-ring
+       treatment and don't need a second effect stacked on top.
+    ─────────────────────────────────────────────────────────── */
+    const LENS_SCALE = 1.6;
+    const LENS_RADIUS = 20; // half of base .cursor-ring's 40px (base.css)
+    let lensClone = null;
+
+    function showLens(el) {
+      if (!el.textContent.trim()) return;
+      hideLens();
+      lensClone = el.cloneNode(true);
+      lensClone.classList.add('cursor-lens-clone');
+      lensClone.setAttribute('aria-hidden', 'true');
+      const r = el.getBoundingClientRect();
+      lensClone.style.left = r.left + 'px';
+      lensClone.style.top = r.top + 'px';
+      lensClone.style.width = r.width + 'px';
+      lensClone.style.height = r.height + 'px';
+      document.body.appendChild(lensClone);
+    }
+
+    function updateLens(el, e) {
+      if (!lensClone) return;
+      const r = el.getBoundingClientRect();
+      const px = e.clientX - r.left, py = e.clientY - r.top;
+      const tx = -(px * (LENS_SCALE - 1));
+      const ty = -(py * (LENS_SCALE - 1));
+      lensClone.style.transform = `translate(${tx}px, ${ty}px) scale(${LENS_SCALE})`;
+      lensClone.style.clipPath = `circle(${LENS_RADIUS}px at ${e.clientX}px ${e.clientY}px)`;
+    }
+
+    function hideLens() {
+      if (lensClone) { lensClone.remove(); lensClone = null; }
+    }
+
+    function attachLens(el) {
+      el.addEventListener('mouseenter', () => showLens(el));
+      el.addEventListener('mousemove', e => updateLens(el, e));
+      el.addEventListener('mouseleave', hideLens);
+    }
+    document.querySelectorAll('p, li, h1, h2, h3, h4, h5, h6').forEach(attachLens);
+
     document.addEventListener('mouseleave', () => { dot.style.opacity = '0'; ring.style.opacity = '0'; });
     document.addEventListener('mouseenter', () => { dot.style.opacity = '1'; ring.style.opacity = '1'; });
   }

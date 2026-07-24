@@ -229,6 +229,24 @@ html.pt-in .cursor-ring {
 }
 @media (hover: none) { .cursor-dot, .cursor-ring { display: none; } }
 
+/* ── TEXT LENS MAGNIFY ────────────────────────────────────────────
+   A live clone of the hovered text block, scaled and circle-clipped
+   so it reads as magnification rather than a filter. The clone keeps
+   the source element's classes, so font/colour rules — including the
+   dark-surface overrides above — apply with no extra CSS here.
+─────────────────────────────────────────────────────────────── */
+.cursor-lens-clone {
+  position: fixed;
+  margin: 0;
+  list-style: none;
+  transform-origin: top left;
+  pointer-events: none;
+  z-index: 99997;
+  will-change: transform, clip-path;
+}
+.cursor-lens-clone * { pointer-events: none; }
+@media (hover: none) { .cursor-lens-clone { display: none; } }
+
 /* ── PAGE TRANSITION ─────────────────────────────────────────────
    Slides on click-navigation and names the destination. Translated,
    not scaled: scaleY would squash the label and the curved caps.
