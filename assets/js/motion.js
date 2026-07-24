@@ -171,26 +171,35 @@
 
   /* ── MAGNETIC HOVER ─────────────────────────────────────────
      Element drifts toward the cursor within its own bounds.
-     Pointer-only; skipped entirely on touch.
+     Pointer-only; skipped entirely on touch. Applies to every
+     link/button automatically — data-magnetic on an element still
+     overrides the default strength (index.html's hero CTAs keep
+     their gentler 0.3/0.25). magneticTarget tracks the live pull
+     point so the cursor ring (site.js) can chase the same spot
+     instead of the raw pointer.
   ─────────────────────────────────────────────────────────── */
+  let magneticTarget = null;
+
   function magnetic() {
     if (!canHover || !hasGsap) return;
 
-    document.querySelectorAll('[data-magnetic]').forEach(el => {
+    document.querySelectorAll('a, button, [role="button"]').forEach(el => {
       const strength = parseFloat(el.dataset.magnetic) || 0.35;
 
       el.addEventListener('mousemove', e => {
         const r = el.getBoundingClientRect();
-        gsap.to(el, {
-          x: (e.clientX - (r.left + r.width  / 2)) * strength,
-          y: (e.clientY - (r.top  + r.height / 2)) * strength,
-          duration: 0.6,
-          ease: 'power3.out',
-        });
+        if (!r.width || !r.height) return;
+        const rawX = (e.clientX - (r.left + r.width  / 2)) * strength;
+        const rawY = (e.clientY - (r.top  + r.height / 2)) * strength;
+        const x = Math.max(-15, Math.min(15, rawX));
+        const y = Math.max(-15, Math.min(15, rawY));
+        gsap.to(el, { x, y, duration: 0.6, ease: 'power3.out' });
+        magneticTarget = { x: r.left + r.width / 2 + x, y: r.top + r.height / 2 + y };
       });
 
       el.addEventListener('mouseleave', () => {
         gsap.to(el, { x: 0, y: 0, duration: 0.7, ease: 'elastic.out(1, 0.4)' });
+        magneticTarget = null;
       });
     });
   }
@@ -220,6 +229,7 @@
   window.Motion = {
     refresh: bindReveals,
     lenis: () => lenis,
+    magneticTarget: () => magneticTarget,
   };
 
 })();
