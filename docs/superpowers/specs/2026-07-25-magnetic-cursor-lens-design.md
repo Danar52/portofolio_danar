@@ -13,24 +13,27 @@ Both must respect the existing `prefers-reduced-motion` gate and the `(hover: ho
 
 ## 1. Magnetic Pull
 
-**Scope:** `a, button, [role="button"]` — same selector set already used for `addHover` (site.js:52), so magnetic wiring rides the same `querySelectorAll` pass.
+**Correction from initial draft:** a magnetic-hover system already exists in [motion.js:176-196](../../../assets/js/motion.js#L176) (GSAP-driven, opt-in via `[data-magnetic]`, currently used on 3 elements in index.html only). This spec extends that system rather than building a second, independent one in site.js — avoids two transform systems fighting over the same elements.
+
+**Scope:** every `a, button, [role="button"]` gets magnetic behavior automatically (no more manual `data-magnetic` opt-in needed going forward — existing `data-magnetic="0.3"` / `"0.25"` attributes on index.html still work and simply override the default strength for those three elements).
 
 **Behavior:**
-- Radius: 80px from the element's bounding-rect center.
-- Max pull: 15px.
-- Both the element itself and `#cursorRing` translate toward the pointer while inside the radius; the element eases back to `translate(0,0)` via CSS transition on `mouseleave`.
+- Pull activates once the pointer is over the element (motion.js's existing `mousemove` listener is per-element, so the element's own bounding box is the natural activation boundary — no separate 80px pre-entry radius is needed on top of that).
+- Offset is `(pointer − element center) * strength`, **clamped to 15px** in each axis — this replaces the original uncapped `strength`-only offset, so large elements can't drag disproportionately far.
+- Default `strength` for elements without an explicit `data-magnetic` value: `0.35` (existing default, motion.js:180).
+- `#cursorRing` (owned by site.js) pulls toward the same target point as the element while a magnetic element is active, so ring and element read as one motion.
+- On `mouseleave`, GSAP eases the element back to `x:0, y:0` (existing `elastic.out(1, 0.4)` release, motion.js:193) — kept as-is, it already reads well.
 
 **Implementation:**
-- New `addMagnetic(el)` function alongside `addHover(el)` in site.js, called from the same `forEach` (site.js:52).
-- `mouseenter` attaches a **local** `mousemove` listener scoped to that element (not the global rAF loop) — avoids an O(n) distance check against every magnetic element on every global mousemove.
-- On each local `mousemove`: compute `dx, dy` from pointer to element center, clamp magnitude to 15px, `el.style.transform = translate(dx, dy)`.
-- Ring's existing rAF loop (site.js:23-44) is fed a target point that differs from raw `mx, my` while a magnetic element is active, so ring and element move toward the same point.
-- `mouseleave` removes the local listener and resets `el.style.transform` via a CSS `transition: transform` (not an instant snap).
+- Modify `magnetic()` in motion.js: change `document.querySelectorAll('[data-magnetic]')` to `document.querySelectorAll('a, button, [role="button"]')`, read `strength` the same way (`parseFloat(el.dataset.magnetic) || 0.35`), and clamp the computed `x`/`y` to `±15` before passing to `gsap.to`.
+- New small export/global hook from motion.js so site.js's ring-loop can read "current magnetic target point" (or `null` when no element is active) — e.g. `window.Motion.magneticTarget()` returning `{x, y} | null`, updated inside the same `mousemove` handler that already computes the offset.
+- site.js's existing rAF loop (site.js:23-44) checks this hook each frame: if non-null, lerp `rx, ry` toward that point instead of raw `mx, my`.
 
 **Edge cases:**
-- Zero-size bounding rect (e.g., `display:none` element focused programmatically) → guard on `width > 0 && height > 0` before computing pull.
-- Adjacent magnetic elements with overlapping 80px radii → no extra logic needed; only the element currently under `mouseenter` runs its local listener, so there's no ambiguity about which one "wins."
-- Touch/non-hover devices and `prefers-reduced-motion` → entire feature inert (existing top-level gates).
+- Zero-size bounding rect (e.g., `display:none` element) → `getBoundingClientRect()` naturally returns `0,0,0,0`; guard on `r.width > 0 && r.height > 0` before computing an offset, matching the zero-size guard already implied by needing a visible target to hover in the first place.
+- `!canHover || !hasGsap` → `magnetic()` already no-ops entirely (motion.js:177); ring-side hook returns `null` in that case, so site.js's ring loop is unaffected.
+- `prefers-reduced-motion` → motion.js returns before defining `magnetic()` at all (motion.js:19-22) when reduced; `[data-magnetic] { transform: none !important; }` (base.css:779) already exists as a second safety net.
+- Touch/non-hover devices → `canHover` gate in motion.js and the `(hover: hover)` gate in site.js both already exclude them.
 
 ## 2. Text Lens Magnify
 
@@ -62,14 +65,15 @@ Magnetic pull (interactive elements) and text lens (body copy) listen on disjoin
 **Magnetic pull:**
 1. Hover a large CTA → element + ring pull toward pointer, capped at 15px.
 2. Hover a small nav link → pull is present but subtle, not distracting.
-3. Rapid mouse movement in/out of radius across several elements → no listener leaks, no jitter (check via DevTools performance/memory).
+3. Rapidly move the mouse across several adjacent links/buttons → no jitter, no double-transform fighting between elements (check via DevTools performance).
 4. Toggle `prefers-reduced-motion` → effect fully off, cursor behaves as before this feature.
+4b. Confirm the 3 existing `data-magnetic="0.3"`/`"0.25"` elements on index.html still use their explicit strength rather than the new 0.35 default.
 
 **Text lens:**
 5. Hover a long paragraph → text inside the lens reads at 1.6x, stays aligned with source text during fast movement.
 6. Check dark-surface pages (nav panel, transition curtain) → clone contrast matches overrides.
 7. Hover a paragraph containing an inline link → click still hits the real link (clone's `pointer-events: none` doesn't intercept).
-8. Navigate between pages while a lens clone is active → no stale clone carries over to the new page.
+8. Navigate between pages while a lens clone is active → since navigation here is a full document load (`window.location.href`, not SPA routing — site.js:183), the DOM resets on its own; confirm no visual flash of a stale clone during the curtain transition itself.
 
 **Cross-cutting:**
 9. Verify all 9 HTML pages that include the cursor markup pick up both features consistently (markup is duplicated per file, per existing pattern from commit `10bb877`).
