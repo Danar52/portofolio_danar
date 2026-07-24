@@ -67,19 +67,26 @@
     const LENS_SCALE = 1.6;
     const LENS_RADIUS = 20; // half of base .cursor-ring's 40px (base.css)
     let lensClone = null;
+    let lensEl = null;
 
-    function showLens(el) {
-      if (!el.textContent.trim()) return;
-      hideLens();
-      lensClone = el.cloneNode(true);
-      lensClone.classList.add('cursor-lens-clone');
-      lensClone.setAttribute('aria-hidden', 'true');
+    function positionLens(el) {
+      if (!lensClone) return;
       const r = el.getBoundingClientRect();
       lensClone.style.left = r.left + 'px';
       lensClone.style.top = r.top + 'px';
       lensClone.style.width = r.width + 'px';
       lensClone.style.height = r.height + 'px';
+    }
+
+    function showLens(el) {
+      if (!el.textContent.trim()) return;
+      hideLens();
+      lensClone = el.cloneNode(true);
+      lensEl = el;
+      lensClone.classList.add('cursor-lens-clone');
+      lensClone.setAttribute('aria-hidden', 'true');
       document.body.appendChild(lensClone);
+      positionLens(el);
     }
 
     function updateLens(el, e) {
@@ -89,11 +96,11 @@
       const tx = -(px * (LENS_SCALE - 1));
       const ty = -(py * (LENS_SCALE - 1));
       lensClone.style.transform = `translate(${tx}px, ${ty}px) scale(${LENS_SCALE})`;
-      lensClone.style.clipPath = `circle(${LENS_RADIUS}px at ${e.clientX}px ${e.clientY}px)`;
+      lensClone.style.clipPath = `circle(${LENS_RADIUS}px at ${px}px ${py}px)`;
     }
 
     function hideLens() {
-      if (lensClone) { lensClone.remove(); lensClone = null; }
+      if (lensClone) { lensClone.remove(); lensClone = null; lensEl = null; }
     }
 
     function attachLens(el) {
@@ -102,6 +109,7 @@
       el.addEventListener('mouseleave', hideLens);
     }
     document.querySelectorAll('p, li, h1, h2, h3, h4, h5, h6').forEach(attachLens);
+    document.addEventListener('scroll', () => { if (lensEl) positionLens(lensEl); }, { passive: true });
 
     document.addEventListener('mouseleave', () => { dot.style.opacity = '0'; ring.style.opacity = '0'; });
     document.addEventListener('mouseenter', () => { dot.style.opacity = '1'; ring.style.opacity = '1'; });
