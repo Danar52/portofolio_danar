@@ -7,6 +7,11 @@
   const dot  = document.getElementById('cursorDot');
   const ring = document.getElementById('cursorRing');
   let mx = 0, my = 0, rx = 0, ry = 0, raf;
+  // Hoisted out of the reduced-motion-gated lens block below so goTo()
+  // (defined later, in the PAGE TRANSITIONS section) can always call it to
+  // tear down a stray lens clone before navigating — a no-op when reduced
+  // motion is active, since the real hideLens is never assigned then.
+  let hideLensFn = () => {};
 
   if (dot && ring && window.matchMedia('(hover: hover)').matches) {
     // Local to this block rather than a shared module-scope constant: the
@@ -63,7 +68,12 @@
        body copy reads larger under the ring. Scoped to body text
        only — links/buttons already get the magnetic + glass-ring
        treatment and don't need a second effect stacked on top.
+       Gated on cursorReduced: this is a live pointer-tracking
+       transform/clip-path effect, not covered by the reduced-motion
+       CSS (which only zeroes animation/transition durations), so it
+       must be skipped entirely to honor prefers-reduced-motion.
     ─────────────────────────────────────────────────────────── */
+    if (!cursorReduced) {
     const LENS_SCALE = 1.6;
     const LENS_RADIUS = 20; // half of base .cursor-ring's 40px (base.css)
     let lensClone = null;
@@ -102,6 +112,7 @@
     function hideLens() {
       if (lensClone) { lensClone.remove(); lensClone = null; lensEl = null; }
     }
+    hideLensFn = hideLens;
 
     const lensBound = new WeakSet();
     const LENS_SELECTOR = 'p, li, h1, h2, h3, h4, h5, h6';
@@ -132,6 +143,7 @@
       });
     });
     lensObserver.observe(document.body, { childList: true, subtree: true });
+    }
 
     document.addEventListener('mouseleave', () => { dot.style.opacity = '0'; ring.style.opacity = '0'; });
     document.addEventListener('mouseenter', () => { dot.style.opacity = '1'; ring.style.opacity = '1'; });
@@ -251,6 +263,11 @@
   }
 
   function goTo(href, linkEl) {
+    // Tear down any active lens clone before anything else: a click on an
+    // inline <a> inside a hovered <p> never fires mouseleave (the pointer
+    // stays over the <p>), so without this the clone (z-index 99997) would
+    // sit visible on top of the curtain (z-index 99000) for the transition.
+    hideLensFn();
     if (!curtain || REDUCED) { window.location.href = href; return; }
     const name = labelFor(href, linkEl);
     if (ptLabel) ptLabel.innerHTML = name + '<i>.</i>';
