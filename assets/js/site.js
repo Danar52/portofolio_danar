@@ -21,7 +21,14 @@
     });
 
     (function loop() {
-      const dx = mx - rx, dy = my - ry;
+      // Chase whatever a magnetic element (motion.js) is currently pulling
+      // toward, so the ring and the element read as one motion; fall back
+      // to the raw pointer the rest of the time. Optional chaining because
+      // site.js runs before the deferred gsap/motion.js scripts execute.
+      const target = window.Motion?.magneticTarget?.();
+      const tx = target ? target.x : mx;
+      const ty = target ? target.y : my;
+      const dx = tx - rx, dy = ty - ry;
       rx += dx * 0.11;
       ry += dy * 0.11;
       ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
