@@ -179,11 +179,14 @@
      instead of the raw pointer.
   ─────────────────────────────────────────────────────────── */
   let magneticTarget = null;
+  const magneticBound = new WeakSet();
 
   function magnetic() {
     if (!canHover || !hasGsap) return;
 
     document.querySelectorAll('a, button, [role="button"]').forEach(el => {
+      if (magneticBound.has(el)) return;
+      magneticBound.add(el);
       const strength = parseFloat(el.dataset.magnetic) || 0.35;
 
       el.addEventListener('mousemove', e => {
@@ -215,7 +218,7 @@
 
     const mo = new MutationObserver(muts => {
       const added = muts.some(m => m.addedNodes.length);
-      if (added) bindReveals();
+      if (added) { bindReveals(); magnetic(); }
     });
     mo.observe(document.body, { childList: true, subtree: true });
   }

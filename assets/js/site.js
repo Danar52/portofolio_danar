@@ -103,13 +103,35 @@
       if (lensClone) { lensClone.remove(); lensClone = null; lensEl = null; }
     }
 
+    const lensBound = new WeakSet();
+    const LENS_SELECTOR = 'p, li, h1, h2, h3, h4, h5, h6';
+
     function attachLens(el) {
+      if (lensBound.has(el)) return;
+      lensBound.add(el);
       el.addEventListener('mouseenter', () => showLens(el));
       el.addEventListener('mousemove', e => updateLens(el, e));
       el.addEventListener('mouseleave', hideLens);
     }
-    document.querySelectorAll('p, li, h1, h2, h3, h4, h5, h6').forEach(attachLens);
+
+    function scanLens(root) {
+      if (!(root instanceof Element)) return;
+      if (root.matches(LENS_SELECTOR)) attachLens(root);
+      root.querySelectorAll(LENS_SELECTOR).forEach(attachLens);
+    }
+
+    scanLens(document.body);
     document.addEventListener('scroll', () => { if (lensEl) positionLens(lensEl); }, { passive: true });
+
+    /* Supabase-rendered content (portfolio cards, bios, list items, etc.)
+       arrives after this first scan, so watch for it the same way
+       motion.js already watches for late [data-reveal] nodes. */
+    const lensObserver = new MutationObserver(muts => {
+      muts.forEach(m => {
+        m.addedNodes.forEach(node => scanLens(node));
+      });
+    });
+    lensObserver.observe(document.body, { childList: true, subtree: true });
 
     document.addEventListener('mouseleave', () => { dot.style.opacity = '0'; ring.style.opacity = '0'; });
     document.addEventListener('mouseenter', () => { dot.style.opacity = '1'; ring.style.opacity = '1'; });
