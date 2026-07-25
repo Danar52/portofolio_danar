@@ -133,15 +133,18 @@ body {
   color: var(--text-1);
   min-height: 100vh;
   overflow-x: hidden;
-  cursor: none;
 }
+/* Hidden only once site.js confirms it is actually drawing the replacement.
+   Unconditionally, this left any page without the cursor markup — or any
+   visitor whose JS never ran — with no pointer at all. */
+body.has-cursor { cursor: none; }
 
 /* One weight everywhere — hierarchy comes from size and colour, not boldness.
    Headings and <strong> default to 700 in the UA stylesheet, which breaks that
    the moment CMS content ships bold text, so pin them back. */
 h1, h2, h3, h4, h5, h6 { font-weight: 450; }
 strong, b { font-weight: 550; }
-@media (hover: none) { body { cursor: auto; } }
+@media (hover: none) { body, body.has-cursor { cursor: auto; } }
 
 /* ── SCROLLBAR ──────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 3px; }
@@ -227,6 +230,36 @@ html.pt-in .cursor-ring {
   background: rgba(255,255,255,0.16);
   border-color: rgba(255,255,255,0.45);
 }
+/* Over body copy the ring stops being frosted glass and becomes the rim of a
+   magnifier. The blur has to go: the magnified clone sits one layer below
+   (99997), so blurring the backdrop smeared the very text the lens had just
+   enlarged — the effect read as a dirty smudge rather than a lens.
+
+   Last of the .cursor-ring state rules on purpose. cur-hover, cur-click and
+   the dark-surface block all tie its specificity, and a link inside a hovered
+   paragraph matches two of them at once; source order is what settles it. */
+body.cur-lens .cursor-ring {
+  width: 44px; height: 44px;
+  background: transparent;
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+  border-color: rgba(120,120,118,0.45);
+  /* Reads as a physical piece of glass sitting above the page: the outer
+     shadow lifts it off the surface, the inset hairline catches light along
+     the top of the bevel. Both are deliberately edge-only — a soft inset
+     glow spread across the disc washed out the very words being magnified,
+     which is the whole point of the effect. */
+  box-shadow: 0 8px 24px rgba(28,28,26,0.14),
+              inset 0 1px 1.5px rgba(255,255,255,0.7);
+}
+/* Same reasoning: the highlight blob sits in the middle of the reading area
+   here, where the frosted version had nothing to obscure. */
+body.cur-lens .cursor-ring::before { opacity: 0; }
+/* The dot would sit as a blend-mode speck in the middle of the magnified
+   word — the one place on screen you are actually reading. !important
+   because site.js writes opacity inline on the pointer entering and leaving
+   the window, and an inline value outranks any class rule here. */
+body.cur-lens .cursor-dot { opacity: 0 !important; }
+
 @media (hover: none) { .cursor-dot, .cursor-ring { display: none; } }
 
 /* ── TEXT LENS MAGNIFY ────────────────────────────────────────────
@@ -599,6 +632,18 @@ html.nav-open #cb-tip {
   from { transform: translateY(100%); }
   to   { transform: translateY(0); }
 }
+
+/* Handing the links over to the magnetic hover once they have finished
+   sliding in. A filling animation keeps ownership of `transform` even after
+   it ends and outranks inline styles, so gsap's pull was being computed and
+   then thrown away — the links were the only elements on the site silently
+   ignoring it. site.js sets .is-ready when the last link lands.
+
+   The overflow clip has to lift with it: it exists to mask the slide, and
+   with it still on, the few px of vertical drift got cut off at the row
+   edge. */
+.nav-links-list.is-ready li { overflow: visible; }
+.nav-links-list.is-ready .nav-link { animation: none; transform: none; }
 
 /* Stacked, not spread: the panel is far narrower than the old full-width
    sheet, and a single row put the socials and the location on top of

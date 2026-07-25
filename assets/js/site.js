@@ -7,6 +7,10 @@
   const dot  = document.getElementById('cursorDot');
   const ring = document.getElementById('cursorRing');
   let mx = 0, my = 0, rx = 0, ry = 0, raf;
+  // Assigned by the lens block below and called from the rAF loop, so the
+  // magnifier is driven by the ring's own eased position instead of the raw
+  // pointer — the two used to drift apart on every fast move.
+  let drawLensFn = null;
   // Hoisted out of the reduced-motion-gated lens block below so goTo()
   // (defined later, in the PAGE TRANSITIONS section) can always call it to
   // tear down a stray lens clone before navigating — a no-op when reduced
@@ -19,6 +23,10 @@
     // way, and referencing that one from here would hit its temporal-dead-
     // zone, since this code runs immediately, before that later line does.
     const cursorReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Tells base.css it is safe to hide the native pointer — this block is
+    // the only thing that draws a replacement for it.
+    document.body.classList.add('has-cursor');
 
     document.addEventListener('mousemove', e => {
       mx = e.clientX; my = e.clientY;
@@ -38,7 +46,10 @@
       ry += dy * 0.11;
       ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
 
-      if (cursorReduced) {
+      // The velocity stretch has to be off while magnifying: the rim is
+      // framing a circular clip, and squashing one without the other leaves
+      // the glass visibly out of round against its own contents.
+      if (cursorReduced || document.body.classList.contains('cur-lens')) {
         ring.style.transform = 'translate(-50%,-50%)';
       } else {
         // Derived from the same chase-lerp gap already computed above — no
@@ -51,6 +62,10 @@
         ring.style.transform =
           `translate(-50%,-50%) rotate(${angle}rad) scale(${1 + stretch}, ${1 - stretch * 0.6}) rotate(${-angle}rad)`;
       }
+
+      // Same eased point the ring is drawn at, so the magnified circle sits
+      // exactly inside the rim rather than racing ahead of it.
+      if (drawLensFn) drawLensFn(rx, ry);
 
       raf = requestAnimationFrame(loop);
     })();
@@ -65,84 +80,148 @@
 
     /* ── TEXT LENS MAGNIFY ────────────────────────────────────
        Real magnification (a live clone, not a filter) so hovered
-       body copy reads larger under the ring. Scoped to body text
-       only — links/buttons already get the magnetic + glass-ring
-       treatment and don't need a second effect stacked on top.
+       text reads larger under the ring. Applies to any text on any
+       page: the element is resolved from the pointer rather than
+       bound ahead of time, so table cells, labels, captions and
+       anything Supabase renders later are all covered by the same
+       code path.
        Gated on cursorReduced: this is a live pointer-tracking
        transform/clip-path effect, not covered by the reduced-motion
        CSS (which only zeroes animation/transition durations), so it
        must be skipped entirely to honor prefers-reduced-motion.
     ─────────────────────────────────────────────────────────── */
     if (!cursorReduced) {
-    const LENS_SCALE = 1.6;
-    const LENS_RADIUS = 20; // half of base .cursor-ring's 40px (base.css)
+    /* Screen radius of the magnified disc. Half of .cursor-ring's cur-lens
+       size (44px in base.css), so the glass rim frames the magnification
+       exactly instead of cropping it or floating outside it. */
+    const LENS_R = 22;
+    const LENS_SCALE_MAX = 1.18;
+    const LENS_SCALE_MIN = 1.04;
     let lensClone = null;
     let lensEl = null;
+    // Eased, not snapped: the disc opens and closes rather than popping, and
+    // the zoom rides in with it. Both relax back to 0 / MIN on the way out,
+    // which is also what tells the loop when the clone can be removed.
+    let lensR = 0, lensRTarget = 0;
+    let lensScale = LENS_SCALE_MIN;
 
-    function positionLens(el) {
-      if (!lensClone) return;
-      const r = el.getBoundingClientRect();
-      lensClone.style.left = r.left + 'px';
-      lensClone.style.top = r.top + 'px';
-      lensClone.style.width = r.width + 'px';
-      lensClone.style.height = r.height + 'px';
+    function surfaceOf(el) {
+      let node = el;
+      while (node && node !== document.documentElement) {
+        const c = getComputedStyle(node).backgroundColor;
+        // Anything with alpha left in it is a real surface; fully transparent
+        // means the paint is coming from further up.
+        if (c && !/^rgba\(.*,\s*0\)$/.test(c) && c !== 'transparent') return c;
+        node = node.parentElement;
+      }
+      return getComputedStyle(document.body).backgroundColor || '#f0f0ef';
     }
 
     function showLens(el) {
       if (!el.textContent.trim()) return;
-      hideLens();
+      lensRTarget = LENS_R;
+      // Re-added here, not only on the first show: leaving an element and
+      // coming back to it before the disc has finished shrinking reopens the
+      // same clone, and the rim state has to come back with it.
+      document.body.classList.add('cur-lens');
+      if (lensEl === el) return;
+      if (lensClone) lensClone.remove();
       lensClone = el.cloneNode(true);
       lensEl = el;
       lensClone.classList.add('cursor-lens-clone');
       lensClone.setAttribute('aria-hidden', 'true');
+      // Anything focusable inside the clone would otherwise land in the tab
+      // order twice, reading the same text to a screen reader again.
+      lensClone.querySelectorAll('a, button, input, [tabindex]')
+        .forEach(n => n.setAttribute('tabindex', '-1'));
+      /* Opaque, or the untouched original shows through the disc underneath
+         the enlarged copy and the two sets of glyphs sit on top of each
+         other. The colour is read off the nearest ancestor that actually
+         paints one, so the patch matches whatever surface the text sits on —
+         the page, a card, or the dark panel — rather than assuming --bg. */
+      lensClone.style.background = surfaceOf(el);
       document.body.appendChild(lensClone);
-      positionLens(el);
     }
 
-    function updateLens(el, e) {
+    /* Called once per frame from the cursor loop with the ring's own eased
+       centre. Geometry: clip-path is resolved in the clone's untransformed
+       box, so the on-screen disc measures lensR * lensScale — the radius
+       fed to circle() has to be divided back down by the scale, which is
+       what the old fixed 20px missed (it drew a 32px disc inside a 20px
+       rim). The translate keeps the point under the cursor pinned while
+       everything around it grows away from it. */
+    function drawLens(cx, cy) {
       if (!lensClone) return;
-      const r = el.getBoundingClientRect();
-      const px = e.clientX - r.left, py = e.clientY - r.top;
-      const tx = -(px * (LENS_SCALE - 1));
-      const ty = -(py * (LENS_SCALE - 1));
-      lensClone.style.transform = `translate(${tx}px, ${ty}px) scale(${LENS_SCALE})`;
-      lensClone.style.clipPath = `circle(${LENS_RADIUS}px at ${px}px ${py}px)`;
+
+      lensR += (lensRTarget - lensR) * 0.18;
+      const scaleTarget = lensRTarget ? LENS_SCALE_MAX : LENS_SCALE_MIN;
+      lensScale += (scaleTarget - lensScale) * 0.14;
+
+      if (!lensRTarget && lensR < 0.4) { hideLens(); return; }
+
+      const r = lensEl.getBoundingClientRect();
+      lensClone.style.left = r.left + 'px';
+      lensClone.style.top = r.top + 'px';
+      lensClone.style.width = r.width + 'px';
+      lensClone.style.height = r.height + 'px';
+
+      const px = cx - r.left, py = cy - r.top;
+      const tx = -(px * (lensScale - 1));
+      const ty = -(py * (lensScale - 1));
+      lensClone.style.transform = `translate(${tx}px, ${ty}px) scale(${lensScale})`;
+      lensClone.style.clipPath = `circle(${lensR / lensScale}px at ${px}px ${py}px)`;
+    }
+    drawLensFn = drawLens;
+
+    // Starts the close; the loop removes the clone once the disc has shrunk.
+    function closeLens() {
+      lensRTarget = 0;
+      document.body.classList.remove('cur-lens');
     }
 
     function hideLens() {
       if (lensClone) { lensClone.remove(); lensClone = null; lensEl = null; }
+      lensR = 0; lensRTarget = 0; lensScale = LENS_SCALE_MIN;
+      document.body.classList.remove('cur-lens');
     }
     hideLensFn = hideLens;
 
-    const lensBound = new WeakSet();
-    const LENS_SELECTOR = 'p, li, h1, h2, h3, h4, h5, h6';
+    /* Panels that are chrome rather than reading material. The nav links stay
+       out because they already answer to the magnetic pull — two effects on
+       one element fought each other — and the curtain and chat bubble are
+       overlays the lens has no business reaching into. */
+    const LENS_EXCLUDE = '.nav-overlay, .page-transition, #cb-root, .menu-toggle';
 
-    function attachLens(el) {
-      if (lensBound.has(el)) return;
-      lensBound.add(el);
-      el.addEventListener('mouseenter', () => showLens(el));
-      el.addEventListener('mousemove', e => updateLens(el, e));
-      el.addEventListener('mouseleave', hideLens);
+    /* The element that actually owns the text under the pointer, or null.
+       Only elements holding a text node of their own qualify, which is what
+       keeps this to the innermost span/cell/heading instead of walking up to
+       a section wrapper and cloning half the page. */
+    function textElementAt(target) {
+      if (!(target instanceof Element)) return null;
+      if (target.closest(LENS_EXCLUDE)) return null;
+      if (/^(HTML|BODY|IMG|SVG|CANVAS|INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return null;
+      const hasOwnText = Array.prototype.some.call(
+        target.childNodes,
+        n => n.nodeType === 3 && n.textContent.trim()
+      );
+      return hasOwnText ? target : null;
     }
 
-    function scanLens(root) {
-      if (!(root instanceof Element)) return;
-      if (root.matches(LENS_SELECTOR)) attachLens(root);
-      root.querySelectorAll(LENS_SELECTOR).forEach(attachLens);
-    }
+    /* Resolved per pointer move rather than bound per element up front.
+       Binding a selector this broad with mouseenter/mouseleave does not work:
+       on nested text the child's mouseleave fires while the pointer is still
+       inside the parent, and the parent never re-enters, so the lens dies
+       mid-sentence. Reading the deepest target off each event sidesteps that,
+       and content rendered later needs no rescan — there is nothing bound to
+       keep in sync. */
+    document.addEventListener('mousemove', e => {
+      const el = textElementAt(e.target);
+      if (!el) { if (lensEl) closeLens(); return; }
+      showLens(el);
+    }, { passive: true });
 
-    scanLens(document.body);
-    document.addEventListener('scroll', () => { if (lensEl) positionLens(lensEl); }, { passive: true });
-
-    /* Supabase-rendered content (portfolio cards, bios, list items, etc.)
-       arrives after this first scan, so watch for it the same way
-       motion.js already watches for late [data-reveal] nodes. */
-    const lensObserver = new MutationObserver(muts => {
-      muts.forEach(m => {
-        m.addedNodes.forEach(node => scanLens(node));
-      });
-    });
-    lensObserver.observe(document.body, { childList: true, subtree: true });
+    // No scroll listener either: drawLens re-reads the source rect every
+    // frame, so the clone tracks smooth-scrolled content on its own.
     }
 
     document.addEventListener('mouseleave', () => { dot.style.opacity = '0'; ring.style.opacity = '0'; });
@@ -187,12 +266,41 @@
     // The chat widget is fixed at a higher z-index than the overlay, so it
     // floats over the open menu and lands on the social links. Flag the state
     // on <html> and let CSS take the widget out of the way.
+    /* The links slide in on a filling CSS animation, which keeps ownership of
+       `transform` after it ends and beats the inline transform gsap's
+       magnetic hover writes. .is-ready (base.css) drops that animation once
+       the last link has landed, handing the property over.
+
+       Timings mirror the stylesheet: 0.21s is the last nth-child delay plus
+       0.55s of animation on the way in; 0.8s is the panel's own transition on
+       the way out — pulling .is-ready any earlier would snap the links back
+       to their parked position in full view of the closing panel. */
+    const linksList = overlay.querySelector('.nav-links-list');
+    let readyTimer;
+
     const setMenu = open => {
       menuOpen = open;
       toggle.classList.toggle('is-open', open);
       overlay.classList.toggle('is-open', open);
       document.documentElement.classList.toggle('nav-open', open);
       document.body.style.overflow = open ? 'hidden' : '';
+
+      if (!linksList) return;
+      clearTimeout(readyTimer);
+      if (open) {
+        readyTimer = setTimeout(() => linksList.classList.add('is-ready'), 800);
+      } else {
+        readyTimer = setTimeout(() => {
+          linksList.classList.remove('is-ready');
+          /* Closing by click never fires mouseleave, so a pulled link keeps
+             its inline transform. Left in place it would outrank the slide-in
+             animation and the link would simply not animate next time. */
+          linksList.querySelectorAll('.nav-link').forEach(link => {
+            if (window.gsap) gsap.killTweensOf(link);
+            link.style.transform = '';
+          });
+        }, 850);
+      }
     };
 
     toggle.addEventListener('click', () => setMenu(!menuOpen));

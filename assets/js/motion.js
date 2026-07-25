@@ -181,21 +181,36 @@
   let magneticTarget = null;
   const magneticBound = new WeakSet();
 
+  /* Per-element defaults, so the navigation can be tuned without an attribute
+     repeated across nine HTML files. data-magnetic still wins over both.
+
+     The two nav cases pull differently for a reason: the toggle is a compact
+     control that can afford a firm, springy grab, while a nav link is a wide
+     row sitting close to its neighbours — the same travel there reads as the
+     list wobbling, so it is pulled softer and kept on a short vertical leash. */
+  const MAGNETIC_TUNING = [
+    { sel: '.menu-toggle', strength: 0.5,  maxX: 12, maxY: 10 },
+    { sel: '.nav-link',    strength: 0.28, maxX: 16, maxY: 7  },
+  ];
+
   function magnetic() {
     if (!canHover || !hasGsap) return;
 
     document.querySelectorAll('a, button, [role="button"]').forEach(el => {
       if (magneticBound.has(el)) return;
       magneticBound.add(el);
-      const strength = parseFloat(el.dataset.magnetic) || 0.35;
+      const tune = MAGNETIC_TUNING.find(t => el.matches(t.sel)) || {};
+      const strength = parseFloat(el.dataset.magnetic) || tune.strength || 0.35;
+      const maxX = tune.maxX || 15;
+      const maxY = tune.maxY || 15;
 
       el.addEventListener('mousemove', e => {
         const r = el.getBoundingClientRect();
         if (!r.width || !r.height) return;
         const rawX = (e.clientX - (r.left + r.width  / 2)) * strength;
         const rawY = (e.clientY - (r.top  + r.height / 2)) * strength;
-        const x = Math.max(-15, Math.min(15, rawX));
-        const y = Math.max(-15, Math.min(15, rawY));
+        const x = Math.max(-maxX, Math.min(maxX, rawX));
+        const y = Math.max(-maxY, Math.min(maxY, rawY));
         gsap.to(el, { x, y, duration: 0.6, ease: 'power3.out' });
         magneticTarget = { x: r.left + r.width / 2 + x, y: r.top + r.height / 2 + y };
       });
