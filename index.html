@@ -41,7 +41,7 @@
        support does not fetch a file it cannot use. -->
   <link rel="preload" as="image" href="./assets/hero-portrait.webp" imagesrcset="./assets/hero-portrait.webp" type="image/webp" fetchpriority="high"/>
   <link rel="stylesheet" href="./assets/css/base.css?v=e6f38128"/>
-  <link rel="stylesheet" href="./assets/css/index.css?v=2fc3b651"/>
+  <link rel="stylesheet" href="./assets/css/index.css?v=e6319d44"/>
 
   <script type="application/ld+json">
   {
@@ -160,6 +160,26 @@
   <main id="main-content">
 
     <section class="hero">
+      <!-- Lifted out of .hero-center so it can span the whole hero: it now
+           runs from the top of the viewport down to the rule above the
+           marquee, passing behind the header and both text bars.
+
+           Decorative: this is the person the <h1> below already names, so it
+           carries an empty alt and stays out of the accessibility tree rather
+           than being described twice. Eager and high-priority because it is
+           the largest thing above the fold — the LCP element, not something
+           to lazy-load.
+
+           data-parallax sits on the wrapper, not the <img>: the binder writes
+           --px/--py, and custom properties inherit downward, so setting them
+           on the image would never reach the element whose transform actually
+           consumes them. -->
+      <picture class="hero-portrait" aria-hidden="true" data-parallax="0.02">
+        <source srcset="./assets/hero-portrait.webp" type="image/webp"/>
+        <img src="./assets/hero-portrait.png" alt="" width="800" height="1298"
+             decoding="async" fetchpriority="high"/>
+      </picture>
+
       <div class="hero-top">
         <div class="hero-status">
           <span class="status-dot"></span>Available for work
@@ -168,24 +188,22 @@
       </div>
 
       <div class="hero-center">
-        <!-- Decorative: this is the person the <h1> right below already
-             names, so it carries an empty alt and is hidden from the
-             accessibility tree rather than described twice. Eager and
-             high-priority because it is the largest thing above the fold —
-             it is the LCP element, not something to lazy-load. -->
-        <!-- data-parallax sits on the wrapper, not the <img>: the binder
-             writes --px/--py, and custom properties inherit downward, so
-             setting them on the image would never reach the element whose
-             transform actually consumes them. -->
-        <picture class="hero-portrait" aria-hidden="true" data-parallax="0.02">
-          <source srcset="./assets/hero-portrait.webp" type="image/webp"/>
-          <img src="./assets/hero-portrait.png" alt="" width="800" height="1298"
-               decoding="async" fetchpriority="high"/>
-        </picture>
-        <h1 class="hero-name">
-          <span class="hero-line">Eka Danar</span>
-          <span class="hero-line">Arrasyid</span>
-        </h1>
+        <!-- The name is oversized past the width of the viewport and loops
+             horizontally, so it needs repeating copies to join end to end.
+
+             Only the <h1> carries the name as content — every copy after it
+             is aria-hidden. Repeating the same phrase four times inside one
+             heading would read as keyword stuffing to a crawler and would
+             make a screen reader announce the name four times; this way the
+             page still has exactly one clean h1. -->
+        <div class="hero-marquee">
+          <div class="hero-marquee-track" id="heroMarqueeTrack">
+            <h1 class="hero-name">Eka Danar Arrasyid</h1>
+            <span class="hero-name-dup" aria-hidden="true">Eka Danar Arrasyid</span>
+            <span class="hero-name-dup" aria-hidden="true">Eka Danar Arrasyid</span>
+            <span class="hero-name-dup" aria-hidden="true">Eka Danar Arrasyid</span>
+          </div>
+        </div>
       </div>
 
       <div class="hero-bottom">
@@ -311,10 +329,10 @@
   <!-- Hover image for work list -->
   <img class="work-hover-img" id="workHoverImg" src="" alt=""/>
 
-  <script src="./assets/js/site.js?v=7efb5f28"></script>
+  <script src="./assets/js/site.js?v=4a92c34d"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js"></script>
-  <script defer src="./assets/js/motion.js?v=9f4645e2"></script>
+  <script defer src="./assets/js/motion.js?v=b990f3cc"></script>
   <script type="module" src="./assets/js/index.js?v=6e6b031e"></script>
   <script type="module" src="chatbot.js?v=06e270b9"></script>
 

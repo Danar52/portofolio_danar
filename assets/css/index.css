@@ -11,16 +11,61 @@
   grid-template-rows: auto 1fr auto;
   padding: 0 var(--container-padding);
   border-bottom: 1px solid var(--border);
+  /* Containing block for the illustration and the clipping edge for the
+     oversized name, which runs wider than the viewport by design. */
+  position: relative;
+  overflow: hidden;
+
+  /* The figure's height drives everything else. Its aspect ratio is fixed at
+     800/1298, so the width it occupies — and therefore the gap the rules have
+     to leave for it — follows from that one number without measuring anything
+     in JS. --rule-gap is the breathing space on each side of the figure
+     before a rule is allowed to resume. */
+  --portrait-h: 100vh;
+  --portrait-w: calc(var(--portrait-h) * 800 / 1298);
+  --rule-gap: 28px;
+  /* How much of the rule the figure takes out. Kept separate from
+     --portrait-w so a narrow screen can stand the figure down from
+     interrupting the rules without also resizing it. */
+  --rule-cut: var(--portrait-w);
 }
 
 /* Top bar */
 .hero-top {
   display: flex; justify-content: space-between; align-items: center;
   padding: calc(var(--header-height) + 32px) 0 40px;
-  border-bottom: 1px solid var(--border);
   opacity: 0; transform: translateY(8px);
   animation: fadeUp 0.5s ease 0.1s forwards;
+  position: relative;
 }
+
+/* ── INTERRUPTED RULES ────────────────────────────────────────────
+   The rules under the top bar and over the bottom bar used to be plain
+   borders running edge to edge. The figure now crosses both, so each is
+   drawn as two segments that stop short of it and pick up again on the
+   far side — the line reads as passing behind the illustration rather
+   than being painted across it.
+
+   Width per segment: half the hero, minus half the figure, minus the
+   gap. Written against the padding box, so the segments stretch into
+   the container padding and meet the viewport edges the way the
+   original borders did.
+─────────────────────────────────────────────────────────────── */
+.hero-top::before, .hero-top::after,
+.hero-bottom::before, .hero-bottom::after {
+  content: '';
+  position: absolute;
+  height: 1px;
+  background: var(--border);
+  width: calc(50% - var(--rule-cut) / 2 - var(--rule-gap) + var(--container-padding));
+  pointer-events: none;
+}
+.hero-top::before, .hero-top::after { bottom: 0; }
+.hero-bottom::before, .hero-bottom::after { top: 0; }
+/* Pulled out to the viewport edge: the bars sit inside the hero's horizontal
+   padding, and these rules have to cross it. */
+.hero-top::before, .hero-bottom::before { left: calc(var(--container-padding) * -1); }
+.hero-top::after,  .hero-bottom::after  { right: calc(var(--container-padding) * -1); }
 .hero-status {
   display: flex; align-items: center; gap: 8px;
   font-size: 11px; font-weight: 450; color: var(--text-3);
@@ -37,20 +82,22 @@
   display: flex;
   align-items: flex-end;
   padding: 48px 0 0;
-  /* Containing block for the illustration, which is taken out of flow so it
-     cannot push the name off its own baseline. */
   position: relative;
+  /* Above the figure: the name reads in front of it. */
+  z-index: 1;
+  /* The name is deliberately wider than the viewport; the hero clips it. */
+  min-width: 0;
 }
 
 /* ── HERO ILLUSTRATION ────────────────────────────────────────────
-   Stands on the .hero-bottom rule rather than floating above it, and
-   is centred on the hero rather than on the name — the name is a
-   left-aligned block and centring against it would drag the figure
-   off to the left of the viewport.
+   Runs the full height of the hero — top of the viewport down to the
+   rule above the marquee — passing behind the header and both text
+   bars, which is what makes the interrupted rules read as depth.
 
-   Height, not width, is the constraint: the figure has to fit the
-   centre row whatever the viewport is, and its own aspect ratio then
-   decides how wide it gets.
+   Height, not width, is the constraint: the figure fills the hero and
+   its own aspect ratio decides how wide it gets. That width is the
+   same number the rule segments subtract, so the two can never
+   disagree.
 ─────────────────────────────────────────────────────────────── */
 .hero-portrait {
   /* Two elements, two jobs, and deliberately so: this wrapper owns placement
@@ -71,14 +118,14 @@
 }
 .hero-portrait img {
   display: block;
-  height: min(58vh, 560px);
-  width: auto;
+  height: var(--portrait-h);
+  width: var(--portrait-w);
   /* Belt and braces against a stretched figure: the intrinsic width/height
      attributes reserve the box, this keeps the ratio if either is ever
      edited without the other. */
   aspect-ratio: 800 / 1298;
-  /* Sequenced after the two .hero-line reveals (0.25s / 0.38s) so the figure
-     resolves behind a name that has already landed. */
+  /* Sequenced after the name's own reveal so the figure resolves behind
+     something that has already landed. */
   opacity: 0;
   animation: heroPortraitIn 0.9s cubic-bezier(0.22,1,0.36,1) 0.5s forwards;
 }
@@ -90,17 +137,20 @@
   from { opacity: 0; transform: scale(0.965); }
   to   { opacity: var(--portrait-opacity, 1); transform: scale(1); }
 }
-/* The name reads in front of the figure, at full strength — no scrim: the
-   text is #1c1c1a over a tan jacket, which clears contrast on its own. */
-.hero-name { position: relative; z-index: 1; }
-
 /* Narrow columns: the name already fills the width, so the figure steps back
-   instead of competing with it. */
+   instead of competing with it. The rules need a narrower gap to match. */
 @media (max-width: 768px) {
-  .hero-portrait img {
-    --portrait-opacity: 0.6;
-    height: min(42vh, 380px);
+  .hero {
+    --portrait-h: 54vh;
+    /* The figure is nearly as wide as the screen here, so cutting the rules
+       around it left two stubs a few pixels long and read as damage rather
+       than as depth. The rules run edge to edge instead: with no cut and no
+       gap the two segments are each half the width plus the padding, so they
+       meet in the middle and draw one continuous line. */
+    --rule-cut: 0px;
+    --rule-gap: 0px;
   }
+  .hero-portrait img { --portrait-opacity: 0.45; }
 }
 
 /* The entrance animation is the only thing that ever makes the figure
@@ -113,28 +163,68 @@
   .hero-portrait img {
     opacity: 1;
     animation: none;
-    height: min(50vh, 460px);
   }
 }
-.hero-name {
-  font-family: var(--font-display);
-  font-size: clamp(40px, 5.2vw, 80px);
-  font-weight: 450;
-  line-height: 1.0; letter-spacing: -1.8px;
-  color: var(--text-1);
-  user-select: none; align-self: end;
+
+/* ── HERO NAME MARQUEE ────────────────────────────────────────────
+   One line, set far wider than the viewport, looping horizontally in
+   front of the figure.
+
+   Full-bleed: the band breaks out of the hero's horizontal padding so
+   the name runs clean off both edges instead of stopping at a margin.
+─────────────────────────────────────────────────────────────── */
+.hero-marquee {
+  width: 100vw;
+  margin-left: calc(var(--container-padding) * -1);
+  align-self: end;
+  overflow: hidden;
+  opacity: 0;
+  animation: fadeUp 0.75s cubic-bezier(0.22,1,0.36,1) 0.25s forwards;
 }
-.hero-line { display: block; opacity: 0; transform: translateY(32px); }
-.hero-line:nth-child(1) { animation: fadeUp 0.75s cubic-bezier(0.22,1,0.36,1) 0.25s forwards; }
-.hero-line:nth-child(2) { animation: fadeUp 0.75s cubic-bezier(0.22,1,0.36,1) 0.38s forwards; }
+.hero-marquee-track {
+  display: flex;
+  align-items: baseline;
+  width: max-content;
+  will-change: transform;
+}
+/* The <h1> and its aria-hidden copies have to be typographically
+   indistinguishable, or the loop visibly stutters as it passes the seam. */
+.hero-name,
+.hero-name-dup {
+  font-family: var(--font-display);
+  font-size: clamp(64px, 16vw, 260px);
+  font-weight: 450;
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  color: var(--text-1);
+  white-space: nowrap;
+  margin: 0;
+  user-select: none;
+  /* Separation between repeats, carried as padding on each copy rather than
+     as flex `gap` on the track. Four items produce only three gaps, so a
+     track sized 4·item + 3·gap does not repeat every quarter of its own
+     width — the loop, which shifts by exactly 25%, would slip by a quarter
+     of a gap every cycle and jerk at the seam. As padding it belongs to the
+     item, all four are identical, and a quarter of the track is exactly one
+     of them. */
+  padding-right: clamp(24px, 5vw, 90px);
+}
+/* Held level with the marquee band even when the animation cannot run: the
+   track is what moves, and it is driven from JS rather than a keyframe, so
+   there is nothing here to switch off for reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-marquee { opacity: 1; animation: none; }
+}
 
 /* Bottom bar */
 .hero-bottom {
   display: flex; justify-content: space-between; align-items: center;
   padding: 28px 0 48px;
-  border-top: 1px solid var(--border);
   opacity: 0;
   animation: fadeUp 0.5s ease 0.55s forwards;
+  /* Sits over the figure, and its rule is drawn as two segments above. */
+  position: relative;
+  z-index: 1;
 }
 .hero-role { font-size: 13.5px; font-weight: 450; color: var(--text-2); line-height: 1.7; }
 .hero-cta {

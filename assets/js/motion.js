@@ -284,6 +284,9 @@
   const PARALLAX_MAX_Y = 8;
   const parallaxBound = new WeakSet();
   const parallaxEls = [];
+  // Target (written by the pointer) and current (eased toward it on the
+  // ticker), both normalised to -1..1 across the viewport.
+  let parallaxTX = 0, parallaxTY = 0, parallaxCX = 0, parallaxCY = 0;
 
   function parallax() {
     if (!canHover || !hasGsap) return;
@@ -297,32 +300,92 @@
     if (!parallaxEls.length || parallax.listening) return;
     parallax.listening = true;
 
-    /* One document-level listener driving every parallax element, rather than
-       one per element: the input is the pointer's position in the viewport,
-       which is the same number for all of them. The bound elements are held
-       in an array so the hot path never touches the DOM to find them again. */
+    /* One document-level listener driving every parallax element: the input is
+       the pointer's position in the viewport, which is the same number for all
+       of them. The bound elements live in an array so the hot path never
+       touches the DOM to find them again. */
     document.addEventListener('mousemove', e => {
-      const nx = (e.clientX / window.innerWidth) * 2 - 1;
-      const ny = (e.clientY / window.innerHeight) * 2 - 1;
+      parallaxTX = (e.clientX / window.innerWidth) * 2 - 1;
+      parallaxTY = (e.clientY / window.innerHeight) * 2 - 1;
+    }, { passive: true });
+
+    /* Eased on the ticker rather than by starting a tween per mousemove.
+       Firing gsap.to() on every pointer event means each new tween restarts
+       its own ease from wherever the last one had got to, and a fast move
+       queues dozens of them — the drift arrives in steps instead of gliding.
+       One value, one lerp, one write per frame is both smoother and cheaper.
+
+       The factor is normalised against real elapsed time so the glide takes
+       the same wall-clock time on a 60Hz and a 120Hz display. */
+    gsap.ticker.add((time, deltaTime) => {
+      const ease = 1 - Math.pow(1 - 0.08, (deltaTime || 16.67) / 16.67);
+      parallaxCX += (parallaxTX - parallaxCX) * ease;
+      parallaxCY += (parallaxTY - parallaxCY) * ease;
 
       for (let i = parallaxEls.length - 1; i >= 0; i--) {
         const el = parallaxEls[i];
         // Elements can be replaced wholesale by a Supabase re-render; drop
-        // them here rather than animating properties nobody will read.
+        // them here rather than writing properties nobody will read.
         if (!el.isConnected) { parallaxEls.splice(i, 1); continue; }
 
         // Depth is a fraction of the cap, so it reads the way the magnetic
         // strengths above do: 0.02 is full travel, lower is subtler.
         const scale = Math.min((parseFloat(el.dataset.parallax) || 0.02) / 0.02, 1);
-        gsap.to(el, {
-          '--px': (nx * PARALLAX_MAX_X * scale).toFixed(2) + 'px',
-          '--py': (ny * PARALLAX_MAX_Y * scale).toFixed(2) + 'px',
-          duration: 1.1,
-          ease: 'power2.out',
-          overwrite: 'auto',
-        });
+        el.style.setProperty('--px', (parallaxCX * PARALLAX_MAX_X * scale).toFixed(2) + 'px');
+        el.style.setProperty('--py', (parallaxCY * PARALLAX_MAX_Y * scale).toFixed(2) + 'px');
       }
-    }, { passive: true });
+    });
+  }
+
+  /* ── HERO NAME MARQUEE ──────────────────────────────────────
+     The name loops horizontally in front of the illustration, and
+     scrolling drives it: down speeds it up, up runs it backwards.
+
+     The track holds four identical copies, so shifting it by exactly
+     one quarter of its own width lands the next copy precisely where
+     the last one was — the seam is never visible and the tween can
+     simply repeat.
+  ─────────────────────────────────────────────────────────── */
+  function heroMarquee() {
+    const track = document.getElementById('heroMarqueeTrack');
+    if (!track || !hasGsap) return;
+
+    const tween = gsap.to(track, {
+      xPercent: -25,
+      duration: 26,
+      ease: 'none',
+      repeat: -1,
+    });
+
+    // Idle speed. Scroll pushes this away from 1 — negative runs the loop
+    // backwards, which is what makes scrolling up reverse the name.
+    let scale = 1;
+
+    function push(velocity) {
+      // Clamped: a flick of the wheel should lean the marquee, not fling it
+      // into an unreadable blur.
+      scale = Math.max(-8, Math.min(8, 1 + velocity * 0.35));
+    }
+
+    if (lenis) {
+      lenis.on('scroll', ({ velocity }) => push(velocity));
+    } else {
+      // No Lenis: derive the same signal from raw scroll position.
+      let last = window.scrollY;
+      window.addEventListener('scroll', () => {
+        const now = window.scrollY;
+        push((now - last) * 0.5);
+        last = now;
+      }, { passive: true });
+    }
+
+    /* Decays back to the idle speed on its own, so the marquee settles
+       instead of holding whatever the last scroll frame left behind. */
+    gsap.ticker.add((time, deltaTime) => {
+      const ease = 1 - Math.pow(1 - 0.06, (deltaTime || 16.67) / 16.67);
+      scale += (1 - scale) * ease;
+      tween.timeScale(scale);
+    });
   }
 
   /* ── BOOT ───────────────────────────────────────────────────
@@ -334,6 +397,7 @@
     bindReveals(null, true);
     magnetic();
     parallax();
+    heroMarquee();
 
     const mo = new MutationObserver(muts => {
       const added = muts.some(m => m.addedNodes.length);

@@ -254,7 +254,7 @@
        name sits over the illustration, so magnifying it would punch a flat
        #f0f0ef hole through the artwork. */
     const LENS_EXCLUDE =
-      '.nav-overlay, .page-transition, #cb-root, .menu-toggle, .hero-name';
+      '.nav-overlay, .page-transition, #cb-root, .menu-toggle, .hero-marquee';
 
     /* The element that actually owns the text under the pointer, or null.
        Only elements holding a text node of their own qualify, which is what
