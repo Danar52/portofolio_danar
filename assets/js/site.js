@@ -247,7 +247,14 @@
        out because they already answer to the magnetic pull — two effects on
        one element fought each other — and the curtain and chat bubble are
        overlays the lens has no business reaching into. */
-    const LENS_EXCLUDE = '.nav-overlay, .page-transition, #cb-root, .menu-toggle';
+    /* .hero-name is excluded for a different reason than the rest: the lens
+       paints an opaque patch of the surface colour inside its disc, which is
+       what stops the untouched original from showing through beneath the
+       enlarged copy. That assumes the text sits on a flat colour. The hero
+       name sits over the illustration, so magnifying it would punch a flat
+       #f0f0ef hole through the artwork. */
+    const LENS_EXCLUDE =
+      '.nav-overlay, .page-transition, #cb-root, .menu-toggle, .hero-name';
 
     /* The element that actually owns the text under the pointer, or null.
        Only elements holding a text node of their own qualify, which is what

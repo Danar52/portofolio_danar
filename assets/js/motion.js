@@ -265,6 +265,66 @@
     }, { passive: true });
   }
 
+  /* ── POINTER PARALLAX ───────────────────────────────────────
+     Background drift, not a magnetic grab: the element leans a few
+     pixels toward the pointer's position in the viewport as a whole,
+     rather than toward a point inside its own box.
+
+     Written to custom properties instead of `transform` on purpose —
+     the elements this runs on already carry a transform of their own
+     (the hero portrait is centred with translateX(-50%)), and writing
+     the whole property from here would wipe it. The stylesheet decides
+     how --px/--py are composed; this only supplies the numbers.
+
+     Travel is capped rather than scaled to the viewport: at these
+     amplitudes the point is a hint of depth, and a cap keeps the
+     figure from wandering on a very wide screen.
+  ─────────────────────────────────────────────────────────── */
+  const PARALLAX_MAX_X = 12;
+  const PARALLAX_MAX_Y = 8;
+  const parallaxBound = new WeakSet();
+  const parallaxEls = [];
+
+  function parallax() {
+    if (!canHover || !hasGsap) return;
+
+    document.querySelectorAll('[data-parallax]').forEach(el => {
+      if (parallaxBound.has(el)) return;
+      parallaxBound.add(el);
+      parallaxEls.push(el);
+    });
+
+    if (!parallaxEls.length || parallax.listening) return;
+    parallax.listening = true;
+
+    /* One document-level listener driving every parallax element, rather than
+       one per element: the input is the pointer's position in the viewport,
+       which is the same number for all of them. The bound elements are held
+       in an array so the hot path never touches the DOM to find them again. */
+    document.addEventListener('mousemove', e => {
+      const nx = (e.clientX / window.innerWidth) * 2 - 1;
+      const ny = (e.clientY / window.innerHeight) * 2 - 1;
+
+      for (let i = parallaxEls.length - 1; i >= 0; i--) {
+        const el = parallaxEls[i];
+        // Elements can be replaced wholesale by a Supabase re-render; drop
+        // them here rather than animating properties nobody will read.
+        if (!el.isConnected) { parallaxEls.splice(i, 1); continue; }
+
+        // Depth is a fraction of the cap, so it reads the way the magnetic
+        // strengths above do: 0.02 is full travel, lower is subtler.
+        const scale = Math.min((parseFloat(el.dataset.parallax) || 0.02) / 0.02, 1);
+        gsap.to(el, {
+          '--px': (nx * PARALLAX_MAX_X * scale).toFixed(2) + 'px',
+          '--py': (ny * PARALLAX_MAX_Y * scale).toFixed(2) + 'px',
+          duration: 1.1,
+          ease: 'power2.out',
+          overwrite: 'auto',
+        });
+      }
+    }, { passive: true });
+  }
+
   /* ── BOOT ───────────────────────────────────────────────────
      Content from Supabase arrives after first paint, so watch for
      late [data-reveal] nodes instead of binding only once.
@@ -273,6 +333,7 @@
     heroLines();
     bindReveals(null, true);
     magnetic();
+    parallax();
 
     const mo = new MutationObserver(muts => {
       const added = muts.some(m => m.addedNodes.length);

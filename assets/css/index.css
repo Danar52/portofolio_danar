@@ -37,6 +37,84 @@
   display: flex;
   align-items: flex-end;
   padding: 48px 0 0;
+  /* Containing block for the illustration, which is taken out of flow so it
+     cannot push the name off its own baseline. */
+  position: relative;
+}
+
+/* ── HERO ILLUSTRATION ────────────────────────────────────────────
+   Stands on the .hero-bottom rule rather than floating above it, and
+   is centred on the hero rather than on the name — the name is a
+   left-aligned block and centring against it would drag the figure
+   off to the left of the viewport.
+
+   Height, not width, is the constraint: the figure has to fit the
+   centre row whatever the viewport is, and its own aspect ratio then
+   decides how wide it gets.
+─────────────────────────────────────────────────────────────── */
+.hero-portrait {
+  /* Two elements, two jobs, and deliberately so: this wrapper owns placement
+     and the parallax drift, the <img> inside owns the entrance animation. A
+     filling animation keeps ownership of whatever property it touches, so an
+     entrance that animated `transform` here would silently swallow every
+     parallax offset written to it afterwards. */
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  z-index: 0;
+  display: block;
+  pointer-events: none;
+  /* The -50% is what actually does the centring, so it has to sit in the same
+     transform as the drift the parallax binder writes into --px/--py. */
+  transform: translateX(-50%) translate3d(var(--px, 0px), var(--py, 0px), 0);
+  will-change: transform;
+}
+.hero-portrait img {
+  display: block;
+  height: min(58vh, 560px);
+  width: auto;
+  /* Belt and braces against a stretched figure: the intrinsic width/height
+     attributes reserve the box, this keeps the ratio if either is ever
+     edited without the other. */
+  aspect-ratio: 800 / 1298;
+  /* Sequenced after the two .hero-line reveals (0.25s / 0.38s) so the figure
+     resolves behind a name that has already landed. */
+  opacity: 0;
+  animation: heroPortraitIn 0.9s cubic-bezier(0.22,1,0.36,1) 0.5s forwards;
+}
+/* Carried through a custom property so the narrow-screen rule can change the
+   resting opacity without redeclaring the keyframes — @keyframes are global
+   regardless of the block they are nested in, and a second definition of the
+   same name is a trap for whoever edits this next. */
+@keyframes heroPortraitIn {
+  from { opacity: 0; transform: scale(0.965); }
+  to   { opacity: var(--portrait-opacity, 1); transform: scale(1); }
+}
+/* The name reads in front of the figure, at full strength — no scrim: the
+   text is #1c1c1a over a tan jacket, which clears contrast on its own. */
+.hero-name { position: relative; z-index: 1; }
+
+/* Narrow columns: the name already fills the width, so the figure steps back
+   instead of competing with it. */
+@media (max-width: 768px) {
+  .hero-portrait img {
+    --portrait-opacity: 0.6;
+    height: min(42vh, 380px);
+  }
+}
+
+/* The entrance animation is the only thing that ever makes the figure
+   visible, so it needs its own reduced-motion answer. The global block
+   (base.css) zeroes animation-duration but not animation-delay, and the
+   resting state here is opacity 0 — the figure would sit invisible for the
+   full 0.5s delay and then pop in. Dropping the animation outright and
+   showing it from the start is the honest version of "no motion". */
+@media (prefers-reduced-motion: reduce) {
+  .hero-portrait img {
+    opacity: 1;
+    animation: none;
+    height: min(50vh, 460px);
+  }
 }
 .hero-name {
   font-family: var(--font-display);
