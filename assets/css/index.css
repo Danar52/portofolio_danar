@@ -145,11 +145,16 @@
   from { opacity: 0; transform: scale(0.965); }
   to   { opacity: var(--portrait-opacity, 1); transform: scale(1); }
 }
-/* Narrow columns: the name already fills the width, so the figure steps back
-   instead of competing with it. The rules need a narrower gap to match. */
+/* ── NARROW COLUMNS ───────────────────────────────────────────────
+   A phone is not a small desktop here. The hero is proportioned across
+   the width on a wide screen, and carrying those same ratios down left
+   the figure short of the fold and the name at its clamp floor — a tall
+   empty band above both. Everything below re-proportions against the
+   taller, narrower viewport rather than scaling the desktop treatment.
+─────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .hero {
-    --portrait-h: 54vh;
+    --portrait-h: 70vh;
     /* The figure is nearly as wide as the screen here, so cutting the rules
        around it left two stubs a few pixels long and read as damage rather
        than as depth. The rules run edge to edge instead: with no cut and no
@@ -158,7 +163,13 @@
     --rule-cut: 0px;
     --rule-gap: 0px;
   }
-  .hero-portrait img { --portrait-opacity: 0.45; }
+  .hero-portrait img { --portrait-opacity: 0.5; }
+
+  /* The name's own size for this breakpoint is set in the MOBILE block near
+     the end of this file — it has to come after the base .hero-name rules to
+     take effect at all. 16vw is the right weight against a wide viewport but
+     resolves under the 64px floor on a phone, where the name stops growing
+     with the screen and reads as small type that happens to be clipped. */
 }
 
 /* The entrance animation is the only thing that ever makes the figure
@@ -515,7 +526,21 @@
 @media (max-width: 768px) {
   .hero { padding: 0 20px; grid-template-rows: auto 1fr auto; }
   .hero-top { padding-top: calc(var(--header-height) + 20px); }
-  .hero-name { font-size: clamp(34px, 8.5vw, 52px); letter-spacing: -1.2px; }
+  /* Typography for the marquee lives here, after the base .hero-name rules
+     further up the file — same specificity, so source order is what decides
+     it, and a copy of this in an earlier block was simply never applied.
+
+     All three selectors together, and never .hero-name alone: the <h1> and
+     its copies have to stay the same width or the loop's four units stop
+     being identical. A leftover rule from the old two-line hero sized only
+     .hero-name here and pushed the seam out by 170px. */
+  .hero-name,
+  .hero-name-dup,
+  .hero-name-sep {
+    font-size: clamp(72px, 24vw, 150px);
+    letter-spacing: -0.045em;
+  }
+  .hero-name-sep { padding: 0 clamp(16px, 5vw, 40px); }
   /* The chat bubble is fixed to the bottom-right corner and was sitting on
      top of the Download CV button, which is the one thing a recruiter comes
      here to click. Extra bottom padding lifts the CTA row clear of it; the
