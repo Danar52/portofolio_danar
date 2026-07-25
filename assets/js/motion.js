@@ -179,6 +179,10 @@
      instead of the raw pointer.
   ─────────────────────────────────────────────────────────── */
   let magneticTarget = null;
+  // Kept alongside the point so the target can be invalidated when the element
+  // it was measured from is no longer the one under the pointer. See the
+  // guards below the binder.
+  let magneticEl = null;
   const magneticBound = new WeakSet();
 
   /* Per-element defaults, so the navigation can be tuned without an attribute
@@ -212,14 +216,53 @@
         const x = Math.max(-maxX, Math.min(maxX, rawX));
         const y = Math.max(-maxY, Math.min(maxY, rawY));
         gsap.to(el, { x, y, duration: 0.6, ease: 'power3.out' });
-        magneticTarget = { x: r.left + r.width / 2 + x, y: r.top + r.height / 2 + y };
+        /* Where the cursor ring should sit while this element is pulled.
+           Snapping it to the element's centre only reads as "locked onto the
+           control" while the control is small enough for its centre to be
+           near the pointer. A nav link is a full-width row, and locking there
+           parked the ring in the middle of the panel while the pointer was
+           off at the edge — it stopped following the cursor entirely. Wide
+           elements therefore keep the pointer and take only the same drift
+           the element itself is taking. */
+        const compact = r.width <= 90 && r.height <= 90;
+        magneticTarget = compact
+          ? { x: r.left + r.width / 2 + x, y: r.top + r.height / 2 + y }
+          : { x: e.clientX + x, y: e.clientY + y };
+        magneticEl = el;
       });
 
       el.addEventListener('mouseleave', () => {
         gsap.to(el, { x: 0, y: 0, duration: 0.7, ease: 'elastic.out(1, 0.4)' });
-        magneticTarget = null;
+        if (magneticEl === el) clearMagnetic();
       });
     });
+  }
+
+  function clearMagnetic() {
+    magneticTarget = null;
+    magneticEl = null;
+  }
+
+  /* mouseleave is not a reliable end to the pull. It never fires when the
+     element is removed or re-rendered under a stationary pointer (Supabase
+     repaints whole lists), and it does not fire on scroll at all — yet the
+     target is an absolute viewport point captured at hover time, so the
+     moment the page scrolls it describes a place the element has left. The
+     cursor ring chases that point and gets stranded there, once seen 600px
+     below the fold while the pointer sat mid-page.
+
+     Both guards close that: any pointer movement outside the pulled element
+     drops the target, and so does a scroll. The next mousemove re-establishes
+     it immediately if the pointer really is still over the element. */
+  if (canHover) {
+    document.addEventListener('mousemove', e => {
+      if (!magneticEl) return;
+      if (!magneticEl.isConnected || !magneticEl.contains(e.target)) clearMagnetic();
+    }, { passive: true, capture: true });
+
+    window.addEventListener('scroll', () => {
+      if (magneticEl) clearMagnetic();
+    }, { passive: true });
   }
 
   /* ── BOOT ───────────────────────────────────────────────────

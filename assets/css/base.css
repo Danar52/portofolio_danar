@@ -163,55 +163,43 @@ strong, b { font-weight: 550; }
    to #e3e3e5.
 ─────────────────────────────────────────────────────────────── */
 .cursor-dot {
-  position: fixed; width: 5px; height: 5px;
+  /* Pinned to the viewport origin so the transform site.js writes is read as
+     plain viewport coordinates. Without it a fixed box with no offsets keeps
+     its static position and every translate lands off by that much. */
+  position: fixed; left: 0; top: 0;
+  width: 5px; height: 5px;
   background: #fff; border-radius: 50%;
   mix-blend-mode: difference;
   pointer-events: none; z-index: 99999;
-  transform: translate(-50%, -50%);
-  will-change: left, top;
+  /* Placement is written into transform by site.js, which appends its own
+     translate(-50%,-50%) — nothing here may set transform, or it clobbers
+     the position every frame. */
+  will-change: transform;
   transition: width 0.2s, height 0.2s, opacity 0.3s;
 }
-/* Frosted glass, not blend-mode inversion: backdrop-filter can't be combined
-   reliably with mix-blend-mode across browsers, and this project has already
-   spent real effort chasing silent Safari-only failures. Dark surfaces (nav
-   panel, transition curtain) get an explicit override below instead of an
-   automatic colour-inversion trick. */
+/* A lens rim, not frosted glass. The blur is gone entirely: it had nothing
+   to add over ordinary page background, and over the magnifier it smeared
+   the enlarged text sitting one layer below (99997). What is left is the
+   thing a magnifier actually is — a thin ring of glass with an edge that
+   catches light. */
 .cursor-ring {
-  position: fixed; width: 40px; height: 40px;
-  background: rgba(255,255,255,0.35);
-  /* Blur kept light on purpose: enough to read as glass, not so much the
-     page underneath disappears. saturate/brightness carry most of the
-     "lens" feel instead — a bigger optical distortion at a much cheaper
-     visual cost than pushing blur further. */
-  backdrop-filter: blur(3px) saturate(1.7) brightness(1.08);
-  -webkit-backdrop-filter: blur(3px) saturate(1.7) brightness(1.08);
-  border: 1px solid rgba(28,28,26,0.28);
+  position: fixed; left: 0; top: 0;   /* same reason as .cursor-dot above */
+  width: 40px; height: 40px;
+  background: transparent;
+  border: 1px solid rgba(28,28,26,0.3);
   border-radius: 50%; pointer-events: none; z-index: 99998;
-  will-change: left, top;
+  /* Edge-only, both of them: the outer shadow lifts the glass off the page,
+     the inset hairline is the bevel. Nothing paints across the middle, so
+     whatever is underneath — text, image, the magnified clone — stays as
+     legible as it was without the cursor there. */
+  box-shadow: 0 4px 14px rgba(28,28,26,0.1),
+              inset 0 1px 1.5px rgba(255,255,255,0.6);
+  will-change: transform;
   transition: width 0.25s ease, height 0.25s ease, border-color 0.25s,
-              background-color 0.25s, opacity 0.3s;
-}
-/* No backdrop-filter support: fall back to a plain translucent ring rather
-   than an invisible one (a solid-colour background would look wrong; no
-   background at all reproduces today's outline-only look). */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .cursor-ring { background: transparent; }
-}
-/* Static — not tracked to the cursor's direction of travel or any external
-   light source. A moving highlight would need a second per-frame
-   computation for a detail nobody consciously looks at; a fixed one reads
-   just as convincingly as "a lit curved surface" at this size. */
-.cursor-ring::before {
-  content: '';
-  position: absolute;
-  top: 15%; left: 15%;
-  width: 35%; height: 35%;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.9), rgba(255,255,255,0) 70%);
-  pointer-events: none;
+              box-shadow 0.25s, opacity 0.3s;
 }
 body.cur-hover .cursor-dot  { width: 7px; height: 7px; background: rgba(255,255,255,0.75); }
-body.cur-hover .cursor-ring { width: 60px; height: 60px; border-color: rgba(28,28,26,0.4); }
+body.cur-hover .cursor-ring { width: 60px; height: 60px; border-color: rgba(28,28,26,0.42); }
 body.cur-click .cursor-dot  { width: 3px; height: 3px; }
 body.cur-click .cursor-ring { width: 26px; height: 26px; }
 /* The page is light almost everywhere; these are the two exceptions. Each
@@ -227,33 +215,22 @@ body.cur-click .cursor-ring { width: 26px; height: 26px; }
 html.nav-open .cursor-ring,
 html.pt-arrive .cursor-ring,
 html.pt-in .cursor-ring {
-  background: rgba(255,255,255,0.16);
   border-color: rgba(255,255,255,0.45);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25),
+              inset 0 1px 1.5px rgba(255,255,255,0.28);
 }
-/* Over body copy the ring stops being frosted glass and becomes the rim of a
-   magnifier. The blur has to go: the magnified clone sits one layer below
-   (99997), so blurring the backdrop smeared the very text the lens had just
-   enlarged — the effect read as a dirty smudge rather than a lens.
+/* Magnifying. Only the size and the weight of the rim change now — the ring
+   is already a plain glass edge in every other state.
 
    Last of the .cursor-ring state rules on purpose. cur-hover, cur-click and
    the dark-surface block all tie its specificity, and a link inside a hovered
    paragraph matches two of them at once; source order is what settles it. */
 body.cur-lens .cursor-ring {
   width: 44px; height: 44px;
-  background: transparent;
-  backdrop-filter: none; -webkit-backdrop-filter: none;
-  border-color: rgba(120,120,118,0.45);
-  /* Reads as a physical piece of glass sitting above the page: the outer
-     shadow lifts it off the surface, the inset hairline catches light along
-     the top of the bevel. Both are deliberately edge-only — a soft inset
-     glow spread across the disc washed out the very words being magnified,
-     which is the whole point of the effect. */
-  box-shadow: 0 8px 24px rgba(28,28,26,0.14),
-              inset 0 1px 1.5px rgba(255,255,255,0.7);
+  border-color: rgba(120,120,118,0.5);
+  box-shadow: 0 6px 18px rgba(28,28,26,0.16),
+              inset 0 1px 2px rgba(255,255,255,0.75);
 }
-/* Same reasoning: the highlight blob sits in the middle of the reading area
-   here, where the frosted version had nothing to obscure. */
-body.cur-lens .cursor-ring::before { opacity: 0; }
 /* The dot would sit as a blend-mode speck in the middle of the magnified
    word — the one place on screen you are actually reading. !important
    because site.js writes opacity inline on the pointer entering and leaving

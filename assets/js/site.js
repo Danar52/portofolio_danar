@@ -28,12 +28,26 @@
     // the only thing that draws a replacement for it.
     document.body.classList.add('has-cursor');
 
+    /* Positioned through transform rather than left/top. Writing left/top every
+       frame put both elements through layout on each move; a transform is
+       composited, which is what takes the last of the judder out of the
+       motion. */
     document.addEventListener('mousemove', e => {
       mx = e.clientX; my = e.clientY;
-      dot.style.left = mx + 'px'; dot.style.top = my + 'px';
-    });
+      dot.style.transform = `translate3d(${mx}px, ${my}px, 0) translate(-50%, -50%)`;
+    }, { passive: true });
 
-    (function loop() {
+    let lastT = 0;
+    (function loop(now) {
+      /* Frame-rate independent easing. A flat per-frame factor makes the ring
+         chase at a speed that depends on the display: noticeably laggier on
+         60Hz than on 120Hz, and it stutters whenever a frame runs long.
+         Converting the factor through the real elapsed time keeps the same
+         feel everywhere. */
+      const dt = lastT ? Math.min(now - lastT, 50) : 16.67;
+      lastT = now;
+      const ease = 1 - Math.pow(1 - 0.16, dt / 16.67);
+
       // Chase whatever a magnetic element (motion.js) is currently pulling
       // toward, so the ring and the element read as one motion; fall back
       // to the raw pointer the rest of the time. Optional chaining because
@@ -42,25 +56,28 @@
       const tx = target ? target.x : mx;
       const ty = target ? target.y : my;
       const dx = tx - rx, dy = ty - ry;
-      rx += dx * 0.11;
-      ry += dy * 0.11;
-      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      rx += dx * ease;
+      ry += dy * ease;
+
+      const place = `translate3d(${rx}px, ${ry}px, 0) translate(-50%, -50%)`;
 
       // The velocity stretch has to be off while magnifying: the rim is
       // framing a circular clip, and squashing one without the other leaves
       // the glass visibly out of round against its own contents.
       if (cursorReduced || document.body.classList.contains('cur-lens')) {
-        ring.style.transform = 'translate(-50%,-50%)';
+        ring.style.transform = place;
       } else {
-        // Derived from the same chase-lerp gap already computed above — no
-        // separate spring simulation. Stretch decays to 0 on its own as
-        // rx/ry catch up to mx/my, which is what relaxes the ring back to a
-        // circle without any extra easing code.
+        /* Derived from the same chase-lerp gap already computed above — no
+           separate spring simulation. Stretch decays to 0 on its own as
+           rx/ry catch up to mx/my, which is what relaxes the ring back to a
+           circle without any extra easing code. Squared falloff so slow
+           moves stay perfectly round and only a real flick deforms it. */
         const magnitude = Math.hypot(dx, dy);
-        const stretch = Math.min(magnitude / 60, 1) * 0.35;
+        const t = Math.min(magnitude / 90, 1);
+        const stretch = t * t * 0.3;
         const angle = Math.atan2(dy, dx);
         ring.style.transform =
-          `translate(-50%,-50%) rotate(${angle}rad) scale(${1 + stretch}, ${1 - stretch * 0.6}) rotate(${-angle}rad)`;
+          `${place} rotate(${angle}rad) scale(${1 + stretch}, ${1 - stretch * 0.6}) rotate(${-angle}rad)`;
       }
 
       // Same eased point the ring is drawn at, so the magnified circle sits
@@ -68,7 +85,7 @@
       if (drawLensFn) drawLensFn(rx, ry);
 
       raf = requestAnimationFrame(loop);
-    })();
+    })(performance.now());
 
     function addHover(el) {
       el.addEventListener('mouseenter', () => document.body.classList.add('cur-hover'));
@@ -105,6 +122,42 @@
     let lensR = 0, lensRTarget = 0;
     let lensScale = LENS_SCALE_MIN;
 
+    /* Everything that decides how a run of text is drawn. The clone is
+       reparented to <body>, which breaks every rule selected through an
+       ancestor — `.hero-title .hero-line` stops matching, and a 52px heading
+       came out at the 16px default, so the "magnifier" was rendering smaller
+       text than the page underneath it. Copying the resolved values across
+       makes the clone independent of where it hangs in the tree. */
+    const LENS_STYLE_PROPS = [
+      'font-family', 'font-size', 'font-weight', 'font-style', 'font-stretch',
+      'font-variation-settings', 'font-feature-settings', 'font-kerning',
+      'line-height', 'letter-spacing', 'word-spacing', 'text-transform',
+      'text-align', 'text-indent', 'text-decoration', 'text-shadow',
+      'white-space', 'word-break', 'overflow-wrap', 'color', 'opacity',
+      'direction', 'vertical-align', 'display', 'box-sizing',
+      'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
+      '-webkit-text-fill-color', '-webkit-text-stroke',
+    ];
+
+    function copyTextStyles(src, dest, isRoot) {
+      const s = getComputedStyle(src);
+      let css = '';
+      LENS_STYLE_PROPS.forEach(p => {
+        const v = s.getPropertyValue(p);
+        if (v) css += p + ':' + v + ';';
+      });
+      /* The root carries the explicit width/height taken from the source
+         rect, and those do nothing on an inline box — it would collapse to
+         its content and re-wrap differently from the original. */
+      if (isRoot && s.display === 'inline') css += 'display:inline-block;';
+      dest.style.cssText += css;
+
+      const sk = src.children, dk = dest.children;
+      for (let i = 0; i < sk.length && i < dk.length; i++) {
+        copyTextStyles(sk[i], dk[i], false);
+      }
+    }
+
     function surfaceOf(el) {
       let node = el;
       while (node && node !== document.documentElement) {
@@ -134,12 +187,16 @@
       // order twice, reading the same text to a screen reader again.
       lensClone.querySelectorAll('a, button, input, [tabindex]')
         .forEach(n => n.setAttribute('tabindex', '-1'));
+      copyTextStyles(el, lensClone, true);
       /* Opaque, or the untouched original shows through the disc underneath
          the enlarged copy and the two sets of glyphs sit on top of each
          other. The colour is read off the nearest ancestor that actually
          paints one, so the patch matches whatever surface the text sits on —
-         the page, a card, or the dark panel — rather than assuming --bg. */
-      lensClone.style.background = surfaceOf(el);
+         the page, a card, or the dark panel — rather than assuming --bg.
+
+         backgroundColor, not the background shorthand: the shorthand also
+         resets background-clip, which is what gradient-filled text rides on. */
+      lensClone.style.backgroundColor = surfaceOf(el);
       document.body.appendChild(lensClone);
     }
 
