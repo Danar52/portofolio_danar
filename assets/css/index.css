@@ -21,7 +21,15 @@
      to leave for it — follows from that one number without measuring anything
      in JS. --rule-gap is the breathing space on each side of the figure
      before a rule is allowed to resume. */
-  --portrait-h: 100vh;
+  /* Stops at the header rather than the top of the viewport. .site-header is
+     an opaque bar (background: var(--bg) in base.css), so a figure running to
+     y=0 had the top of its head painted over — it read as a crop, not as
+     depth. Everything else follows from this one value, so the rule gap
+     narrows with it automatically. */
+  /* The extra 12px is clearance for the parallax, which can lift the figure
+     by up to 8px — without it the top of the head slid back under the header
+     on an upward drift and the crop came back intermittently. */
+  --portrait-h: calc(100vh - var(--header-height) - 12px);
   --portrait-w: calc(var(--portrait-h) * 800 / 1298);
   --rule-gap: 28px;
   /* How much of the rule the figure takes out. Kept separate from
@@ -200,14 +208,25 @@
   white-space: nowrap;
   margin: 0;
   user-select: none;
-  /* Separation between repeats, carried as padding on each copy rather than
-     as flex `gap` on the track. Four items produce only three gaps, so a
-     track sized 4·item + 3·gap does not repeat every quarter of its own
-     width — the loop, which shifts by exactly 25%, would slip by a quarter
-     of a gap every cycle and jerk at the seam. As padding it belongs to the
-     item, all four are identical, and a quarter of the track is exactly one
-     of them. */
-  padding-right: clamp(24px, 5vw, 90px);
+}
+
+/* The dash between repeats. There are four of them for four names — one
+   after every copy, including the last — so the track is four identical
+   name+dash units and a quarter of its width is exactly one unit. Putting a
+   separator only *between* the copies would give three for four names, and
+   the loop, which shifts by exactly 25%, would slip a fraction of a unit
+   every cycle and jerk at the seam.
+
+   aria-hidden and outside the <h1>: it is punctuation for the loop, not part
+   of anyone's name. */
+.hero-name-sep {
+  font-family: var(--font-display);
+  font-size: clamp(64px, 16vw, 260px);
+  font-weight: 450;
+  line-height: 0.95;
+  color: var(--text-1);
+  padding: 0 clamp(20px, 4vw, 72px);
+  user-select: none;
 }
 /* Held level with the marquee band even when the animation cannot run: the
    track is what moves, and it is driven from JS rather than a keyframe, so
