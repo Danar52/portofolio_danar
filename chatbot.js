@@ -107,7 +107,10 @@ const STYLES = `
   .cb-tfill{height:100%;border-radius:999px;background:var(--cb-accent);transition:width .4s ease}
   .cb-tfill.warn{background:#b5893a}
   .cb-tfill.danger{background:#c0564f}
-  .cb-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
+  /* overscroll-behavior: once the history hits either end, the browser's own
+     scroll chaining hands the gesture to the page. Containing it keeps a
+     flick inside the panel instead of throwing the page behind it. */
+  .cb-msgs{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:14px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
   .cb-msgs::-webkit-scrollbar{width:4px}
   .cb-msgs::-webkit-scrollbar-thumb{background:var(--cb-border);border-radius:4px}
   .cb-msg{display:flex;gap:8px;align-items:flex-end;animation:cb-in .25s ease forwards}
@@ -264,7 +267,12 @@ class EkaChatbot {
               <span class="cb-tlbl" id="cb-tlbl">0 / ${MAX_HISTORY} pesan</span>
               <div class="cb-ttrack"><div class="cb-tfill" id="cb-tfill" style="width:0%"></div></div>
             </div>
-            <div class="cb-msgs" id="cb-msgs"></div>
+            <!-- data-lenis-prevent: Lenis intercepts wheel events on the
+                 document and drives the page from them, so a nested scroller
+                 never sees its own wheel — scrolling the chat history moved
+                 the page behind it instead. This attribute is how Lenis is
+                 told to leave a subtree alone. -->
+            <div class="cb-msgs" id="cb-msgs" data-lenis-prevent></div>
             <div class="cb-sugg" id="cb-sugg"></div>
             <div class="cb-iarea">
               <textarea id="cb-inp" placeholder="Tanya apa aja tentang Danar..." rows="1" maxlength="${MAX_INPUT_CHAR}"></textarea>
