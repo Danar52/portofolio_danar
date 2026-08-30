@@ -25,11 +25,14 @@
       </div>
     </div>
     <nav class="sidebar-nav">
+      <p class="nav-section-label">Overview</p>
+      <button class="sidebar-link active" data-page="analytics"><i class="fas fa-chart-line"></i> Analytics</button>
+
       <p class="nav-section-label">Profil</p>
       <button class="sidebar-link" data-page="profile"><i class="fas fa-user"></i> Edit Profil</button>
 
       <p class="nav-section-label">Konten</p>
-      <button class="sidebar-link active" data-page="skills"><i class="fas fa-code"></i> Skills</button>
+      <button class="sidebar-link" data-page="skills"><i class="fas fa-code"></i> Skills</button>
       <button class="sidebar-link" data-page="portfolio"><i class="fas fa-folder-open"></i> Portfolio</button>
       <button class="sidebar-link" data-page="experience"><i class="fas fa-briefcase"></i> Experience</button>
       <button class="sidebar-link" data-page="events"><i class="fas fa-calendar"></i> Event / Org</button>
@@ -56,8 +59,9 @@
       </div>
     </header>
     <div class="content">
+      <div class="page active" id="page-analytics"><div id="analyticsContent"><div class="loading"><i class="fas fa-spinner fa-spin"></i></div></div></div>
       <div class="page" id="page-profile"><div id="profileContent"><div class="loading"><i class="fas fa-spinner fa-spin"></i></div></div></div>
-      <div class="page active" id="page-skills"><div id="skillsContent"><div class="loading"><i class="fas fa-spinner fa-spin"></i></div></div></div>
+      <div class="page" id="page-skills"><div id="skillsContent"><div class="loading"><i class="fas fa-spinner fa-spin"></i></div></div></div>
       <div class="page" id="page-portfolio"><div id="portfolioContent"><div class="loading"><i class="fas fa-spinner fa-spin"></i></div></div></div>
       <div class="page" id="page-experience"><div id="expContent"><div class="loading"><i class="fas fa-spinner fa-spin"></i></div></div></div>
       <div class="page" id="page-events"><div id="eventsContent"><div class="loading"><i class="fas fa-spinner fa-spin"></i></div></div></div>
@@ -101,6 +105,7 @@
   <!-- CDN FIRST, then app scripts -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
   <script src="./assets/js/admin.js?v=bf99d896"></script>
 </body>
 </html>
