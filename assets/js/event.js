@@ -1,4 +1,6 @@
 import { supabase } from '../../supabase.js?v=a77a873f';
+import { trackVisit } from './analytics-track.js';
+trackVisit();
 
     const typeLabel = { org: 'Organisasi', event: 'Event', comp: 'Kompetisi' };
     const typeBadge = { org: 'badge-org',  event: 'badge-event', comp: 'badge-comp' };

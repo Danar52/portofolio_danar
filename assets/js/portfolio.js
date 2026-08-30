@@ -1,4 +1,6 @@
 import { supabase } from '../../supabase.js?v=a77a873f';
+import { trackVisit } from './analytics-track.js';
+trackVisit();
 
     const TYPE_CONFIG = {
       web:   { label: 'Web Dev', icon: 'fas fa-code',      cls: 'badge-web'   },

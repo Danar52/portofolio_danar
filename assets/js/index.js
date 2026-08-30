@@ -1,4 +1,6 @@
 import { supabase } from '../../supabase.js?v=a77a873f';
+import { trackVisit } from './analytics-track.js';
+trackVisit();
 
 /* ── SELECTED WORK ────────────────────────────────────────── */
 const workList     = document.getElementById('workList');

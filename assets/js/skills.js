@@ -1,4 +1,6 @@
 import { supabase } from '../../supabase.js?v=a77a873f';
+import { trackVisit } from './analytics-track.js';
+trackVisit();
 
     async function loadSkills() {
       const wrapper = document.getElementById('skillsWrapper');
