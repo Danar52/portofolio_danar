@@ -335,24 +335,25 @@ window.addEventListener('scroll', () => {
       const typeLabel = Object.fromEntries(PORTFOLIO_TYPES.map(t=>[t.val,t.label]));
       const typeBadgeCls = { web:'badge-web', design:'badge-design', ui:'badge-ui', branding:'badge-branding', motion:'badge-motion', other:'badge-other' };
 
-      el.innerHTML = data.length ? `<div class="table-wrap"><table>
-        <thead><tr><th>Preview</th><th>Judul</th><th>Tipe</th><th>Tahun</th><th>Status</th><th style="width:110px">Aksi</th></tr></thead>
-        <tbody>${data.map(p=>`<tr>
-          <td>${p.thumbnail_url
-            ? `<img class="tbl-img" src="${p.thumbnail_url}" alt="${p.title}">`
-            : `<div class="tbl-img-placeholder"><i class="fas fa-image"></i></div>`}</td>
-          <td style="font-weight:600;color:var(--heading);max-width:200px">
-            <p style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.title}</p>
-            ${p.is_featured?'<span style="font-family:var(--font-nav);font-size:10px;color:#b5590a;font-weight:700">★ Featured</span>':''}
-          </td>
-          <td><span class="badge ${typeBadgeCls[p.type]||'badge-other'}">${typeLabel[p.type]||p.type}</span></td>
-          <td style="font-size:12px;opacity:.7">${p.year||'—'}</td>
-          <td><span class="badge ${p.is_published?'badge-aktif':'badge-selesai'}">${p.is_published?'Published':'Draft'}</span></td>
-          <td><div class="td-actions">
+      el.innerHTML = data.length ? `<div class="list-wrap">${data.map(p=>`
+        <div class="list-row">
+          <div class="list-thumb">${p.thumbnail_url
+            ? `<img src="${p.thumbnail_url}" alt="">`
+            : `<i class="fas fa-image"></i>`}</div>
+          <div class="list-main">
+            <p class="list-title">${escapeHtml(p.title)}${p.is_featured?' <span style="color:#b5590a;font-size:11px;font-weight:600">★ Featured</span>':''}</p>
+            <p class="list-sub">${escapeHtml(typeLabel[p.type]||p.type)}</p>
+          </div>
+          <div class="list-meta">
+            <span>${escapeHtml(p.year||'—')}</span>
+            <span class="badge ${p.is_published?'badge-aktif':'badge-selesai'}">${p.is_published?'Published':'Draft'}</span>
+          </div>
+          <div class="list-actions">
             <button class="btn btn-outline btn-sm" onclick="openPortfolioForm(${JSON.stringify(p).replace(/"/g,'&quot;')})"><i class="fas fa-pen"></i></button>
             <button class="btn btn-danger btn-sm" onclick="deletePortfolio(${p.id},'${p.title.replace(/'/g,'\\\'').replace(/"/g,'&quot;')}')"><i class="fas fa-trash"></i></button>
-          </div></td></tr>`).join('')}
-        </tbody></table></div>`
+          </div>
+        </div>`).join('')}
+        </div>`
         : '<div class="empty-state"><i class="fas fa-briefcase-clock"></i><p>Belum ada portfolio.</p></div>';
     }
 
@@ -735,17 +736,20 @@ window.addEventListener('scroll', () => {
       let html = '';
       for (const [cat, items] of Object.entries(groups)) {
         html += `<div style="margin-bottom:28px">
-          <h3 style="font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--text-1);margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)">${cat} <span style="font-weight:400;color:var(--text-3);font-size:11px">(${items.length})</span></h3>
-          <div class="table-wrap"><table>
-            <thead><tr><th>Skill</th><th style="width:90px">Urutan</th><th style="width:100px">Aksi</th></tr></thead>
-            <tbody>${items.map(s=>`<tr>
-              <td style="font-weight:500;color:var(--text-1)">${s.skill_name}</td>
-              <td style="color:var(--text-3)">${s.sort_order ?? 0}</td>
-              <td><div class="td-actions">
+          <h3 class="list-group-title">${escapeHtml(cat)} <span>(${items.length})</span></h3>
+          <div class="list-wrap">${items.map(s=>`
+            <div class="list-row">
+              <div class="list-thumb"><i class="fas fa-code"></i></div>
+              <div class="list-main">
+                <p class="list-title">${escapeHtml(s.skill_name)}</p>
+                <p class="list-sub">Urutan #${s.sort_order ?? 0}</p>
+              </div>
+              <div class="list-actions">
                 <button class="btn btn-outline btn-sm" onclick="openSkillForm(${JSON.stringify(s).replace(/"/g,'&quot;')})"><i class="fas fa-pen"></i></button>
                 <button class="btn btn-danger btn-sm" onclick="deleteSkill(${s.id},'${s.skill_name}')"><i class="fas fa-trash"></i></button>
-              </div></td></tr>`).join('')}
-            </tbody></table></div></div>`;
+              </div>
+            </div>`).join('')}
+          </div></div>`;
       }
       el.innerHTML = html || '<div class="empty-state"><i class="fas fa-list-check"></i><p>Belum ada skill.</p></div>';
     }
