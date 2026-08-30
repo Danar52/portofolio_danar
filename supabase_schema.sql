@@ -228,3 +228,31 @@ CREATE POLICY "Auth upload images"
 CREATE POLICY "Auth delete images"
   ON storage.objects FOR DELETE
   USING (bucket_id = 'portfolio-images' AND auth.role() = 'authenticated');
+
+
+-- ── 8. PAGE VISITS (visitor analytics) ──────────────────────
+-- No PII: no IP, no user-agent, no cookie/session id.
+CREATE TABLE page_visits (
+  id          BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  page        TEXT NOT NULL CHECK (page IN (
+                'index','profil','experience','skills','certification',
+                'portfolio','portfolio-detail','event','contact'
+              )),
+  path        TEXT NOT NULL,
+  referrer    TEXT,
+  visited_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+ALTER TABLE page_visits ENABLE ROW LEVEL SECURITY;
+
+-- Public pages write their own visit row; nothing else.
+CREATE POLICY "Public insert page_visits" ON page_visits
+  FOR INSERT
+  TO anon
+  WITH CHECK (true);
+
+-- Only the logged-in admin can read visit data.
+CREATE POLICY "Auth read page_visits" ON page_visits
+  FOR SELECT
+  TO authenticated
+  USING (true);
