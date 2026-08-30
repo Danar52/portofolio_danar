@@ -192,17 +192,18 @@ window.addEventListener('scroll', () => {
       const el = document.getElementById('analyticsContent');
       el.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i></div>';
 
-      const { count: totalAll, error: countError } = await db
-        .from('page_visits')
-        .select('*', { count: 'exact', head: true });
-
       const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-      const { data, error } = await db
-        .from('page_visits')
-        .select('page, referrer, visited_at')
-        .gte('visited_at', since)
-        .order('visited_at', { ascending: false })
-        .limit(5000);
+      const [
+        { count: totalAll, error: countError },
+        { data, error },
+      ] = await Promise.all([
+        db.from('page_visits').select('*', { count: 'exact', head: true }),
+        db.from('page_visits')
+          .select('page, referrer, visited_at')
+          .gte('visited_at', since)
+          .order('visited_at', { ascending: false })
+          .limit(5000),
+      ]);
 
       if (countError || error) {
         const msg = countError?.message || error?.message;
