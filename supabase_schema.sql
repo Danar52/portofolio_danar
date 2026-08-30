@@ -264,3 +264,10 @@ CREATE POLICY "Auth read page_visits" ON page_visits
 ALTER TABLE page_visits
   ADD CONSTRAINT page_visits_path_len CHECK (length(path) <= 200),
   ADD CONSTRAINT page_visits_referrer_len CHECK (referrer IS NULL OR length(referrer) <= 500);
+
+
+-- ── 9. MESSAGES — add read-state (2026-08-30) ───────────────
+-- `messages` itself predates this schema file (created via a manual
+-- migration before this file tracked it). This column is the only
+-- change; run it once against the live table.
+ALTER TABLE messages ADD COLUMN is_read BOOLEAN NOT NULL DEFAULT false;
