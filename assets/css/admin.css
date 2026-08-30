@@ -572,59 +572,47 @@ tr:hover td { background: var(--bg-surface); }
 .pct-num { font-size: 11px; font-weight: 450; color: var(--text-1); min-width: 32px; }
 
 /* ═══════════════════════════════════════════════════════════════
-   STAT CARDS
+   EDITORIAL STAT ROW (Analytics)
 ═══════════════════════════════════════════════════════════════ */
-.stat-card-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+.ed-stat-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  padding-bottom: 24px;
   margin-bottom: 24px;
+  border-bottom: 1px solid var(--border);
 }
 
-.stat-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 18px 20px;
-  box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
-}
-.stat-card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-  border-color: var(--border-mid);
-}
+.ed-stat { flex: 1; min-width: 130px; }
 
-.stat-card i {
-  width: 38px;
-  height: 38px;
-  border-radius: 8px;
-  background: var(--accent-lt);
-  color: var(--text-1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  flex-shrink: 0;
-}
-
-.stat-num {
+.ed-stat-num {
   font-family: var(--font-display);
-  font-size: 23px;
+  font-size: 52px;
   font-weight: 450;
+  letter-spacing: -2px;
   color: var(--text-1);
-  letter-spacing: -0.3px;
-  line-height: 1.2;
+  line-height: 1;
 }
-.stat-label {
-  font-size: 10px;
-  color: var(--text-3);
+.ed-stat-num.ed-stat-num-sm { font-size: 22px; letter-spacing: -0.5px; }
+
+.ed-stat-label {
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-top: 3px;
+  letter-spacing: 1.5px;
+  color: var(--text-3);
+  margin-top: 10px;
+}
+
+.ed-stat-delta { font-size: 12px; margin-top: 4px; }
+.ed-stat-delta.up   { color: var(--success); }
+.ed-stat-delta.down { color: var(--error); }
+
+@media (max-width: 900px) {
+  .ed-stat-row { gap: 24px; }
+  .ed-stat-num { font-size: 38px; letter-spacing: -1px; }
+}
+@media (max-width: 560px) {
+  .ed-stat { flex: 1 1 45%; }
 }
 
 .analytics-cols {
@@ -634,11 +622,7 @@ tr:hover td { background: var(--bg-surface); }
 }
 
 @media (max-width: 900px) {
-  .stat-card-row { grid-template-columns: repeat(2, 1fr); }
   .analytics-cols { grid-template-columns: 1fr; }
-}
-@media (max-width: 560px) {
-  .stat-card-row { grid-template-columns: 1fr; }
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -652,6 +636,90 @@ tr:hover td { background: var(--bg-surface); }
 .loading i { font-size: 22px; }
 
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ═══════════════════════════════════════════════════════════════
+   EDITORIAL LIST ROW (Skills / Portfolio / Experience / Events /
+   Certifications) — replaces <table> rendering on those pages.
+═══════════════════════════════════════════════════════════════ */
+.list-wrap {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.list-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+.list-row:last-child { border-bottom: none; }
+.list-row:hover { background: var(--bg-surface); }
+
+.list-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: var(--bg-elevated);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: var(--text-3);
+  overflow: hidden;
+}
+.list-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.list-main { flex: 1; min-width: 0; }
+.list-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.list-sub { font-size: 12px; color: var(--text-3); margin-top: 3px; }
+
+.list-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--text-3);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.list-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+@media (hover: hover) {
+  .list-actions { opacity: 0; transition: opacity 0.15s; }
+  .list-row:hover .list-actions { opacity: 1; }
+}
+
+.list-group-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-1);
+  padding-bottom: 10px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.list-group-title span { font-weight: 400; color: var(--text-3); font-size: 11px; }
+
+@media (max-width: 560px) {
+  .list-row { flex-wrap: wrap; padding: 14px 16px; }
+  .list-meta { width: 100%; order: 3; margin-top: 4px; }
+}
 
 /* ═══════════════════════════════════════════════════════════════
    TAGS INPUT
