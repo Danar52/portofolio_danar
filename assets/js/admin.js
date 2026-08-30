@@ -36,6 +36,19 @@ function closeSidebar() {
 if (hamburgerBtn) hamburgerBtn.addEventListener('click', openSidebar);
 if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
 
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// `.content` never sets overflow, and `#adminMain`/`body` never constrain height either
+// (see assets/css/admin.css: body is a plain flex row, #adminMain/.content just use
+// min-height/flex:1 with no overflow-y), so the page scrolls at the document level, not
+// inside `.content`. Listen on window/document scroll instead of `.content`.
+const topbarEl = document.querySelector('.topbar');
+window.addEventListener('scroll', () => {
+  topbarEl.classList.toggle('scrolled', (window.scrollY || document.documentElement.scrollTop) > 4);
+});
+
     function showToast(msg, type='success') {
       const t = document.getElementById('toast');
       t.className = type;
@@ -128,6 +141,7 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
 
     // ══ NAVIGATION ══
     const pageMap = {
+      analytics:      { title:'Visitor <span>Analytics</span>',     load:loadAnalytics,      hasAdd:false },
       profile:        { title:'Edit <span>Profil</span>',           load:loadProfile,        hasAdd:false },
       skills:         { title:'Manage <span>Skills</span>',         load:loadSkills,         hasAdd:true  },
       portfolio:      { title:'Manage <span>Portfolio</span>',      load:loadPortfolio,      hasAdd:true  },
@@ -136,7 +150,7 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
       certifications: { title:'Manage <span>Certification</span>',  load:loadCertifications, hasAdd:true  },
       messages:       { title:'Pesan <span>Masuk</span>',           load:loadMessages,       hasAdd:false },
     };
-    let currentPage = 'skills';
+    let currentPage = 'analytics';
 
     document.querySelectorAll('.sidebar-link[data-page]').forEach(link => {
       link.addEventListener('click', () => {
@@ -165,6 +179,107 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
       {val:'motion',   label:'Motion'},
       {val:'other',    label:'Lainnya'},
     ];
+
+    async function loadAnalytics() {
+      const el = document.getElementById('analyticsContent');
+      el.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i></div>';
+
+      const { data, error } = await db.from('page_visits').select('page, path, referrer, visited_at');
+      if (error) {
+        el.innerHTML = `<div class="empty-state"><i class="fas fa-triangle-exclamation"></i><p>Gagal memuat data: ${escapeHtml(error.message)}</p></div>`;
+        return;
+      }
+      if (!data || !data.length) {
+        el.innerHTML = '<div class="empty-state"><i class="fas fa-chart-line"></i><p>Belum ada data kunjungan.</p></div>';
+        return;
+      }
+
+      const now = new Date();
+      const todayStr = now.toISOString().slice(0, 10);
+      const weekAgo = new Date(now);
+      weekAgo.setDate(weekAgo.getDate() - 6);
+
+      const byDay = {};
+      const byPage = {};
+      const byRef = {};
+      let totalToday = 0, totalWeek = 0;
+
+      data.forEach(row => {
+        const d = new Date(row.visited_at);
+        const dayStr = d.toISOString().slice(0, 10);
+        byDay[dayStr] = (byDay[dayStr] || 0) + 1;
+        byPage[row.page] = (byPage[row.page] || 0) + 1;
+        if (dayStr === todayStr) totalToday++;
+        if (d >= weekAgo) totalWeek++;
+
+        let bucket = 'Direct';
+        if (row.referrer) {
+          try {
+            const host = new URL(row.referrer).hostname.replace(/^www\./, '');
+            if (host && host !== location.hostname) bucket = host;
+          } catch (_) { /* malformed referrer — treat as Direct */ }
+        }
+        byRef[bucket] = (byRef[bucket] || 0) + 1;
+      });
+
+      const totalAll = data.length;
+      const topRefEntry = Object.entries(byRef).sort((a, b) => b[1] - a[1])[0];
+      const topRef = topRefEntry ? topRefEntry[0] : '—';
+
+      const days = [];
+      for (let i = 29; i >= 0; i--) {
+        const dt = new Date(now);
+        dt.setDate(dt.getDate() - i);
+        days.push(dt.toISOString().slice(0, 10));
+      }
+      const series = days.map(d => byDay[d] || 0);
+
+      const topPages = Object.entries(byPage).sort((a, b) => b[1] - a[1]);
+      const maxPageCount = topPages.length ? topPages[0][1] : 1;
+      const topRefs = Object.entries(byRef).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+      el.innerHTML = `
+        <div class="stat-card-row">
+          <div class="stat-card"><i class="fas fa-eye"></i><div><p class="stat-num">${totalAll}</p><p class="stat-label">Total Visits</p></div></div>
+          <div class="stat-card"><i class="fas fa-calendar-day"></i><div><p class="stat-num">${totalToday}</p><p class="stat-label">Visits Hari Ini</p></div></div>
+          <div class="stat-card"><i class="fas fa-calendar-week"></i><div><p class="stat-num">${totalWeek}</p><p class="stat-label">Visits Minggu Ini</p></div></div>
+          <div class="stat-card"><i class="fas fa-link"></i><div><p class="stat-num" style="font-size:16px">${escapeHtml(topRef)}</p><p class="stat-label">Top Referrer</p></div></div>
+        </div>
+        <div class="table-wrap" style="padding:20px;margin-bottom:24px">
+          <canvas id="visitsChart" height="90"></canvas>
+        </div>
+        <div class="analytics-cols">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Halaman</th><th>Visits</th></tr></thead>
+              <tbody>${topPages.map(([page, count]) => `
+                <tr><td>${escapeHtml(page)}</td><td><div class="pct-wrap"><div class="pct-bar"><div class="pct-fill" style="width:${Math.round(count / maxPageCount * 100)}%"></div></div><span class="pct-num">${count}</span></div></td></tr>
+              `).join('')}</tbody>
+            </table>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Sumber</th><th>Visits</th></tr></thead>
+              <tbody>${topRefs.map(([ref, count]) => `<tr><td>${escapeHtml(ref)}</td><td>${count}</td></tr>`).join('')}</tbody>
+            </table>
+          </div>
+        </div>
+      `;
+
+      if (window._visitsChartInstance) window._visitsChartInstance.destroy();
+      window._visitsChartInstance = new Chart(document.getElementById('visitsChart'), {
+        type: 'bar',
+        data: {
+          labels: days.map(d => d.slice(5)),
+          datasets: [{ label: 'Visits', data: series, backgroundColor: '#1c1c1a', borderRadius: 4 }],
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+        },
+      });
+    }
 
     async function loadPortfolio() {
       const el = document.getElementById('portfolioContent');
@@ -841,4 +956,4 @@ if (sidebarOverlay) sidebarOverlay.addEventListener('click', closeSidebar);
       window.location.href = 'admin-login.html';
     });
 
-    loadSkills();
+    loadAnalytics();
