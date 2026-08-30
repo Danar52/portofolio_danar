@@ -986,23 +986,77 @@ window.addEventListener('scroll', () => {
       return String(str ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
     }
 
+    let messagesData = [];
+    let selectedMessageId = null;
+
     async function loadMessages() {
       const el = document.getElementById('messagesContent');
       el.innerHTML = '<div class="loading"><i class="fas fa-circle-notch"></i></div>';
       const { data, error } = await db.from('messages').select('*').order('created_at', { ascending: false });
       if (error || !data) { el.innerHTML = '<p style="color:red;padding:20px">Gagal load data.</p>'; return; }
-      el.innerHTML = data.length ? `<div class="table-wrap"><table>
-        <thead><tr><th>Nama</th><th>Email</th><th>Subjek</th><th>Pesan</th><th>Tanggal</th><th style="width:60px">Aksi</th></tr></thead>
-        <tbody>${data.map(m => `<tr>
-          <td style="font-weight:600;color:var(--heading)">${escapeHtml(m.name)}</td>
-          <td style="font-size:12px">${escapeHtml(m.email)}</td>
-          <td style="font-size:12px">${escapeHtml(m.subject) || '-'}</td>
-          <td style="font-size:12px;max-width:280px;white-space:pre-wrap">${escapeHtml(m.message)}</td>
-          <td style="font-size:12px;opacity:.7">${new Date(m.created_at).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' })}</td>
-          <td><div class="td-actions">
-            <button class="btn btn-danger btn-sm" onclick="deleteMessage('${m.id}','${m.name.replace(/'/g,'\\\'')}')"><i class="fas fa-trash"></i></button>
-          </div></td></tr>`).join('')}
-        </tbody></table></div>` : '<div class="empty-state"><i class="fas fa-envelope-open"></i><p>Belum ada pesan masuk.</p></div>';
+      messagesData = data;
+      if (!data.length) {
+        el.innerHTML = '<div class="empty-state"><i class="fas fa-envelope-open"></i><p>Belum ada pesan masuk.</p></div>';
+        return;
+      }
+      selectedMessageId = data[0].id;
+      el.innerHTML = `<div class="inbox-wrap" id="inboxWrap">
+        <div class="inbox-list" id="inboxList"></div>
+        <div class="inbox-detail" id="inboxDetail"></div>
+      </div>`;
+      renderInboxList();
+      renderInboxDetail();
+    }
+
+    function fmtMsgDate(iso) {
+      return new Date(iso).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+    }
+
+    function renderInboxList() {
+      const listEl = document.getElementById('inboxList');
+      listEl.innerHTML = messagesData.map(m => `
+        <div class="inbox-item ${m.id===selectedMessageId?'active':''} ${m.is_read?'read':''}" onclick="selectMessage('${m.id}')">
+          <div class="inbox-name">
+            <span class="inbox-name-text">${escapeHtml(m.name)}</span>
+            ${m.is_read?'':'<span class="inbox-dot"></span>'}
+          </div>
+          <p class="inbox-preview">${escapeHtml(m.subject || m.message)}</p>
+          <p class="inbox-date">${fmtMsgDate(m.created_at)}</p>
+        </div>`).join('');
+    }
+
+    function renderInboxDetail() {
+      const detailEl = document.getElementById('inboxDetail');
+      const m = messagesData.find(x => x.id === selectedMessageId);
+      if (!m) { detailEl.innerHTML = ''; return; }
+      const mailSubject = encodeURIComponent(`Re: ${m.subject || 'Pesan dari portfolio'}`);
+      detailEl.innerHTML = `
+        <button class="inbox-back-btn" onclick="closeInboxDetail()"><i class="fas fa-arrow-left"></i> Kembali ke daftar</button>
+        <h3 class="inbox-detail-title">${escapeHtml(m.name)}</h3>
+        <p class="inbox-detail-meta">${escapeHtml(m.email)} · ${fmtMsgDate(m.created_at)}${m.subject?` · ${escapeHtml(m.subject)}`:''}</p>
+        <p class="inbox-detail-body">${escapeHtml(m.message)}</p>
+        <div class="inbox-detail-actions">
+          <a class="btn btn-primary" href="mailto:${encodeURIComponent(m.email)}?subject=${mailSubject}"><i class="fas fa-reply"></i> Balas via Email</a>
+          <button class="btn btn-outline" onclick="deleteMessage('${m.id}','${m.name.replace(/'/g,'\\\'')}')"><i class="fas fa-trash"></i> Hapus</button>
+        </div>`;
+    }
+
+    async function selectMessage(id) {
+      selectedMessageId = id;
+      document.getElementById('inboxWrap').classList.add('show-detail');
+      renderInboxList();
+      renderInboxDetail();
+      const m = messagesData.find(x => x.id === id);
+      if (m && !m.is_read) {
+        m.is_read = true;
+        renderInboxList();
+        const { error } = await db.from('messages').update({ is_read: true }).eq('id', id);
+        if (error) console.error('Gagal menandai pesan dibaca:', error.message);
+      }
+    }
+
+    function closeInboxDetail() {
+      document.getElementById('inboxWrap').classList.remove('show-detail');
     }
 
     async function deleteMessage(id, name) {
