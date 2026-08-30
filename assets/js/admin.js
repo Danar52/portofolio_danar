@@ -152,6 +152,12 @@ window.addEventListener('scroll', () => {
     };
     let currentPage = 'analytics';
 
+    function syncTopbar(page) {
+      document.getElementById('topbarTitle').innerHTML = pageMap[page].title;
+      document.getElementById('btnAddNew').style.display = pageMap[page].hasAdd ? '' : 'none';
+      document.getElementById('btnSaveProfile').style.display = page === 'profile' ? '' : 'none';
+    }
+
     document.querySelectorAll('.sidebar-link[data-page]').forEach(link => {
       link.addEventListener('click', () => {
         currentPage = link.dataset.page;
@@ -159,9 +165,7 @@ window.addEventListener('scroll', () => {
         link.classList.add('active');
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         document.getElementById(`page-${currentPage}`).classList.add('active');
-        document.getElementById('topbarTitle').innerHTML = pageMap[currentPage].title;
-        document.getElementById('btnAddNew').style.display      = pageMap[currentPage].hasAdd ? '' : 'none';
-        document.getElementById('btnSaveProfile').style.display = currentPage==='profile' ? '' : 'none';
+        syncTopbar(currentPage);
         closeSidebar();
         pageMap[currentPage].load();
       });
@@ -180,33 +184,50 @@ window.addEventListener('scroll', () => {
       {val:'other',    label:'Lainnya'},
     ];
 
+    function localDayKey(d) {
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
     async function loadAnalytics() {
       const el = document.getElementById('analyticsContent');
       el.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i></div>';
 
-      const { data, error } = await db.from('page_visits').select('page, path, referrer, visited_at');
-      if (error) {
-        el.innerHTML = `<div class="empty-state"><i class="fas fa-triangle-exclamation"></i><p>Gagal memuat data: ${escapeHtml(error.message)}</p></div>`;
+      const { count: totalAll, error: countError } = await db
+        .from('page_visits')
+        .select('*', { count: 'exact', head: true });
+
+      const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const { data, error } = await db
+        .from('page_visits')
+        .select('page, referrer, visited_at')
+        .gte('visited_at', since)
+        .order('visited_at', { ascending: false })
+        .limit(5000);
+
+      if (countError || error) {
+        const msg = countError?.message || error?.message;
+        el.innerHTML = `<div class="empty-state"><i class="fas fa-triangle-exclamation"></i><p>Gagal memuat data: ${escapeHtml(msg)}</p></div>`;
         return;
       }
-      if (!data || !data.length) {
+      if (!totalAll) {
         el.innerHTML = '<div class="empty-state"><i class="fas fa-chart-line"></i><p>Belum ada data kunjungan.</p></div>';
         return;
       }
 
       const now = new Date();
-      const todayStr = now.toISOString().slice(0, 10);
+      const todayStr = localDayKey(now);
       const weekAgo = new Date(now);
       weekAgo.setDate(weekAgo.getDate() - 6);
+      weekAgo.setHours(0, 0, 0, 0);
 
       const byDay = {};
       const byPage = {};
       const byRef = {};
       let totalToday = 0, totalWeek = 0;
 
-      data.forEach(row => {
+      (data || []).forEach(row => {
         const d = new Date(row.visited_at);
-        const dayStr = d.toISOString().slice(0, 10);
+        const dayStr = localDayKey(d);
         byDay[dayStr] = (byDay[dayStr] || 0) + 1;
         byPage[row.page] = (byPage[row.page] || 0) + 1;
         if (dayStr === todayStr) totalToday++;
@@ -222,7 +243,6 @@ window.addEventListener('scroll', () => {
         byRef[bucket] = (byRef[bucket] || 0) + 1;
       });
 
-      const totalAll = data.length;
       const topRefEntry = Object.entries(byRef).sort((a, b) => b[1] - a[1])[0];
       const topRef = topRefEntry ? topRefEntry[0] : '—';
 
@@ -230,7 +250,7 @@ window.addEventListener('scroll', () => {
       for (let i = 29; i >= 0; i--) {
         const dt = new Date(now);
         dt.setDate(dt.getDate() - i);
-        days.push(dt.toISOString().slice(0, 10));
+        days.push(localDayKey(dt));
       }
       const series = days.map(d => byDay[d] || 0);
 
@@ -240,7 +260,7 @@ window.addEventListener('scroll', () => {
 
       el.innerHTML = `
         <div class="stat-card-row">
-          <div class="stat-card"><i class="fas fa-eye"></i><div><p class="stat-num">${totalAll}</p><p class="stat-label">Total Visits</p></div></div>
+          <div class="stat-card"><i class="fas fa-eye"></i><div><p class="stat-num">${totalAll ?? 0}</p><p class="stat-label">Total Visits</p></div></div>
           <div class="stat-card"><i class="fas fa-calendar-day"></i><div><p class="stat-num">${totalToday}</p><p class="stat-label">Visits Hari Ini</p></div></div>
           <div class="stat-card"><i class="fas fa-calendar-week"></i><div><p class="stat-num">${totalWeek}</p><p class="stat-label">Visits Minggu Ini</p></div></div>
           <div class="stat-card"><i class="fas fa-link"></i><div><p class="stat-num" style="font-size:16px">${escapeHtml(topRef)}</p><p class="stat-label">Top Referrer</p></div></div>
@@ -956,4 +976,5 @@ window.addEventListener('scroll', () => {
       window.location.href = 'admin-login.html';
     });
 
+    syncTopbar(currentPage);
     loadAnalytics();

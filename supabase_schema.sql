@@ -238,8 +238,8 @@ CREATE TABLE page_visits (
                 'index','profil','experience','skills','certification',
                 'portfolio','portfolio-detail','event','contact'
               )),
-  path        TEXT NOT NULL,
-  referrer    TEXT,
+  path        TEXT NOT NULL CHECK (length(path) <= 200),
+  referrer    TEXT CHECK (referrer IS NULL OR length(referrer) <= 500),
   visited_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -256,3 +256,11 @@ CREATE POLICY "Auth read page_visits" ON page_visits
   FOR SELECT
   TO authenticated
   USING (true);
+
+-- ── 8a. PAGE VISITS — retrofit length caps (2026-08-30) ─────
+-- Run this once against the already-live page_visits table (created before
+-- these caps existed). A fresh deploy gets the caps from the CREATE TABLE
+-- above and does not need this block.
+ALTER TABLE page_visits
+  ADD CONSTRAINT page_visits_path_len CHECK (length(path) <= 200),
+  ADD CONSTRAINT page_visits_referrer_len CHECK (referrer IS NULL OR length(referrer) <= 500);
