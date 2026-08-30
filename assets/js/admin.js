@@ -1006,6 +1006,14 @@ window.addEventListener('scroll', () => {
       </div>`;
       renderInboxList();
       renderInboxDetail();
+
+      const firstMsg = data[0];
+      if (!firstMsg.is_read) {
+        firstMsg.is_read = true;
+        renderInboxList();
+        const { error: readError } = await db.from('messages').update({ is_read: true }).eq('id', firstMsg.id);
+        if (readError) console.error('Gagal menandai pesan dibaca:', readError.message);
+      }
     }
 
     function fmtMsgDate(iso) {
