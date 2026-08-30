@@ -796,17 +796,23 @@ window.addEventListener('scroll', () => {
       el.innerHTML = '<div class="loading"><i class="fas fa-circle-notch"></i></div>';
       const {data,error} = await db.from('experience').select('*').order('sort_order');
       if (error||!data) { el.innerHTML='<p style="color:red;padding:20px">Gagal load data.</p>'; return; }
-      el.innerHTML = data.length ? `<div class="table-wrap"><table>
-        <thead><tr><th>Jabatan</th><th>Perusahaan</th><th>Periode</th><th>Status</th><th style="width:100px">Aksi</th></tr></thead>
-        <tbody>${data.map(e=>`<tr>
-          <td style="font-weight:600;color:var(--heading)">${e.job_title}</td><td>${e.company}</td>
-          <td style="font-size:12px;opacity:.7">${e.period_start} — ${e.period_end||'Sekarang'}</td>
-          <td><span class="badge ${e.is_active?'badge-aktif':'badge-selesai'}">${e.is_active?'Aktif':'Selesai'}</span></td>
-          <td><div class="td-actions">
+      el.innerHTML = data.length ? `<div class="list-wrap">${data.map(e=>`
+        <div class="list-row">
+          <div class="list-thumb"><i class="fas fa-briefcase"></i></div>
+          <div class="list-main">
+            <p class="list-title">${escapeHtml(e.job_title)}</p>
+            <p class="list-sub">${escapeHtml(e.company)}</p>
+          </div>
+          <div class="list-meta">
+            <span>${escapeHtml(e.period_start)} — ${escapeHtml(e.period_end||'Sekarang')}</span>
+            <span class="badge ${e.is_active?'badge-aktif':'badge-selesai'}">${e.is_active?'Aktif':'Selesai'}</span>
+          </div>
+          <div class="list-actions">
             <button class="btn btn-outline btn-sm" onclick="openExpForm(${JSON.stringify(e).replace(/"/g,'&quot;')})"><i class="fas fa-pen"></i></button>
             <button class="btn btn-danger btn-sm" onclick="deleteExp(${e.id},'${e.job_title.replace(/'/g,'\\\'')}')" ><i class="fas fa-trash"></i></button>
-          </div></td></tr>`).join('')}
-        </tbody></table></div>` : '<div class="empty-state"><i class="fas fa-briefcase"></i><p>Belum ada experience.</p></div>';
+          </div>
+        </div>`).join('')}
+        </div>` : '<div class="empty-state"><i class="fas fa-briefcase"></i><p>Belum ada experience.</p></div>';
     }
     async function openExpForm(data=null) {
       const isEdit=!!data?.id, tagsArr=data?.tags||[];
@@ -862,19 +868,23 @@ window.addEventListener('scroll', () => {
       if(error||!data){el.innerHTML='<p style="color:red;padding:20px">Gagal load data.</p>';return;}
       const typeBadge={org:'badge-org',event:'badge-event',comp:'badge-comp'};
       const typeLabel={org:'Organisasi',event:'Event',comp:'Kompetisi'};
-      el.innerHTML=data.length?`<div class="table-wrap"><table>
-        <thead><tr><th>Foto</th><th>Nama Kegiatan</th><th>Tipe</th><th>Peran</th><th>Periode</th><th style="width:100px">Aksi</th></tr></thead>
-        <tbody>${data.map(e=>`<tr>
-          <td>${e.image_url?`<img class="tbl-img" src="${e.image_url}" alt="${e.name}">`:`<div class="tbl-img-placeholder"><i class="fas fa-image"></i></div>`}</td>
-          <td style="font-weight:600;color:var(--heading)">${e.name}</td>
-          <td><span class="badge ${typeBadge[e.type]}">${typeLabel[e.type]}</span></td>
-          <td style="font-size:12px">${e.role||'-'}</td>
-          <td style="font-size:12px;opacity:.7">${e.period||'-'}</td>
-          <td><div class="td-actions">
+      el.innerHTML=data.length?`<div class="list-wrap">${data.map(e=>`
+        <div class="list-row">
+          <div class="list-thumb">${e.image_url?`<img src="${e.image_url}" alt="">`:`<i class="fas fa-image"></i>`}</div>
+          <div class="list-main">
+            <p class="list-title">${escapeHtml(e.name)}</p>
+            <p class="list-sub">${escapeHtml(e.role||'-')}</p>
+          </div>
+          <div class="list-meta">
+            <span>${escapeHtml(e.period||'-')}</span>
+            <span class="badge ${typeBadge[e.type]}">${escapeHtml(typeLabel[e.type])}</span>
+          </div>
+          <div class="list-actions">
             <button class="btn btn-outline btn-sm" onclick="openEventForm(${JSON.stringify(e).replace(/"/g,'&quot;')})"><i class="fas fa-pen"></i></button>
             <button class="btn btn-danger btn-sm" onclick="deleteEvent(${e.id},'${e.name.replace(/'/g,'\\\'')}')" ><i class="fas fa-trash"></i></button>
-          </div></td></tr>`).join('')}
-        </tbody></table></div>`:'<div class="empty-state"><i class="fas fa-calendar-days"></i><p>Belum ada event.</p></div>';
+          </div>
+        </div>`).join('')}
+        </div>`:'<div class="empty-state"><i class="fas fa-calendar-days"></i><p>Belum ada event.</p></div>';
     }
     async function openEventForm(data=null){
       const isEdit=!!data?.id;
@@ -915,19 +925,23 @@ window.addEventListener('scroll', () => {
       el.innerHTML='<div class="loading"><i class="fas fa-circle-notch"></i></div>';
       const{data,error}=await db.from('certifications').select('*').order('sort_order');
       if(error||!data){el.innerHTML='<p style="color:red;padding:20px">Gagal load data.</p>';return;}
-      el.innerHTML=data.length?`<div class="table-wrap"><table>
-        <thead><tr><th>Preview</th><th>Nama Sertifikat</th><th>Issuer</th><th>Tanggal</th><th>Link</th><th style="width:100px">Aksi</th></tr></thead>
-        <tbody>${data.map(c=>`<tr>
-          <td>${renderTablePreview(c)}</td>
-          <td style="font-weight:600;color:var(--heading)">${c.cert_name}</td>
-          <td style="font-size:12px"><i class="${c.issuer_icon||'fas fa-building'}" style="color:var(--accent);margin-right:6px"></i>${c.issuer}</td>
-          <td style="font-size:12px;opacity:.7">${c.issued_date||'-'}</td>
-          <td>${c.cert_url?`<a href="${c.cert_url}" target="_blank" style="color:var(--accent);font-size:12px"><i class="fas fa-external-link-alt"></i> Lihat</a>`:'<span style="opacity:.3;font-size:12px">—</span>'}</td>
-          <td><div class="td-actions">
+      el.innerHTML=data.length?`<div class="list-wrap">${data.map(c=>`
+        <div class="list-row">
+          <div class="list-thumb">${renderTablePreview(c)}</div>
+          <div class="list-main">
+            <p class="list-title">${escapeHtml(c.cert_name)}</p>
+            <p class="list-sub"><i class="${c.issuer_icon||'fas fa-building'}" style="margin-right:5px"></i>${escapeHtml(c.issuer)}</p>
+          </div>
+          <div class="list-meta">
+            <span>${escapeHtml(c.issued_date||'-')}</span>
+            ${c.cert_url?`<a href="${c.cert_url}" target="_blank" style="color:var(--text-1)"><i class="fas fa-external-link-alt"></i></a>`:''}
+          </div>
+          <div class="list-actions">
             <button class="btn btn-outline btn-sm" onclick="openCertForm(${JSON.stringify(c).replace(/"/g,'&quot;')})"><i class="fas fa-pen"></i></button>
             <button class="btn btn-danger btn-sm" onclick="deleteCert(${c.id},'${c.cert_name.replace(/'/g,'\\\'')}')" ><i class="fas fa-trash"></i></button>
-          </div></td></tr>`).join('')}
-        </tbody></table></div>`:'<div class="empty-state"><i class="fas fa-award"></i><p>Belum ada sertifikasi.</p></div>';
+          </div>
+        </div>`).join('')}
+        </div>`:'<div class="empty-state"><i class="fas fa-award"></i><p>Belum ada sertifikasi.</p></div>';
     }
     async function openCertForm(data=null){
       const isEdit=!!data?.id;
