@@ -244,6 +244,30 @@ window.addEventListener('scroll', () => {
         byRef[bucket] = (byRef[bucket] || 0) + 1;
       });
 
+      const yesterdayStr = localDayKey(new Date(now.getTime() - 24 * 60 * 60 * 1000));
+      const totalYesterday = byDay[yesterdayStr] || 0;
+      const todayDelta = totalYesterday > 0
+        ? Math.round((totalToday - totalYesterday) / totalYesterday * 100)
+        : null;
+
+      const prevWeekStart = new Date(weekAgo);
+      prevWeekStart.setDate(prevWeekStart.getDate() - 7);
+      let totalPrevWeek = 0;
+      (data || []).forEach(row => {
+        const d = new Date(row.visited_at);
+        if (d >= prevWeekStart && d < weekAgo) totalPrevWeek++;
+      });
+      const weekDelta = totalPrevWeek > 0
+        ? Math.round((totalWeek - totalPrevWeek) / totalPrevWeek * 100)
+        : null;
+
+      function deltaHtml(delta) {
+        if (delta === null) return '';
+        const cls = delta >= 0 ? 'up' : 'down';
+        const arrow = delta >= 0 ? '▲' : '▼';
+        return `<p class="ed-stat-delta ${cls}">${arrow} ${Math.abs(delta)}% vs periode lalu</p>`;
+      }
+
       const topRefEntry = Object.entries(byRef).sort((a, b) => b[1] - a[1])[0];
       const topRef = topRefEntry ? topRefEntry[0] : '—';
 
@@ -260,11 +284,11 @@ window.addEventListener('scroll', () => {
       const topRefs = Object.entries(byRef).sort((a, b) => b[1] - a[1]).slice(0, 5);
 
       el.innerHTML = `
-        <div class="stat-card-row">
-          <div class="stat-card"><i class="fas fa-eye"></i><div><p class="stat-num">${totalAll ?? 0}</p><p class="stat-label">Total Visits</p></div></div>
-          <div class="stat-card"><i class="fas fa-calendar-day"></i><div><p class="stat-num">${totalToday}</p><p class="stat-label">Visits Hari Ini</p></div></div>
-          <div class="stat-card"><i class="fas fa-calendar-week"></i><div><p class="stat-num">${totalWeek}</p><p class="stat-label">Visits Minggu Ini</p></div></div>
-          <div class="stat-card"><i class="fas fa-link"></i><div><p class="stat-num" style="font-size:16px">${escapeHtml(topRef)}</p><p class="stat-label">Top Referrer</p></div></div>
+        <div class="ed-stat-row">
+          <div class="ed-stat"><p class="ed-stat-num">${totalAll ?? 0}</p><p class="ed-stat-label">Total Visits</p></div>
+          <div class="ed-stat"><p class="ed-stat-num">${totalToday}</p><p class="ed-stat-label">Visits Hari Ini</p>${deltaHtml(todayDelta)}</div>
+          <div class="ed-stat"><p class="ed-stat-num">${totalWeek}</p><p class="ed-stat-label">Visits Minggu Ini</p>${deltaHtml(weekDelta)}</div>
+          <div class="ed-stat"><p class="ed-stat-num ed-stat-num-sm">${escapeHtml(topRef)}</p><p class="ed-stat-label">Top Referrer</p></div>
         </div>
         <div class="table-wrap" style="padding:20px;margin-bottom:24px">
           <canvas id="visitsChart" height="90"></canvas>
