@@ -338,7 +338,7 @@ window.addEventListener('scroll', () => {
       el.innerHTML = data.length ? `<div class="list-wrap">${data.map(p=>`
         <div class="list-row">
           <div class="list-thumb">${p.thumbnail_url
-            ? `<img src="${p.thumbnail_url}" alt="">`
+            ? `<img src="${escapeHtml(p.thumbnail_url)}" alt="">`
             : `<i class="fas fa-image"></i>`}</div>
           <div class="list-main">
             <p class="list-title">${escapeHtml(p.title)}${p.is_featured?' <span style="color:#b5590a;font-size:11px;font-weight:600">★ Featured</span>':''}</p>
@@ -870,7 +870,7 @@ window.addEventListener('scroll', () => {
       const typeLabel={org:'Organisasi',event:'Event',comp:'Kompetisi'};
       el.innerHTML=data.length?`<div class="list-wrap">${data.map(e=>`
         <div class="list-row">
-          <div class="list-thumb">${e.image_url?`<img src="${e.image_url}" alt="">`:`<i class="fas fa-image"></i>`}</div>
+          <div class="list-thumb">${e.image_url?`<img src="${escapeHtml(e.image_url)}" alt="">`:`<i class="fas fa-image"></i>`}</div>
           <div class="list-main">
             <p class="list-title">${escapeHtml(e.name)}</p>
             <p class="list-sub">${escapeHtml(e.role||'-')}</p>
@@ -930,11 +930,11 @@ window.addEventListener('scroll', () => {
           <div class="list-thumb">${renderTablePreview(c)}</div>
           <div class="list-main">
             <p class="list-title">${escapeHtml(c.cert_name)}</p>
-            <p class="list-sub"><i class="${c.issuer_icon||'fas fa-building'}" style="margin-right:5px"></i>${escapeHtml(c.issuer)}</p>
+            <p class="list-sub"><i class="${escapeHtml(c.issuer_icon||'fas fa-building')}" style="margin-right:5px"></i>${escapeHtml(c.issuer)}</p>
           </div>
           <div class="list-meta">
             <span>${escapeHtml(c.issued_date||'-')}</span>
-            ${c.cert_url?`<a href="${c.cert_url}" target="_blank" style="color:var(--text-1)"><i class="fas fa-external-link-alt"></i></a>`:''}
+            ${c.cert_url?`<a href="${escapeHtml(c.cert_url)}" target="_blank" style="color:var(--text-1)"><i class="fas fa-external-link-alt"></i></a>`:''}
           </div>
           <div class="list-actions">
             <button class="btn btn-outline btn-sm" onclick="openCertForm(${JSON.stringify(c).replace(/"/g,'&quot;')})"><i class="fas fa-pen"></i></button>
@@ -1045,7 +1045,7 @@ window.addEventListener('scroll', () => {
         <p class="inbox-detail-body">${escapeHtml(m.message)}</p>
         <div class="inbox-detail-actions">
           <a class="btn btn-primary" href="mailto:${encodeURIComponent(m.email)}?subject=${mailSubject}"><i class="fas fa-reply"></i> Balas via Email</a>
-          <button class="btn btn-outline" onclick="deleteMessage('${m.id}','${m.name.replace(/'/g,'\\\'')}')"><i class="fas fa-trash"></i> Hapus</button>
+          <button class="btn btn-outline" onclick="deleteMessage('${m.id}')"><i class="fas fa-trash"></i> Hapus</button>
         </div>`;
     }
 
@@ -1067,7 +1067,8 @@ window.addEventListener('scroll', () => {
       document.getElementById('inboxWrap').classList.remove('show-detail');
     }
 
-    async function deleteMessage(id, name) {
+    async function deleteMessage(id) {
+      const name = messagesData.find(x => x.id === id)?.name ?? '';
       confirmDelete(`Hapus pesan dari "${name}"?`, async () => {
         const { error } = await db.from('messages').delete().eq('id', id);
         if (error) { showToast('Gagal hapus', 'error'); return; }

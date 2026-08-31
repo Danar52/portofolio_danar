@@ -488,7 +488,6 @@ td {
 }
 tr:last-child td { border-bottom: none; }
 tr:hover td { background: var(--bg-surface); }
-.td-actions { display: flex; gap: 6px; align-items: center; }
 
 /* Table images */
 .tbl-img {
@@ -593,7 +592,7 @@ tr:hover td { background: var(--bg-surface); }
   color: var(--text-1);
   line-height: 1;
 }
-.ed-stat-num.ed-stat-num-sm { font-size: 22px; letter-spacing: -0.5px; }
+.ed-stat-num.ed-stat-num-sm { font-size: 22px; letter-spacing: -0.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .ed-stat-label {
   font-size: 11px;

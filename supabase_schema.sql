@@ -271,3 +271,9 @@ ALTER TABLE page_visits
 -- migration before this file tracked it). This column is the only
 -- change; run it once against the live table.
 ALTER TABLE messages ADD COLUMN is_read BOOLEAN NOT NULL DEFAULT false;
+
+CREATE POLICY "Auth update messages" ON messages
+  FOR UPDATE
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
