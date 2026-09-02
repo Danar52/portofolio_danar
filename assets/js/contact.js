@@ -25,9 +25,13 @@ async function loadContactInfo() {
 
 loadContactInfo();
 
+/* text is always a literal defined below, never DB-sourced — safe to build
+   as markup so the message can carry its own icon. */
 function setFormMsg(text, type) {
   const el = document.getElementById('contactFormMsg');
-  el.textContent = text;
+  if (!text) { el.className = 'contact-form-msg'; el.innerHTML = ''; return; }
+  const icon = type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
+  el.innerHTML = `<i class="fas ${icon}"></i><span>${text}</span>`;
   el.className = `contact-form-msg ${type}`;
 }
 
@@ -76,5 +80,14 @@ form.addEventListener('submit', async (e) => {
 
   form.reset();
   fitMessage();          // reset() empties it but leaves the grown height
-  setFormMsg('Pesan terkirim! Gw bakal balas secepatnya 🙌', 'success');
+  setFormMsg('Pesan terkirim. Gw bakal balas secepatnya.', 'success');
+
+  // Brief on-button confirmation, then back to normal — the message line
+  // alone was easy to miss right under a button that had already reverted.
+  btn.innerHTML = '<i class="fas fa-check"></i> Terkirim';
+  btn.classList.add('sent');
+  setTimeout(() => {
+    btn.textContent = 'Kirim Pesan';
+    btn.classList.remove('sent');
+  }, 2200);
 });

@@ -80,6 +80,11 @@
   --text-2:       #6e6e6c;
   --text-3:       #a8a8a6;
 
+  /* Status — same muted tones as the admin dashboard, not a saturated
+     green/red dropped in from outside the grey-studio palette. */
+  --success:      #3d9e6e;
+  --error:        #b5453f;
+
   /* Accent — dark on light bg */
   --accent:       #1c1c1a;
   --accent-bg:    rgba(28,28,26,0.06);

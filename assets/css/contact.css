@@ -157,14 +157,49 @@
 .contact-submit-btn:hover { opacity: 0.8; }
 .contact-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* Brief on-brand confirmation right on the button itself, before the
+   form-msg line even renders — the two together read as one response
+   instead of a click that only quietly changes some text below. */
+.contact-submit-btn.sent {
+  background: var(--success);
+  opacity: 1;
+}
+
 .contact-form-msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-family: var(--font-body);
   font-size: 12.5px;
   min-height: 16px;
   margin: 0;
 }
-.contact-form-msg.success { color: #2f9e44; }
-.contact-form-msg.error   { color: #e03131; }
+.contact-form-msg.success,
+.contact-form-msg.error {
+  margin-top: 10px;
+  animation: contactMsgIn 0.4s var(--ease);
+}
+.contact-form-msg.success { color: var(--success); }
+.contact-form-msg.error   { color: var(--error); }
+.contact-form-msg i {
+  font-size: 13px;
+  animation: contactMsgIconPop 0.4s var(--ease) 0.05s backwards;
+}
+
+@keyframes contactMsgIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes contactMsgIconPop {
+  0%   { transform: scale(0.5); opacity: 0; }
+  60%  { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .contact-form-msg.success,
+  .contact-form-msg.error,
+  .contact-form-msg i { animation: none; }
+}
 
 @media (max-width: 768px) {
   .contact-wrap { grid-template-columns: 1fr; padding: 36px 20px 56px; gap: 36px; }
